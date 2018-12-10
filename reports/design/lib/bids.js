@@ -455,7 +455,7 @@ function emit_deleted_lotValues(tender, actual_bids, results) {
                     var id = old_lot.id;
                     (tender_copy.bids || []).forEach(function (old_bid) {
                         if (check_bid(actual_bids, old_bid)) {
-                            gold_bid.lotValues || []).forEach(function (lotValue) {
+                            (gold_bid.lotValues || []).forEach(function (lotValue) {
                                 if (lotValue.relatedLot === old_lot.id) {
                                     if (get_info_about_cancelled_lot(tender, tender_copy, old_bid, old_lot)) {
                                         var actual_lot = find_actual_lot(tender, old_lot.id)[0];
