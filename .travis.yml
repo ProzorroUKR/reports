@@ -10,9 +10,14 @@ env:
   matrix:
     - SANDBOX_MODE=
     - SANDBOX_MODE=True
+cache:
+  directories:
+  - eggs
+before_install:
+  - sh bootstrap.sh
 install:
-  - pip install -r tests_requirements.txt
+  - bin/buildout -N
   - npm install
 script:
   - npm run test
-  - python -m nose
+  - bin/nosetests -v

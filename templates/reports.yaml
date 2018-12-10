@@ -68,14 +68,17 @@ loggers:
     propagate: False
     handlers:
     - stream_handler
+    {% if journal %}
     - journal
+    {% endif %}
   BILLING:
     level: INFO
     propagate: False
     handlers:
     - stream_handler
+    {% if journal %}
     - journal
-
+    {% endif %}
 
 handlers:
   stream_handler: 
@@ -85,8 +88,10 @@ handlers:
     maxBytes: 1048576
     backupCount: 10
     level: INFO
+  {% if journal %}
   journal:
     class: ExtendedJournalHandler.ExtendedJournalHandler
     formatter: simpleFormater
     level: INFO
-    SYSLOG_IDENTIFIER: API_BILLING 
+    SYSLOG_IDENTIFIER: API_BILLING
+  {% endif %}
