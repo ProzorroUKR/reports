@@ -1,0 +1,23 @@
+language:
+  - python
+python:
+  - "2.7"
+services:
+  - couchdb
+env:
+  global:
+    - TZ=Europe/Kiev
+  matrix:
+    - SANDBOX_MODE=
+    - SANDBOX_MODE=True
+cache:
+  directories:
+  - eggs
+before_install:
+  - sh bootstrap.sh
+install:
+  - bin/buildout -N
+  - npm install
+script:
+  - npm run test
+  - bin/nosetests -v
