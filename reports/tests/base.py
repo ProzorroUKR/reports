@@ -7,17 +7,26 @@ from reports.utilities import bids, invoices, tenders, refunds
 from copy import copy
 from reports.tests.utils import (
     get_mock_parser,
-    test_data
+    test_data,
+    test_config
 )
-from reports.helpers import get_arguments_parser, read_config
+from reports.helpers import get_arguments_parser, read_config, create_db_url
+from reports.utilities.init import couchdb_connection
 
 
 class BaseUtilityTest(unittest.TestCase):
 
     def setUp(self):
-        self.server = couchdb.Server('http://admin:admin@127.0.0.1:5984')
+        config = read_config(test_config)
+        couchdb_connection(config)
+        self.server = couchdb.Server(create_db_url(
+            config.get('db').get('host'),
+            config.get('db').get('port'),
+            config.get('admin').get('username'),
+            config.get('admin').get('password')
+        ))
+        self.db_name = config.get('db').get('name')
         self.test_data = test_data
-        self.db_name = 'reports-test'
         if self.db_name not in self.server:
             self.server.create(self.db_name)
 
