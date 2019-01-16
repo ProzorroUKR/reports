@@ -38,6 +38,7 @@ class MockCurrencyResponce(object):
      "rate":2,"cc":"USD","exchangedate":"16.05.2016"}]
     '''
 
+
 test_config = os.path.join(os.path.dirname(__file__), 'tests.yaml')
 
 

@@ -101,7 +101,8 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
             }],
             "awards": [{
                 "bid_id": "bid_id",
-                "status": "active"
+                "status": "active",
+                "date": "2017-12-15T00:01:50+02:00"
             }]
         }
         self.assertLen(1, data)
@@ -134,7 +135,8 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
             }],
             "awards": [{
                 "bid_id": "bid_id",
-                "status": "active"
+                "status": "active",
+                "date": "2017-12-15T00:01:50+02:00"
             }]
         }
 
@@ -184,7 +186,8 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
             }],
             "awards": [{
                 "bid_id": "bid_id",
-                "status": "active"
+                "status": "active",
+                "date": "2017-12-15T00:01:50Z"
             }]
         }
         self.assertLen(1, data)
@@ -216,7 +219,8 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
             "awards": [{
                 "bid_id": "bid_id",
                 "status": "active",
-                "lotID": "lot_id"
+                "lotID": "lot_id",
+                "date": "2017-12-01T00:00:00Z"
             }],
             "bids": [{
                 "id": "bid_id",
@@ -273,7 +277,8 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
             }],
             "awards": [{
                 "bid_id": "bid_id",
-                "status": "active"
+                "status": "active",
+                "date": "2017-12-15T00:01:50Z"
             }]
         }
         self.assertLen(1, data)

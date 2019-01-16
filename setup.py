@@ -15,14 +15,15 @@ REQUIRES = [
     'arrow',
     'boto3',
     'Jinja2',
-    'systemd-python',
     'PyYaml',
-    'ExtendedJournalHandler==1.0.0',
     'repoze.lru',
     'hvac',
     'retrying'
 ]
-EXTRA = REQUIRES + ['python-swiftclient', 'python-keystoneclient']
+EXTRA = REQUIRES + [
+    'python-swiftclient',
+    'python-keystoneclient'
+]
 TEST_REQUIRES = REQUIRES + [
     'mock'
 ]
