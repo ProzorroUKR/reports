@@ -1,0 +1,28 @@
+replication_0:
+  sources:
+   - url: http://op_reader:op_reader_password@10.2.54.111:5984/openprocurement
+  target: http://user:user@couchdb:5984/tenders
+  admin: http://admin:admin@couchdb:5984
+
+version: 1
+
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+
+loggers:
+  replichecker:
+    handlers: [console]
+    propagate: no
+    level: INFO
+
+  "":
+    handlers: [console]
+    level: INFO

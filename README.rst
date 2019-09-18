@@ -13,6 +13,25 @@ Use following commands to build :
 
 ``bin/buildout -N``
 
+Running with docker-compose
+----------------------------
+
+``docker-compose up``
+
+wait vault is ready, then run the following (u can update the setting in this file before):
+
+``./vault-config.sh``
+
+
+To generate reports go to the containers shell:
+
+``docker-compose exec reports bash``
+
+There U can run all the commands, ex.:
+
+``generate -c etc/reports.yaml  --notify=y``
+
+
 Usage
 ------
 

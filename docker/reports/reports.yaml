@@ -1,0 +1,100 @@
+db:
+  host: couchdb
+  port: 5984
+  name: tenders
+
+admin:
+  username: admin
+  password: admin
+
+user:
+  username: user
+  password: user
+
+vault:
+  address: http://vault:1234
+  token: myroot
+
+payments:
+  thresholds: [20000, 50000, 200000, 1000000]
+  grids: [2016,2017]
+
+proxy_address: 
+
+storage:
+  type: memory
+
+memory:
+  passwords_prefix: secret/billing/storage
+  help: 'curl -X PUT http://0.0.0.0:1234/v1/secret/billing/storage -H "Content-Type: application/json" -H "X-Vault-Token: myroot" -d {"user": "", "password": ""}'
+  help_help: "Wrap -d arguments with single quotes in the request above"
+
+swift:
+  hey_you: this section isn't working at the moment as i can't connect to swift from inside the container
+  here: is the host http://id-swift-np.dc.prozorro.gov.ua/v3
+  so: for now I'm using memory type storage
+  passwords_prefix: secret/billing/storage
+  bucket: billing.test-container
+  expire: 120900
+  url_prefix: https://billing-sandbox.prozorro.gov.ua
+
+
+2016:
+  cdb: [7, 50, 150, 250, 700]
+  emall: [5, 20, 50, 75, 350]
+
+2017:
+  cdb: [5, 25, 80, 110, 400]
+  emall: [3, 15, 40, 60, 300]
+
+out:
+  out_dir: /app/data
+
+api:
+  host: https://lb-api-sandbox.prozorro.gov.ua
+  version:  2.5
+
+email:
+  smtp_server: smtp.gmail.com
+  smtp_port: 587
+  verified_email: aleksey.stryukov@raccoongang.com
+  use_auth: True
+  password_prefix: secret/billing/smtp
+
+
+brokers_emails:
+  test.quintagroup.com:
+    - aleksey.stryukov@raccoongang.com
+  all:
+    - aleksey.stryukov@raccoongang.com
+
+
+brokers_keys:
+  passwords_prefix: secret/billing/passwords
+
+version: 1
+disable_existing_loggers: false
+formatters:
+  simpleFormater:
+    format: "[%(asctime)s] - [%(levelname)s] %(name)-8s -- %(message)s"
+
+loggers:
+  "":
+    level: WARN
+    propagate: False
+    handlers:
+    - stream_handler
+    
+  BILLING:
+    level: INFO
+    propagate: False
+    handlers:
+    - stream_handler
+    
+
+handlers:
+  stream_handler: 
+    class: logging.StreamHandler
+    formatter: simpleFormater
+    level: INFO
+  

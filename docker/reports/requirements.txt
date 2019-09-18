@@ -1,0 +1,2 @@
+python-swiftclient==3.4.0
+python-keystoneclient==3.14.0

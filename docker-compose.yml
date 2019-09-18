@@ -1,0 +1,43 @@
+version: '3'
+services:
+
+  vault:
+    hostname: vault
+    image: "vault:0.9.6"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: myroot
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:1234"
+    ports:
+      - "1234:1234"
+
+
+  reports:
+    entrypoint: /app/entrypoint.sh
+    build:
+      context: .
+      dockerfile: ./docker/reports/Dockerfile
+    volumes:
+      - "./data/reports:/app/data:delegated"
+      - "./docker/reports/reports.yaml:/app/etc/reports.yaml:delegated"
+      - "./reports:/app/reports:delegated"
+    depends_on:
+      - vault
+      - couchdb
+
+  penstock:
+    build:
+      context: ./docker/penstock
+      dockerfile: Dockerfile
+    depends_on:
+      - couchdb
+
+  couchdb:
+    hostname: couchdb
+    image: "couchdb:1.6"
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: admin
+    ports:
+      - "5984:5984"
+    volumes:
+      - "./data/couchdb:/usr/local/var/lib/couchdb:delegated"

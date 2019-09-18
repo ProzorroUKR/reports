@@ -15,6 +15,7 @@ def compress(files, basedir, name, password):
     LOGGER.info("Creating archive {}".format(zipname))
     pyminizip.compress_multiple(
         [os.path.join(basedir, file) for file in files],
+        [],
         os.path.join(basedir, name),
         password,
         4
