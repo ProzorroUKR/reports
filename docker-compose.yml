@@ -20,6 +20,9 @@ services:
       - "./data/reports:/app/data:delegated"
       - "./docker/reports/reports.yaml:/app/etc/reports.yaml:delegated"
       - "./reports:/app/reports:delegated"
+      - "./setup.py:/app/setup.py:delegated"
+    ports:
+      - "8000:8000"
     depends_on:
       - vault
       - couchdb

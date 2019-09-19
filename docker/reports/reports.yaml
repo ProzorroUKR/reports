@@ -11,6 +11,10 @@ user:
   username: user
   password: user
 
+interface:
+  port: 8000
+  serve_path: /data/
+
 vault:
   address: http://vault:1234
   token: myroot
