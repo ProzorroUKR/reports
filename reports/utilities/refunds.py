@@ -1,8 +1,7 @@
 from logging.config import dictConfig 
-from reports.core import BaseUtility, NEW_ALG_DATE
+from reports.core import BaseUtility, NEW_ALG_DATE, CHANGE_2019_DATE
 from reports.helpers import (
     thresholds_headers,
-    value_currency_normalize,
     get_arguments_parser,
     Kind,
     read_config
@@ -12,44 +11,42 @@ from reports.helpers import (
 class RefundsUtility(BaseUtility):
 
     view = 'report/tenders_owner_date'
+    number_of_ranges = 6
+    number_of_counters = 4
 
-    def __init__(
-            self, broker, period, config,
-            timezone="Europe/Kiev",
-            kind=None
-            ):
+    def __init__(self, broker, period, config, timezone="Europe/Kiev", kind=None):
         super(RefundsUtility, self).__init__(
             broker, period, config, operation="refunds", timezone=timezone)
         self.headers = thresholds_headers(self.config.thresholds)
-        self.counter = [0 for _ in range(0, 5)]
-        self.counter_before = [0 for _ in range(0, 5)]
-        self.new_counter = [0 for _ in range(0, 5)]
         if kind is None:
-            self.kinds = ['general', 'special', 'defense', 'other', '_kind']
-        else:
-            self.kinds = kind
+            kind = ['general', 'special', 'defense', 'other', '_kind']
+        self.kinds = kind
+
+    def get_counter_line(self, record):
+        """
+        a more obvious code for len(list(filter(lambda d: start_date >= d, dates)))
+        """
+        start_date = record.get('startdate', '')
+        line = 0
+        if start_date >= self.threshold_date:
+            line = 1
+            if start_date >= NEW_ALG_DATE:
+                line = 2
+                if start_date >= CHANGE_2019_DATE:
+                    line = 3
+        return line
 
     def row(self, record):
-        tender = record.get('tender', '')
-        initial_date = record.get('startdate', '')
-        version = 2 if initial_date > NEW_ALG_DATE else 1
-
-        if record.get('kind') not in self.kinds and version == 1:
-            self.Logger.info('Scip tender {} by kind'.format(tender))
+        if record.get('kind') not in self.kinds and record.get('startdate', '') < NEW_ALG_DATE:
+            self.Logger.info('Skip tender {} by kind'.format(record.get('tender', '')))
             return
 
         value, rate = self.convert_value(record)
+        payment_year = self.get_payment_year(record)
+        payment = self.get_payment(value, payment_year)
+        p = self.config.payments(payment_year)
+        c = self.counters[self.get_counter_line(record)]
 
-        before = initial_date < self.threshold_date
-        payment = self.get_payment(value, 2016 if before else 2017)
-        if before:
-            p = self.config.payments(2016)
-            c = self.counter_before
-        else:
-            p = self.config.payments(2017)
-            c = self.counter
-        if version == 2:
-            c = self.new_counter
         for i, x in enumerate(p):
             if payment == x:
                 msg = 'Refunds: refund {} for tender {} '\
@@ -57,25 +54,29 @@ class RefundsUtility(BaseUtility):
                 self.Logger.info(msg)
                 c[i] += 1
 
-    def rows(self):
-        for resp in self.response:
-            self.row(resp['value'])
-
+    @staticmethod
+    def refunds_block(header, payments, counters):
         for row in [
-            ['before_2017'],
-            self.config.payments(2016),
-            self.counter_before,
-            [c * v for c, v in zip(self.counter_before, self.config.payments(2016))],
-            ["after 2017-01-01"],
-            self.config.payments(2017),
-            self.counter,
-            [c * v for c, v in zip(self.counter, self.config.payments(2017))],
-            ['after {}'.format(NEW_ALG_DATE)],
-            self.config.payments(2017),
-            self.new_counter,
-            [c * v for c, v in zip(self.new_counter, self.config.payments(2017))],
+            [header],
+            payments,
+            counters,
+            [c * v for c, v in zip(counters, payments)]
         ]:
             yield row
+
+    def rows(self):
+        for resp in self.response:  # prepare counters
+            self.row(resp['value'])
+
+        block_args = (
+            ('before 2017', self.config.payments(2016), self.counters[0]),
+            (self.version_headers[0], self.config.payments(2017), self.counters[1]),
+            (self.version_headers[1], self.config.payments(2017), self.counters[2]),
+            (self.version_headers[2], self.config.payments(2019), self.counters[3]),
+        )
+        for args in block_args:
+            for row in self.refunds_block(*args):
+                yield row
 
 
 def run():

@@ -3,6 +3,7 @@ from copy import copy
 from couchdb import ServerError
 from reports.tests.base import BaseBidsUtilityTest
 from reports.helpers import prepare_result_file_name
+import csv
 
 test_bids_invalid = [
     [{
@@ -305,13 +306,28 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
 
 class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
-    def test_bids_utility_output(self):
+    def test_before_2019_1m(self):
         data = {
+            "value": {
+                "currency": "UAH",
+                "amount": 1000000,
+                "valueAddedTaxIncluded": False
+            },
             "awardPeriod": {
                 "startDate": test_award_period,
             },
             'owner': 'test',
-            'bids': test_bids_valid[0],
+            "bids": [{
+                "id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00",
+                "owner": "test"
+            }],
+            "awards": [{
+                "bid_id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00"
+            }]
         }
         doc = copy(self.test_data)
         doc.update(data)
@@ -319,8 +335,190 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
         self.utility.run()
         with open(prepare_result_file_name(self.utility), 'rb') as file:
-            self.assertEqual(file.read(),
-                             ','.join(self.utility.headers) + '\r\nafter_2017-01-01\r\n')
+            file_data = list(csv.reader(file.readlines()))
+
+        self.assertEqual(
+            file_data,
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+                ['after 2017-08-16'],
+                ['tender_id', 'UA-2017-11-30', '', '1000000', 'UAH', 'bid_1', '-', '110.0', '1'],
+                ['tender_id', 'UA-2017-11-30', '', '1000000', 'UAH', 'bid_1', '-', '110.0', '4'],
+            ]
+        )
+
+    def test_before_2019_5m(self):
+        data = {
+            "value": {
+                "currency": "UAH",
+                "amount": 5000000,
+                "valueAddedTaxIncluded": False
+            },
+            "awardPeriod": {
+                "startDate": test_award_period,
+            },
+            'owner': 'test',
+            "bids": [{
+                "id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00",
+                "owner": "test"
+            }],
+            "awards": [{
+                "bid_id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00"
+            }]
+        }
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+
+        self.utility.run()
+        with open(prepare_result_file_name(self.utility), 'rb') as file:
+            file_data = list(csv.reader(file.readlines()))
+
+        self.assertEqual(
+            file_data,
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+                ['after 2017-08-16'],
+                ['tender_id', 'UA-2017-11-30', '', '5000000', 'UAH', 'bid_1', '-', '400.0', '1'],
+                ['tender_id', 'UA-2017-11-30', '', '5000000', 'UAH', 'bid_1', '-', '400.0', '4'],
+            ]
+        )
+
+    def test_2019_1m(self):
+        data = {
+            "enquiryPeriod": {
+                "startDate": "2019-08-22T00:01:50+02:00"
+            },
+            "value": {
+                "currency": "UAH",
+                "amount": 1000000,
+                "valueAddedTaxIncluded": False
+            },
+            "awardPeriod": {
+                "startDate": test_award_period,
+            },
+            'owner': 'test',
+            "bids": [{
+                "id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00",
+                "owner": "test"
+            }],
+            "awards": [{
+                "bid_id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00"
+            }]
+        }
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+
+        self.utility.run()
+        with open(prepare_result_file_name(self.utility), 'rb') as file:
+            file_data = list(csv.reader(file.readlines()))
+
+        self.assertEqual(
+            file_data,
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+                ['after 2019-08-22'],
+                ['tender_id', 'UA-2017-11-30', '', '1000000', 'UAH', 'bid_1', '-', '110.0', '1'],
+                ['tender_id', 'UA-2017-11-30', '', '1000000', 'UAH', 'bid_1', '-', '110.0', '4'],
+            ]
+        )
+
+    def test_2019_1m1(self):
+        data = {
+            "enquiryPeriod": {
+                "startDate": "2019-08-22T00:01:50+02:00"
+            },
+            "value": {
+                "currency": "UAH",
+                "amount": 1000001,
+                "valueAddedTaxIncluded": False
+            },
+            "awardPeriod": {
+                "startDate": test_award_period,
+            },
+            'owner': 'test',
+            "bids": [{
+                "id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00",
+                "owner": "test"
+            }],
+            "awards": [{
+                "bid_id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00"
+            }]
+        }
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+
+        self.utility.run()
+        with open(prepare_result_file_name(self.utility), 'rb') as file:
+            file_data = list(csv.reader(file.readlines()))
+
+        self.assertEqual(
+            file_data,
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+                ['after 2019-08-22'],
+                ['tender_id', 'UA-2017-11-30', '', '1000001', 'UAH', 'bid_1', '-', '500.0', '1'],
+                ['tender_id', 'UA-2017-11-30', '', '1000001', 'UAH', 'bid_1', '-', '500.0', '4'],
+            ]
+        )
+
+    def test_2019_4m1(self):
+        data = {
+            "enquiryPeriod": {
+                "startDate": "2019-08-22T00:01:50+02:00"
+            },
+            "value": {
+                "currency": "UAH",
+                "amount": 4000001,
+                "valueAddedTaxIncluded": False
+            },
+            "awardPeriod": {
+                "startDate": test_award_period,
+            },
+            'owner': 'test',
+            "bids": [{
+                "id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00",
+                "owner": "test"
+            }],
+            "awards": [{
+                "bid_id": "bid_1",
+                "status": "active",
+                "date": "2019-08-25T00:01:50+02:00"
+            }]
+        }
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+
+        self.utility.run()
+        with open(prepare_result_file_name(self.utility), 'rb') as file:
+            file_data = list(csv.reader(file.readlines()))
+
+        self.assertEqual(
+            file_data,
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+                ['after 2019-08-22'],
+                ['tender_id', 'UA-2017-11-30', '', '4000001', 'UAH', 'bid_1', '-', '1100.0', '1'],
+                ['tender_id', 'UA-2017-11-30', '', '4000001', 'UAH', 'bid_1', '-', '1100.0', '4'],
+            ]
+        )
 
     def test_bids_utility_output_with_lots(self):
         data = {
@@ -363,7 +561,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         self.utility.run()
         with open(prepare_result_file_name(self.utility), 'rb') as file:
             self.assertEqual(file.read(),
-                             ','.join(self.utility.headers) + '\r\nafter_2017-01-01\r\n')
+                             ','.join(self.utility.headers) + '\r\n')
 
 def suite():
     suite = unittest.TestSuite()

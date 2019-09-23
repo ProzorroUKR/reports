@@ -10,8 +10,7 @@ REQUIRES = [
     'requests',
     'gevent',
     'pytz',
-    'iso8601',
-    'pyminizip',
+    'pyminizip>=0.2.3',
     'arrow',
     'boto3',
     'Jinja2',
@@ -47,7 +46,8 @@ setup(
             'init = reports.utilities.init:run',
             'zip = reports.utilities.zip:run',
             'send = reports.utilities.send:run',
-            'generate = reports.generate:run'
+            'generate = reports.generate:run',
+            'interface = reports.interface:run',
         ],
         'billing.storages': [
             's3 = reports.storages:S3Storage',

@@ -1,5 +1,5 @@
 db:
-  host: 127.0.0.1
+  host: couchdb
   port: 5984
   name: reports-test
 
@@ -20,6 +20,7 @@ payments:
   - 50000
   - 200000
   - 1000000
+  - 4000000
 
 2016:
   cdb:
@@ -48,6 +49,10 @@ payments:
   - 40
   - 60
   - 300
+
+2019:
+  cdb: [5, 25, 80, 110, 500, 1100]
+  emall: [3, 15, 40, 60, 300, 600]
 
 api:
   host: https://test.org

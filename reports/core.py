@@ -2,25 +2,28 @@ import couchdb
 import os.path
 import csv
 import os
-import yaml
-import requests
 from retrying import retry
-from requests.exceptions import RequestException
-from yaml.scanner import ScannerError
 from couchdb.design import ViewDefinition
 from logging import getLogger
 from reports.config import Config
-from reports.design import bids_owner_date, tenders_owner_date, jsonpatch,\
-    tenders_lib, bids_lib
-from reports.helpers import prepare_report_interval, prepare_result_file_name,\
-    value_currency_normalize
+from reports.design import bids_owner_date, tenders_owner_date, jsonpatch, tenders_lib, bids_lib
+from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
 
 
 VIEWS = [bids_owner_date, tenders_owner_date]
 NEW_ALG_DATE = "2017-08-16"
+CHANGE_2019_DATE = "2019-08-22"
 
 
 class BaseUtility(object):
+
+    version_headers = ['after 2017-01-01',
+                       'after {}'.format(NEW_ALG_DATE),
+                       'after {}'.format(CHANGE_2019_DATE)]
+
+    # these two for counters
+    number_of_ranges = 0
+    number_of_counters = 0
 
     def __init__(
             self, broker, period, config,
@@ -37,6 +40,17 @@ class BaseUtility(object):
         )
         self.connect_db()
         self.Logger = getLogger("BILLING")
+        self.counters = self.init_counters()
+
+    def init_counters(self):
+        """
+        counters are used in refunds and invoices to sum items for the reports
+        """
+        self.counters = {
+            index: [0 for _ in range(self.number_of_ranges)]
+            for index in range(self.number_of_counters)
+        }
+        return self.counters
 
     @retry(wait_exponential_multiplier=1000, stop_max_attempt_number=5)
     def connect_db(self):
@@ -50,7 +64,7 @@ class BaseUtility(object):
             session=couchdb.Session(retry_delays=range(10))
         )
 
-    def row(self):
+    def row(self, record):
         raise NotImplemented
 
     def rows(self):
@@ -62,6 +76,19 @@ class BaseUtility(object):
             if value <= threshold:
                 return p[index]
         return p[-1]
+
+    def get_payment_year(self, record):
+        """
+        Returns the costs version applicable for the specific record
+        find them in the config by their keys (2016, 2017 and 2019)
+        """
+        start_date = record.get('startdate', '')
+        if start_date >= self.threshold_date:
+            if start_date >= CHANGE_2019_DATE:
+                return 2019
+            else:
+                return 2017
+        return 2016
 
     @retry(wait_exponential_multiplier=1000, stop_max_attempt_number=5)
     def _sync_views(self):
@@ -142,32 +169,32 @@ class BaseBidsUtility(BaseUtility):
         super(BaseBidsUtility, self).__init__(
             broker, period, config, operation=operation, timezone=timezone)
 
-    def get_initial_bids(self, audit, tender_id):
-        url = audit is not None and audit.get('url')
-        if not url:
-            self.Logger.fatal('Invalid audit for tender id={}'.format(tender_id))
-            self.initial_bids = []
-            return
-        try:
-            yfile = yaml.load(requests.get(url).text)
-            self.initial_bids = yfile['timeline']['auction_start']['initial_bids']
-            self.initial_bids_for = yfile.get('tender_id', yfile.get('id', ''))
-            return self.initial_bids
-        except (ScannerError, KeyError, TypeError) as e:
-            msg = 'Falied to scan audit file'\
-                    ' for tender id={}. Error {}'.format(tender_id, e)
-            self.Logger.error(msg)
-        except RequestException as e:
-            msg = "Request falied at getting audit file"\
-                    "for tender id={0}  with error '{1}'".format(tender_id, e)
-            self.Logger.info(msg)
-        self.initial_bids = []
 
-    def bid_date_valid(self, bid_id):
-        for bid in self.initial_bids:
-            if bid['date'] < "2016-04-01":
-                self.skip_bids.add(bid['bidder'])
-        if bid_id in self.skip_bids:
-            self.Logger.info('Skipped fetched early bid: %s', bid_id)
-            return False
-        return True
+class ItemsUtility(BaseUtility):
+    def rows(self):
+        blocks = [[] for _ in range(len(self.version_headers))]
+        for resp in self.response:
+            row, block_num = self.row(resp["value"])
+            blocks[block_num].append(row)
+
+        current_block_id = None
+        for block_id, lines in enumerate(blocks):
+            if lines:  # show block only if items
+                if block_id != current_block_id:  # write sub header, like "after 2017-01-01"
+                    current_block_id = block_id
+                    yield [
+                        self.version_headers[block_id]
+                    ]
+                for line in lines:  # write items
+                    yield line
+
+    @staticmethod
+    def get_record_payment_version(record):
+        start_date = record.get('startdate', '')
+        if start_date >= NEW_ALG_DATE:
+            version = 1
+            if start_date >= CHANGE_2019_DATE:
+                version = 2
+        else:
+            version = 0
+        return version
