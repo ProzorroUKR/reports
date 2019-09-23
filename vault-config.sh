@@ -7,7 +7,7 @@ curl http://0.0.0.0:1234/v1/sys/seal-status
 curl -X PUT http://0.0.0.0:1234/v1/secret/billing/smtp  -H "Content-Type: application/json" -H "X-Vault-Token: myroot" -d '{"user": "aleksey.stryukov@raccoongang.com", "password": "Udbetteruseyourown"}'
 
 # passwords for zip files
-curl -X PUT http://0.0.0.0:1234/v1/secret/billing/passwords  -H "Content-Type: application/json"  -H "X-Vault-Token: myroot" -d '{"all": "1234", "test.quintagroup.com": "1234"}'
+curl -X PUT http://0.0.0.0:1234/v1/secret/billing/passwords  -H "Content-Type: application/json"  -H "X-Vault-Token: myroot" -d '{"all": "1234", "test.quintagroup.com": "1234", "e-tender.biz": "1234", "it.ua": "1234", "prom.ua": "1234", "public-bid.com.ua": "1234"}'
 
 
 # settings for memory storage, never used but required

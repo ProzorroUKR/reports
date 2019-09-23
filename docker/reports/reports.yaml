@@ -20,7 +20,7 @@ vault:
   token: myroot
 
 payments:
-  thresholds: [20000, 50000, 200000, 1000000]
+  thresholds: [20000, 50000, 200000, 1000000, 4000000]
   grids: [2016,2017]
 
 proxy_address: 
@@ -51,6 +51,10 @@ swift:
   cdb: [5, 25, 80, 110, 400]
   emall: [3, 15, 40, 60, 300]
 
+2019:
+  cdb: [5, 25, 80, 110, 500, 1100]
+  emall: [3, 15, 40, 60, 300, 600]
+
 out:
   out_dir: /app/data
 
@@ -67,6 +71,14 @@ email:
 
 
 brokers_emails:
+  public-bid.com.ua:
+    - aleksey.stryukov@raccoongang.com
+  prom.ua:
+    - aleksey.stryukov@raccoongang.com
+  it.ua:
+    - aleksey.stryukov@raccoongang.com
+  e-tender.biz:
+    - aleksey.stryukov@raccoongang.com
   test.quintagroup.com:
     - aleksey.stryukov@raccoongang.com
   all:
