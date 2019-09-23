@@ -17,7 +17,7 @@ vault:
   token: {{ vault_token }} 
 
 payments:
-  thresholds: [20000, 50000, 200000, 1000000]
+  thresholds: [20000, 50000, 200000, 1000000, 4000000]
   grids: [2016,2017]
 
 proxy_address: {{ proxy_address }}
@@ -34,6 +34,10 @@ storage:
 2017:
   cdb: [5, 25, 80, 110, 400]
   emall: [3, 15, 40, 60, 300]
+
+2019:
+  cdb: [5, 25, 80, 110, 500, 1100]
+  emall: [3, 15, 40, 60, 300, 600]
 
 out:
   out_dir: {{ parts.buildout.directory }}/var/reports
