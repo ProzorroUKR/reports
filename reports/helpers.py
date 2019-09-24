@@ -55,6 +55,14 @@ def get_arguments_parser():
         default='Europe/Kiev',
         help='Timezone. Default "Europe/Kiev"'
     )
+    report.add_argument(
+        '-m',
+        '--mode',
+        dest='mode',
+        default='regular',
+        choices=['regular', 'test', 'all'],
+        help='Mode. Default "regular"'
+    )
     return parser
 
 

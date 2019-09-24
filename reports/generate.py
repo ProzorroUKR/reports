@@ -33,6 +33,7 @@ parser.add_argument('--timestamp', action='store')
 parser.add_argument('--include', action='store', default=DEFAULT_INCLUDE)
 parser.add_argument('--notify-brokers', action="append")
 parser.add_argument('--timezone', default='Europe/Kiev')
+parser.add_argument('--mode', default='regular', choices=['regular', 'test', 'all'])
 ARGS = parser.parse_args()
 
 with open(ARGS.config) as _in:
@@ -62,8 +63,8 @@ def send_emails_from_existing_files():
     return [entry['broker'] for entry in ctx]
 
 
-def generate_for_broker(broker, period, timezone='Europe/Kiev'):
-    utilities = map(lambda u: u(broker, period, CONFIG, timezone),
+def generate_for_broker(broker, period, timezone='Europe/Kiev', mode='regular'):
+    utilities = map(lambda u: u(broker, period, CONFIG, timezone, mode=mode),
                     SCRIPTS)
     for ut in utilities:
         if isinstance(ut, (TendersUtility, RefundsUtility)):
@@ -245,7 +246,7 @@ def run():
     LOGGER.warning("Timestamp: {}".format(TIMESTAMP))
     results = []
     for broker in brokers:
-        generate_for_broker(broker, period)
+        generate_for_broker(broker, period, ARGS.timezone, ARGS.mode)
         zip_file_path = zip_for_broker(broker, period)
         if zip_file_path:
             results.append(upload_and_notify([zip_file_path]))

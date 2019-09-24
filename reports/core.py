@@ -6,11 +6,23 @@ from retrying import retry
 from couchdb.design import ViewDefinition
 from logging import getLogger
 from reports.config import Config
-from reports.design import bids_owner_date, tenders_owner_date, jsonpatch, tenders_lib, bids_lib
+from reports.design import (
+    bids_owner_date, tenders_owner_date,
+    bids_test_owner_date, tenders_test_owner_date,
+    bids_all_owner_date, tenders_all_owner_date,
+    jsonpatch, tenders_lib, bids_lib,
+)
 from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
 
 
-VIEWS = [bids_owner_date, tenders_owner_date]
+VIEWS = [
+    bids_owner_date,
+    tenders_owner_date,
+    bids_test_owner_date,
+    tenders_test_owner_date,
+    bids_all_owner_date,
+    tenders_all_owner_date
+]
 NEW_ALG_DATE = "2017-08-16"
 CHANGE_2019_DATE = "2019-08-22"
 
@@ -25,22 +37,25 @@ class BaseUtility(object):
     number_of_ranges = 0
     number_of_counters = 0
 
-    def __init__(
-            self, broker, period, config,
-            timezone="Europe/Kiev", operation=""
-            ):
+    def __init__(self, broker, period, config,
+                 timezone="Europe/Kiev", operation="", mode="regular"):
         self.broker = broker
         self.period = period
         self.timezone = timezone
         self.operation = operation
+        self.mode = mode
         self.threshold_date = '2017-01-01T00:00+02:00'
         self.config = Config(config, self.operation)
-        self.start_date, self.end_date = prepare_report_interval(
-            self.period
-        )
+        self.start_date, self.end_date = prepare_report_interval(self.period)
         self.connect_db()
         self.Logger = getLogger("BILLING")
         self.counters = self.init_counters()
+
+    @property
+    def view(self):
+        if self.mode not in self.views:
+            raise NotImplementedError()
+        return self.views[self.mode]
 
     def init_counters(self):
         """
@@ -130,7 +145,7 @@ class BaseUtility(object):
     def response(self):
         self._sync_views()
         if not self.view:
-            raise NotImplemented
+            raise NotImplementedError
         return self.db.iterview(
             self.view,
             1000,
@@ -161,13 +176,17 @@ class BaseUtility(object):
 
 class BaseBidsUtility(BaseUtility):
 
-    def __init__(
-            self, broker, period, config,
-            timezone="Europe/Kiev", operation="bids"
-            ):
-        self.view = 'report/bids_owner_date'
+    views = {
+        'regular': 'report/bids_owner_date',
+        'test': 'report/bids_test_owner_date',
+        'all': 'report/bids_all_owner_date'
+    }
+
+    def __init__(self, broker, period, config,
+                 timezone="Europe/Kiev", operation="bids", mode="regular"):
         super(BaseBidsUtility, self).__init__(
-            broker, period, config, operation=operation, timezone=timezone)
+            broker, period, config,
+            operation=operation, timezone=timezone, mode=mode)
 
 
 class ItemsUtility(BaseUtility):

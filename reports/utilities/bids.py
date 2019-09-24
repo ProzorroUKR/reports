@@ -39,8 +39,9 @@ def run():
     args = parser.parse_args()
     config = read_config(args.config)
     dictConfig(config)
-    utility = BidsUtility(args.broker, args.period,
-                          config, timezone=args.timezone)
+    utility = BidsUtility(
+        args.broker, args.period,
+        config, timezone=args.timezone, mode=args.mode)
     utility.run()
 
 

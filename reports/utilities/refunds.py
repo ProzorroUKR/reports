@@ -10,13 +10,20 @@ from reports.helpers import (
 
 class RefundsUtility(BaseUtility):
 
-    view = 'report/tenders_owner_date'
+    views = {
+        'regular': 'report/tenders_owner_date',
+        'test': 'report/tenders_test_owner_date',
+        'all': 'report/tenders_all_owner_date'
+    }
+
     number_of_ranges = 6
     number_of_counters = 4
 
-    def __init__(self, broker, period, config, timezone="Europe/Kiev", kind=None):
+    def __init__(self, broker, period, config,
+                 timezone="Europe/Kiev", kind=None, mode="regular"):
         super(RefundsUtility, self).__init__(
-            broker, period, config, operation="refunds", timezone=timezone)
+            broker, period, config,
+            operation="refunds", timezone=timezone, mode=mode)
         self.headers = thresholds_headers(self.config.thresholds)
         if kind is None:
             kind = ['general', 'special', 'defense', 'other', '_kind']
@@ -82,19 +89,19 @@ class RefundsUtility(BaseUtility):
 def run():
     parser = get_arguments_parser()
     parser.add_argument(
-             '--kind',
-             metavar='Kind',
-             action=Kind,
-             help='Kind filtering functionality. '
-             'Usage: --kind <include, exclude, one>=<kinds>'
-             )
+        '--kind',
+        metavar='Kind',
+        action=Kind,
+        help='Kind filtering functionality. '
+        'Usage: --kind <include, exclude, one>=<kinds>'
+    )
 
     args = parser.parse_args()
     config = read_config(args.config) 
     dictConfig(config)
     utility = RefundsUtility(
         args.broker, args.period,
-        config, timezone=args.timezone)
+        config, timezone=args.timezone, mode=args.mode)
     utility.run()
 
 
