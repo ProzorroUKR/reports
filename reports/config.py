@@ -58,7 +58,7 @@ class Config(object):
             if year in self.config:
                 return self.get_option(year, 'emall')
             return self.get_option(str(year), 'emall')
-        raise NotImplemented("No payments grid for {}".format(year))
+        raise NotImplementedError("No payments grid for {}".format(year))
 
     def payments(self, grid=2017):
         return [

@@ -81,10 +81,10 @@ class BaseUtility(object):
         )
 
     def row(self, record):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def rows(self):
-        raise NotImplemented
+        raise NotImplementedError()
 
     def get_payment(self, value, year=2017):
         p = self.config.payments(grid=year)
@@ -146,7 +146,7 @@ class BaseUtility(object):
     def response(self):
         self._sync_views()
         if not self.view:
-            raise NotImplementedError
+            raise NotImplementedError()
         return self.db.iterview(
             self.view,
             1000,
