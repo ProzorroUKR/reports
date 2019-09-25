@@ -48,7 +48,9 @@ Js tests:
     paths:
       - node_modules/
   script:
-    - apt-get install -y npm curl
-    - ln -s /usr/bin/nodejs /usr/bin/node
+    - apt-get update
+    - apt-get -y install curl gnupg
+    - curl -sL https://deb.nodesource.com/setup_11.x  | bash -
+    - apt-get -y install nodejs
     - npm install
     - npm run test
