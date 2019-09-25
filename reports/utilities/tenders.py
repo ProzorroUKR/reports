@@ -5,7 +5,7 @@ from reports.helpers import (
     Kind,
     read_config
 )
-
+from reports.helpers import DEFAULT_TIMEZONE, MODE_REGULAR, MODE_TEST, MODE_ALL
 
 HEADERS = [
     "tender", "tenderID", "lot",
@@ -17,15 +17,15 @@ HEADERS = [
 class TendersUtility(ItemsUtility):
 
     views = {
-        'regular': 'report/tenders_owner_date',
-        'test': 'report/tenders_test_owner_date',
-        'all': 'report/tenders_all_owner_date'
+        MODE_REGULAR: 'report/tenders_owner_date',
+        MODE_TEST: 'report/tenders_test_owner_date',
+        MODE_ALL: 'report/tenders_all_owner_date'
     }
 
     headers = HEADERS
 
     def __init__(self, broker, period, config,
-                 timezone="Europe/Kiev", mode="regular"):
+                 timezone=DEFAULT_TIMEZONE, mode=MODE_REGULAR):
         self.kinds = ['general', 'special', 'defense', 'other', '_kind']
         super(TendersUtility, self).__init__(
             broker, period, config,

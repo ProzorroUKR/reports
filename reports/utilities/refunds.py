@@ -6,21 +6,22 @@ from reports.helpers import (
     Kind,
     read_config
 )
+from reports.helpers import DEFAULT_TIMEZONE, MODE_REGULAR, MODE_TEST, MODE_ALL
 
 
 class RefundsUtility(BaseUtility):
 
     views = {
-        'regular': 'report/tenders_owner_date',
-        'test': 'report/tenders_test_owner_date',
-        'all': 'report/tenders_all_owner_date'
+        MODE_REGULAR: 'report/tenders_owner_date',
+        MODE_TEST: 'report/tenders_test_owner_date',
+        MODE_ALL: 'report/tenders_all_owner_date'
     }
 
     number_of_ranges = 6
     number_of_counters = 4
 
     def __init__(self, broker, period, config,
-                 timezone="Europe/Kiev", kind=None, mode="regular"):
+                 timezone=DEFAULT_TIMEZONE, kind=None, mode=MODE_REGULAR):
         super(RefundsUtility, self).__init__(
             broker, period, config,
             operation="refunds", timezone=timezone, mode=mode)

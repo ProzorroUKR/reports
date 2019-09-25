@@ -13,7 +13,7 @@ from reports.utilities.invoices import InvoicesUtility
 from reports.utilities.refunds import RefundsUtility
 from reports.utilities.bids import BidsUtility, HEADERS
 from reports.utilities.tenders import TendersUtility
-from reports.helpers import parse_period_string
+from reports.helpers import parse_period_string, MODES, MODE_REGULAR, DEFAULT_TIMEZONE
 from reports.vault import Vault
 from reports.utilities.send import Porter
 from reports.utilities.zip import compress
@@ -28,12 +28,13 @@ parser = argparse.ArgumentParser(description="Openprocurement Billing")
 parser.add_argument('-c', '--config', required=True)
 parser.add_argument('--brokers', dest='brokers', action="store")
 parser.add_argument('--period', dest='period', action='store')
-parser.add_argument('--notify', action='store', default='no')
+parser.add_argument('--notify', action='store', default=NO[0], choices=YES+NO)
 parser.add_argument('--timestamp', action='store')
 parser.add_argument('--include', action='store', default=DEFAULT_INCLUDE)
 parser.add_argument('--notify-brokers', action="append")
-parser.add_argument('--timezone', default='Europe/Kiev')
-parser.add_argument('--mode', default='regular', choices=['regular', 'test', 'all'])
+parser.add_argument('--timezone', default=DEFAULT_TIMEZONE)
+parser.add_argument('--mode', default=MODE_REGULAR, choices=MODES)
+parser.add_argument('--clean', action='store', default=YES[0], choices=YES+NO)
 ARGS = parser.parse_args()
 
 with open(ARGS.config) as _in:
@@ -63,9 +64,8 @@ def send_emails_from_existing_files():
     return [entry['broker'] for entry in ctx]
 
 
-def generate_for_broker(broker, period, timezone='Europe/Kiev', mode='regular'):
-    utilities = map(lambda u: u(broker, period, CONFIG, timezone, mode=mode),
-                    SCRIPTS)
+def generate_for_broker(broker, period, timezone=DEFAULT_TIMEZONE, mode=MODE_REGULAR):
+    utilities = map(lambda u: u(broker, period, CONFIG, timezone, mode), SCRIPTS)
     for ut in utilities:
         if isinstance(ut, (TendersUtility, RefundsUtility)):
             ut.kinds = DEFAULT_KINDS
@@ -137,13 +137,13 @@ def zip_for_broker(
         broker, start, end, "-".join(include)
     )
     try:
-        password = get_password_for_broker(broker) 
+        password = get_password_for_broker(broker)
         if password:
             return compress(
                 files,
                 CONFIG['out']['out_dir'],
                 result_zip_name,
-                password 
+                password
             )
         return False
     except (OSError, IOError) as e:
@@ -190,7 +190,7 @@ def zip_all_bids(brokers, period):
                 files,
                 CONFIG['out']['out_dir'],
                 name,
-                password 
+                password
             )
         return False
     except (OSError, IOError) as e:
@@ -259,5 +259,5 @@ def run():
             _file for _file in (all_bids, all_tenders)
             if _file
             ]))
-    if all(results):
+    if all(results) and ARGS.notify and (ARGS.notify in YES):
         clean_up(brokers, period)
