@@ -20,6 +20,15 @@ RE = re.compile(r'(^.*)@(\d{4}-\d{2}-\d{2}--\d{4}-\d{2}-\d{2})?-([a-z\-]*)\.zip'
 LOGGER = getLogger("BILLING")
 DEFAULT_SCHEME = "https"
 
+DEFAULT_TIMEZONE = "Europe/Kiev"
+
+MODE_REGULAR = 'regular'
+MODE_TEST = 'test'
+MODE_ALL = 'all'
+MODES = [MODE_REGULAR, MODE_TEST, MODE_ALL]
+
+DEFAULT_MODE = MODE_REGULAR
+
 def get_arguments_parser():
     parser = argparse.ArgumentParser(
         description="Openprocurement Billing"
@@ -52,8 +61,16 @@ def get_arguments_parser():
         '-t',
         '--timezone',
         dest='timezone',
-        default='Europe/Kiev',
-        help='Timezone. Default "Europe/Kiev"'
+        default=DEFAULT_TIMEZONE,
+        help='Timezone. Default "{}"'.format(DEFAULT_TIMEZONE)
+    )
+    report.add_argument(
+        '-m',
+        '--mode',
+        dest='mode',
+        default=DEFAULT_MODE,
+        choices=MODES,
+        help='Mode. Default "{}"'.format(DEFAULT_MODE)
     )
     return parser
 
@@ -250,7 +267,7 @@ class Status(argparse.Action):
 
 
 def convert_date(
-        date, timezone="Europe/Kiev",
+        date, timezone=DEFAULT_TIMEZONE,
         to="UTC", format="%Y-%m-%dT%H:%M:%S.%f"
         ):
     date = arrow.get(parse(date), timezone)
@@ -273,14 +290,14 @@ def prepare_result_file_name(utility):
         start = convert_date(
                 utility.start_date,
                 timezone="UTC",
-                to="Europe/Kiev",
+                to=DEFAULT_TIMEZONE,
                 format="%Y-%m-%d"
                 )
     if not utility.end_date.startswith("9999"):
         end = convert_date(
                 utility.end_date,
                 timezone="UTC",
-                to="Europe/Kiev",
+                to=DEFAULT_TIMEZONE,
                 format="%Y-%m-%d"
                 )
     return os.path.join(

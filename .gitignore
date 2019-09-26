@@ -31,6 +31,8 @@ lib64
 *.egg
 bin/*
 src/*
+node_modules/
+package-lock.json
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -68,3 +70,6 @@ target/
 .python-version
 # Except lib for views
 !reports/design/lib
+
+# Data
+data

@@ -499,7 +499,7 @@ function find_tender_data (tender, results) {
     }
 }
 
-function main(doc) {
+function main(doc, mode) {
     if (doc.doc_type !== "Tender") {return;}
 
     if (doc.procurementMethodType === 'esco') { return []; }
@@ -527,7 +527,8 @@ function main(doc) {
             return [];
         }
     }
-    if ((doc.mode || "") === "test") {
+
+    if ((mode !== "__all__") && ((doc.mode || null) !== mode)) {
         return [];
     }
 

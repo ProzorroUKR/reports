@@ -5,19 +5,18 @@ from reports.helpers import (
     get_arguments_parser,
     read_config
 )
-
+from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE
 
 class InvoicesUtility(BaseBidsUtility):
 
     number_of_ranges = 6
     number_of_counters = 10
 
-    def __init__(
-            self, broker, period, config,
-            timezone="Europe/Kiev"
-            ):
+    def __init__(self, broker, period, config,
+                 timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
         super(InvoicesUtility, self).__init__(
-            broker, period, config, operation='invoices', timezone=timezone)
+            broker, period, config,
+            operation='invoices', timezone=timezone, mode=mode)
         self.headers = thresholds_headers(
             self.config.thresholds
         )
@@ -94,7 +93,7 @@ def run():
     dictConfig(config)
     utility = InvoicesUtility(
         args.broker, args.period,
-        config, timezone=args.timezone)
+        config, timezone=args.timezone, mode=args.mode)
     utility.run()
 
 

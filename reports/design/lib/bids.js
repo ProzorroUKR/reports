@@ -574,12 +574,12 @@ function emit_results(tender, results) {
     }
 }
 
-function main(doc) {
+function main(doc, mode) {
     if (doc.doc_type !== "Tender") {
         return [];
     }
 
-    if ((doc.mode || "") === "test") {
+    if ((mode !== "__all__") && ((doc.mode || null) !== mode)) {
         return [];
     }
 
@@ -616,7 +616,17 @@ function main(doc) {
     return results;
 }
 
+function main_all(doc) {
+    return main(doc, '__all__')
+}
+
+function main_regular(doc) {
+    return main(doc, null)
+}
+
 exports.main = main;
+exports.main_all = main_all;
+exports.main_regular = main_regular;
 exports.get_eu_tender_bids = get_eu_tender_bids;
 exports.find_matched_revs = find_matched_revs;
 exports.find_initial_bid_date = find_initial_bid_date;
