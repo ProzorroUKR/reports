@@ -27,6 +27,8 @@ MODE_TEST = 'test'
 MODE_ALL = 'all'
 MODES = [MODE_REGULAR, MODE_TEST, MODE_ALL]
 
+DEFAULT_MODE = MODE_REGULAR
+
 def get_arguments_parser():
     parser = argparse.ArgumentParser(
         description="Openprocurement Billing"
@@ -66,9 +68,9 @@ def get_arguments_parser():
         '-m',
         '--mode',
         dest='mode',
-        default=MODE_REGULAR,
+        default=DEFAULT_MODE,
         choices=MODES,
-        help='Mode. Default "{}"'.format(MODE_REGULAR)
+        help='Mode. Default "{}"'.format(DEFAULT_MODE)
     )
     return parser
 

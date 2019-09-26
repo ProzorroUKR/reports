@@ -6,7 +6,7 @@ from reports.helpers import (
     Kind,
     read_config
 )
-from reports.helpers import DEFAULT_TIMEZONE, MODE_REGULAR, MODE_TEST, MODE_ALL
+from reports.helpers import DEFAULT_TIMEZONE,DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
 
 
 class RefundsUtility(BaseUtility):
@@ -21,7 +21,7 @@ class RefundsUtility(BaseUtility):
     number_of_counters = 4
 
     def __init__(self, broker, period, config,
-                 timezone=DEFAULT_TIMEZONE, kind=None, mode=MODE_REGULAR):
+                 timezone=DEFAULT_TIMEZONE, kind=None, mode=DEFAULT_MODE):
         super(RefundsUtility, self).__init__(
             broker, period, config,
             operation="refunds", timezone=timezone, mode=mode)

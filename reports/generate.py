@@ -13,7 +13,7 @@ from reports.utilities.invoices import InvoicesUtility
 from reports.utilities.refunds import RefundsUtility
 from reports.utilities.bids import BidsUtility, HEADERS
 from reports.utilities.tenders import TendersUtility
-from reports.helpers import parse_period_string, MODES, MODE_REGULAR, DEFAULT_TIMEZONE
+from reports.helpers import parse_period_string, MODES, DEFAULT_TIMEZONE, DEFAULT_MODE
 from reports.vault import Vault
 from reports.utilities.send import Porter
 from reports.utilities.zip import compress
@@ -33,7 +33,7 @@ parser.add_argument('--timestamp', action='store')
 parser.add_argument('--include', action='store', default=DEFAULT_INCLUDE)
 parser.add_argument('--notify-brokers', action="append")
 parser.add_argument('--timezone', default=DEFAULT_TIMEZONE)
-parser.add_argument('--mode', default=MODE_REGULAR, choices=MODES)
+parser.add_argument('--mode', default=DEFAULT_MODE, choices=MODES)
 parser.add_argument('--clean', action='store', default=YES[0], choices=YES+NO)
 ARGS = parser.parse_args()
 
@@ -64,8 +64,8 @@ def send_emails_from_existing_files():
     return [entry['broker'] for entry in ctx]
 
 
-def generate_for_broker(broker, period, timezone=DEFAULT_TIMEZONE, mode=MODE_REGULAR):
-    utilities = map(lambda u: u(broker, period, CONFIG, timezone, mode), SCRIPTS)
+def generate_for_broker(broker, period, timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
+    utilities = map(lambda u: u(broker, period, CONFIG, timezone=timezone, mode=mode), SCRIPTS)
     for ut in utilities:
         if isinstance(ut, (TendersUtility, RefundsUtility)):
             ut.kinds = DEFAULT_KINDS

@@ -5,7 +5,7 @@ from reports.helpers import (
     Kind,
     read_config
 )
-from reports.helpers import DEFAULT_TIMEZONE, MODE_REGULAR, MODE_TEST, MODE_ALL
+from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
 
 HEADERS = [
     "tender", "tenderID", "lot",
@@ -25,7 +25,7 @@ class TendersUtility(ItemsUtility):
     headers = HEADERS
 
     def __init__(self, broker, period, config,
-                 timezone=DEFAULT_TIMEZONE, mode=MODE_REGULAR):
+                 timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
         self.kinds = ['general', 'special', 'defense', 'other', '_kind']
         super(TendersUtility, self).__init__(
             broker, period, config,

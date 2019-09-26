@@ -13,7 +13,7 @@ from reports.design import (
     jsonpatch, tenders_lib, bids_lib,
 )
 from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
-from reports.helpers import DEFAULT_TIMEZONE, MODE_REGULAR, MODE_TEST, MODE_ALL
+from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
 
 
 VIEWS = [
@@ -39,7 +39,7 @@ class BaseUtility(object):
     number_of_counters = 0
 
     def __init__(self, broker, period, config,
-                 timezone=DEFAULT_TIMEZONE, operation="", mode=MODE_REGULAR):
+                 timezone=DEFAULT_TIMEZONE, operation="", mode=DEFAULT_MODE):
         self.broker = broker
         self.period = period
         self.timezone = timezone
@@ -184,7 +184,7 @@ class BaseBidsUtility(BaseUtility):
     }
 
     def __init__(self, broker, period, config,
-                 timezone=DEFAULT_TIMEZONE, operation="bids", mode=MODE_REGULAR):
+                 timezone=DEFAULT_TIMEZONE, operation="bids", mode=DEFAULT_MODE):
         super(BaseBidsUtility, self).__init__(
             broker, period, config,
             operation=operation, timezone=timezone, mode=mode)
