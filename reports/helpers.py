@@ -6,7 +6,7 @@ import requests
 import json
 import re
 import datetime
-from yaml import load
+import yaml
 from repoze.lru import lru_cache
 from dateutil.parser import parse
 from time import sleep
@@ -351,4 +351,4 @@ def create_email_context_from_filename(file_name):
 
 def read_config(path):
     with open(path) as _in:
-        return load(_in)
+        return yaml.safe_load(_in)

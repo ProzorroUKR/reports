@@ -5,6 +5,8 @@ VERSION = '1.0.17'
 AUTHOR = 'Quintagroup, Ltd.'
 LICENSE = 'Apache License 2.0'
 REQUIRES = [
+    'gunicorn[gevent]',
+    'flask',
     'couchdb',
     'pbkdf2',
     'requests',
@@ -17,7 +19,7 @@ REQUIRES = [
     'PyYaml',
     'repoze.lru',
     'hvac',
-    'retrying'
+    'retrying',
 ]
 EXTRA = REQUIRES + [
     'python-swiftclient',
@@ -47,7 +49,6 @@ setup(
             'zip = reports.utilities.zip:run',
             'send = reports.utilities.send:run',
             'generate = reports.generate:run',
-            'interface = reports.interface:run',
         ],
         'billing.storages': [
             's3 = reports.storages:S3Storage',
