@@ -1,44 +1,98 @@
-try:
-    from SimpleHTTPServer import SimpleHTTPRequestHandler
-    from SocketServer import TCPServer
-    MOVED_PERMANENTLY = 301
-except ImportError:
-    from http.server import SimpleHTTPRequestHandler
-    from socketserver import TCPServer
-    from http.HTTPStatus import MOVED_PERMANENTLY
-
-import logging.config
-import logging
-import argparse
+from flask import Flask, render_template, request
+from datetime import datetime, timedelta
+from reports.helpers import MODES
+from reports.utilities.invoices import InvoicesUtility
+from reports.utilities.bids import BidsUtility
+from reports.utilities.refunds import RefundsUtility
+from reports.utilities.tenders import TendersUtility
 import yaml
-
-parser = argparse.ArgumentParser(description="Billing Interface")
-parser.add_argument('-c', '--config', required=True)
-ARGS = parser.parse_args()
-
-with open(ARGS.config) as _in:
-    CONFIG = yaml.load(_in)
-
-logger = logging.getLogger("BILLING")
-logging.config.dictConfig(CONFIG)
-
-interface_conf = CONFIG.get("interface", {})
-serve_path = interface_conf.get("serve_path", "/data/")
+import json
+import os
 
 
-class InterfaceHandler(SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if not self.path.startswith(serve_path):
-            self.send_response(MOVED_PERMANENTLY)
-            self.send_header("Location", serve_path)
-            self.end_headers()
-            return
-        return SimpleHTTPRequestHandler.do_GET(self)
+DATE_FORMAT = "%Y-%m-%d"
+CONFIG_NAME = os.environ.get("REPORTS_CONFIG", "etc/reports.yaml")
+with open(CONFIG_NAME) as f:
+    CONFIG = yaml.safe_load(f)
+
+app = Flask(__name__)
 
 
-def run():
-    port = interface_conf.get("port", "8000")
-    TCPServer.allow_reuse_address = True
-    httpd = TCPServer(("", port), InterfaceHandler)
-    logger.info("Serving UI at port {}".format(port))
-    httpd.serve_forever()
+@app.route("/")
+def settings():
+    return render_template('index.html', config=json.dumps(CONFIG, indent=4), config_name=CONFIG_NAME)
+
+
+@app.route("/invoices")
+def invoices():
+    return utility_view(InvoicesUtility)
+
+
+@app.route("/bids")
+def bids():
+    return utility_view(BidsUtility)
+
+
+@app.route("/refunds")
+def refunds():
+    return utility_view(RefundsUtility)
+
+
+@app.route("/tenders")
+def tenders():
+    return utility_view(TendersUtility)
+
+
+def utility_view(utility_class):
+    context = get_context()
+    utility = utility_class(broker=context["broker"], mode=context["mode"],
+                            period=context["period"], config=context["config"])
+
+    context.update(
+        headers=utility.headers,
+        rows=utility.rows(),
+    )
+    return render_template('utility.html', **context)
+
+
+def get_context():
+    brokers = [
+        item.strip() for item in CONFIG.get('brokers_emails', {}).keys()
+        if item.strip() != 'all'
+    ]
+    broker = request.args.get('broker')
+    if (not broker or broker not in brokers) and brokers:
+        broker = brokers[0]
+
+    mode = request.args.get('mode')
+    if not mode or mode not in MODES:
+        mode = MODES[0]
+
+    start = end = None
+    period_from = request.args.get('from')
+    if period_from:
+        start = datetime.strptime(period_from, DATE_FORMAT).date()
+
+    period_to = request.args.get('to')
+    if period_to:
+        end = datetime.strptime(period_to, DATE_FORMAT).date()
+
+    if end is None:
+        end = datetime.today().replace(day=1)
+    if start is None:
+        start = (end - timedelta(days=1)).replace(day=1)
+
+    context = dict(
+        period=[start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")],
+        mode=mode,
+        modes=MODES,
+        broker=broker,
+        brokers=brokers,
+        config=CONFIG,
+    )
+    return context
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8000)
+

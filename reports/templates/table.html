@@ -1,0 +1,17 @@
+<!-- shows the table of contents -->
+<!-- requires headers and rows to be in the context -->
+<table class="table table-striped">
+    <tr class="thead-dark">
+        {% for header in headers %}
+        <th>{{ header }}</th>
+        {% endfor %}
+    </tr>
+    {% for row in rows %}
+    <tr>
+        {% for value in row %}
+        <td style="max-width: 200px;overflow:hidden;word-break: break-all;"
+            class="{% if loop.length == 1 %}bg-success{% endif %}" >{{ value }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>

@@ -1,0 +1,37 @@
+<!-- shows the filters -->
+<!-- requires broker, period, mode to be in the context -->
+<form>
+  <div class="form-row">
+    <div class="form-group col-md-2">
+        <label>From</label>
+        <input name="from" class="form-control" placeholder="xxxx-xx-xx" value="{{ period[0] }}">
+    </div>
+    <div class="form-group col-md-2">
+        <label>To</label>
+        <input name="to" class="form-control" placeholder="xxxx-xx-xx" value="{{ period[1] }}">
+    </div>
+    <div class="form-group col-md-3">
+        <label>Mode</label>
+        <select name="mode" class="form-control">
+            {% for m in modes %}
+             <option {% if m == mode %}selected="selected"{%endif%}>{{ m }}</option>
+            {% endfor %}
+        </select>
+
+    </div>
+    <div class="form-group col-md-3">
+        <label>Broker</label>
+        <select name="broker" class="form-control">
+            {% for b in brokers %}
+             <option {% if b == broker %}selected="selected"{%endif%} >{{ b }}</option>
+            {% endfor %}
+        </select>
+
+    </div>
+    <div class="form-group col-md-2">
+        <label>&nbsp;</label>
+        <br>
+        <button type="submit" class="btn btn-primary">Update Report</button>
+    </div>
+  </div>
+</form>
