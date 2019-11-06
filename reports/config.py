@@ -15,10 +15,6 @@ class Config(object):
     def __init__(self, config, _for):
         self.config = config 
         self._for = _for
-        self.api_url = '{}/api/{}'.format(
-            self.get_option('api', 'host'),
-            self.get_option('api', 'version')
-        )
 
         self.thresholds = [
             float(i) for i in
