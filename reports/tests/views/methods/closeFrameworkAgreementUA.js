@@ -1,20 +1,24 @@
 "use strict";
 
-let tenders = require("../../design/lib/tenders");
-let bids = require("../../design/lib/bids");
-let assert = require("../../../node_modules/chai").assert;
+let tenders = require("../../../design/lib/tenders");
+let bids = require("../../../design/lib/bids");
+let utils = require("../../../design/lib/utils");
+let assert = require("../../../../node_modules/chai").assert;
 
-let tender = {
-    procurementMethodType: "closeFrameworkAgreementUA"
-};
-let lot = {
-    id: "lot_id"
-};
-let bid = {
-    id: "bid_id"
-};
+let tender, lot, bid;
 
 describe("closeFrameworkAgreementUA", () => {
+    beforeEach(() => {
+        tender = {
+            doc_type: "Tender",
+            qualificationPeriod: {startDate: "2019-12-01"},
+            enquiryPeriod: {startDate: "2019-12-01"},
+            procurementMethod: "open",
+            procurementMethodType: "closeFrameworkAgreementUA"
+        };
+        lot = {id: "lot_id"};
+        bid = {id: "bid_id"};
+    });
 
     describe("check_lot", () => {
         it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
@@ -123,6 +127,29 @@ describe("closeFrameworkAgreementUA", () => {
                 status: "active"
             }];
             assert.strictEqual(bids.check_qualification_for_EU_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+        });
+    });
+
+    describe("exclude_tenders", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_tenders(tender));
+        });
+
+        it("should return true for tender before 2019-11-01T00:00:01+02:00", () => {
+            let doc = {
+                procurementMethod: tender.procurementMethod,
+                procurementMethodType: tender.procurementMethodType,
+                revisions: [{
+                    date: "2019-10-31T23:59:59+02:00"
+                }]
+            };
+            assert.isTrue(utils.exclude_tenders(doc));
+        });
+    });
+
+    describe("exclude_bids", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_bids(tender));
         });
     });
 });

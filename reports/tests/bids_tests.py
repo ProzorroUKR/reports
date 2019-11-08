@@ -308,6 +308,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_before_2019_1m(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 1000000,
@@ -349,6 +350,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_before_2019_5m(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 5000000,
@@ -390,6 +392,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_2019_1m(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "enquiryPeriod": {
                 "startDate": "2019-08-22T00:01:50+02:00"
             },
@@ -434,6 +437,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_2019_1m1(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "enquiryPeriod": {
                 "startDate": "2019-08-22T00:01:50+02:00"
             },
@@ -478,6 +482,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_2019_4m1(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "enquiryPeriod": {
                 "startDate": "2019-08-22T00:01:50+02:00"
             },
@@ -522,6 +527,7 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_bids_utility_output_with_lots(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "enquiryPeriod": {
                 "startDate": '2016-04-17T13:32:25.774673+02:00',
             },

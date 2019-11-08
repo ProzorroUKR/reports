@@ -1,20 +1,25 @@
 "use strict";
 
-let tenders = require("../../design/lib/tenders");
-let bids = require("../../design/lib/bids");
-let assert = require("../../../node_modules/chai").assert;
+let tenders = require("../../../design/lib/tenders");
+let bids = require("../../../design/lib/bids");
+let utils = require("../../../design/lib/utils");
+let assert = require("../../../../node_modules/chai").assert;
 
-let tender = {
-    procurementMethodType: "competitiveDialogueEU.stage2"
-};
-let lot = {
-    id: "lot_id"
-};
-let bid = {
-    id: "bid_id"
-}
+let tender, lot, bid;
 
-describe("competitiveDialogueUA", () => {
+describe("competitiveDialogueUA.stage2", () => {
+    beforeEach(() => {
+        tender = {
+            doc_type: "Tender",
+            qualificationPeriod: {startDate: "2019-12-01"},
+            enquiryPeriod: {startDate: "2019-12-01"},
+            procurementMethod: "selective",
+            procurementMethodType: "competitiveDialogueUA.stage2"
+        };
+        lot = {id: "lot_id"};
+        bid = {id: "bid_id"};
+    });
+
     describe("check_lot", () => {
         it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
             assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
@@ -48,14 +53,14 @@ describe("competitiveDialogueUA", () => {
     });
 
     describe("check_tender", () => {
-        it("should return (tender.qualifications || []).length > 1", () => {
-            tender.qualifications = [];
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
-            tender.qualifications.push(null);
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
-            tender.qualifications.push(null);
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
-        })
+        it("should return tender.numberOfBids > 1", () => {
+            tender.numberOfBids = 0;
+            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+            tender.numberOfBids = 1;
+            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+            tender.numberOfBids = 2;
+            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+        });
     });
 
     describe("get_bids", () => {
@@ -95,13 +100,7 @@ describe("competitiveDialogueUA", () => {
 
     describe("check_tender_bids", () => {
         it("no awards in tender", () => {
-            if ("awards" in tender) {
-                delete tender.awards;
-            }
             assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
-            if ("lots" in tender) { 
-                delete tender.lots;
-            }
             tender.numberOfBids = 2;
             assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
         });
@@ -128,6 +127,9 @@ describe("competitiveDialogueUA", () => {
 
     describe("check_award_and_qualification", () => {
         it("no lot", () => {
+            tender.awards = [{
+                lotID: "not_lot_id"
+            }];
             assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
             tender.awards[0].bidID = bid.id;
             assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
@@ -137,6 +139,18 @@ describe("competitiveDialogueUA", () => {
 
         it("lot", () => {
             assert.strictEqual(bids.check_award_for_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+        });
+    });
+
+    describe("exclude_tenders", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_tenders(tender));
+        });
+    });
+
+    describe("exclude_bids", () => {
+        it("should return true", () => {
+            assert.isTrue(utils.exclude_bids(tender));
         });
     });
 });

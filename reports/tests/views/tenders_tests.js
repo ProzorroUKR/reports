@@ -4,31 +4,6 @@ let tenders = require("../../design/lib/tenders");
 let assert = require("../../../node_modules/chai").assert;
 
 describe("tenders view tests", () => {
-    describe("find_first_revision_date", () => {
-        let doc = {};
-
-        it("no revisions - should return empty string.", () => {
-            doc.revisions = undefined;
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");
-        });
-
-        it("revisions are empty array - should return empty string.", () => {
-            doc.revisions = [];
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");
-        });
-
-        it("first revision has no date - should return empty string.", () => {
-            doc.revisions = [{}];
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");    
-        });
-
-        it("everything is ok - should return date.", () => {
-            let date = "2016-04-01T00:00:00+03:00";
-            doc.revisions = [{date: date}];
-            assert.strictEqual(tenders.find_first_revision_date(doc), date);
-        });
-    });
-
     describe("count_lot_bids", () => {
         let lot, bids;
 
@@ -40,11 +15,11 @@ describe("tenders view tests", () => {
 
         it("bids are empty array - should return 0.", () => {
             assert.strictEqual(tenders.count_lot_bids(lot, bids), 0);
-        })
+        });
 
         lot = {
             id: "lot_id"
-        }
+        };
 
         it("no related lots - should return 0.", () => {
             bids.push({
@@ -95,7 +70,7 @@ describe("tenders view tests", () => {
                 status: "active"
             });
             assert.deepEqual([], tenders.filter_bids(bids));
-        })
+        });
 
         it("bid date is later then minimal date and status is active - should return array containing this bid.", () => {
             bids.push({
@@ -333,7 +308,9 @@ describe("tenders view tests", () => {
             tender.awards = [{
                 complaintPeriod: {
                     endDate: "2017-11-02T00:00:00Z"
-                },
+                }
+            },
+            {
                 complaintPeriod: {
                     endDate: "2017-11-03T00:00:00Z"
                 }

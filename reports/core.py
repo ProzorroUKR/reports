@@ -10,7 +10,7 @@ from reports.design import (
     bids_owner_date, tenders_owner_date,
     bids_test_owner_date, tenders_test_owner_date,
     bids_all_owner_date, tenders_all_owner_date,
-    jsonpatch, tenders_lib, bids_lib,
+    jsonpatch, utils, tenders_lib, bids_lib,
 )
 from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
 from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
@@ -113,6 +113,7 @@ class BaseUtility(object):
         original = self.adb.get(_id)
         original['views']['lib'] = {
             'jsonpatch': jsonpatch,
+            'utils': utils,
             'tenders': tenders_lib,
             'bids': bids_lib
         }

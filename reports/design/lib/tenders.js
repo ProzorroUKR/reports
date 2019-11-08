@@ -1,5 +1,6 @@
 var jsp = require('./jsonpatch');
-var bids_disclojure_date;
+var utils = require('./utils');
+
 var start_date;
 var kind;
 var owner;
@@ -41,13 +42,6 @@ var emitter = {
         });
     }
 };
-
-function find_first_revision_date(doc) {
-    if ((typeof doc.revisions === 'undefined') || (doc.revisions.length === 0)) {
-        return '';
-    }
-    return doc.revisions[0].date || '';
-}
 
 function count_lot_bids(lot, bids) {
     return ( bids || [] ).map(function(bid) {
@@ -206,7 +200,7 @@ function find_awards_max_date(awards) {
 function Handler(tender) {
     this.status = tender.status;
     this.is_multilot = "lots" in tender;
-    var bids_disclojure_date = (tender.qualificationPeriod || {}).startDate || (tender.awardPeriod || {}).startDate || null;
+    var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     this.bids_disclosure_standstill = new Date(bids_disclojure_date);
     if ('date' in tender) {
         if (['complete', 'cancelled', 'unsuccessful'].indexOf(tender.status) !== -1) {
@@ -318,13 +312,13 @@ function check_lot(lot, tender) {
             break;
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
-        case 'closeFrameworkAgreementUA':
             if (count_lot_qualifications((tender.qualifications || []), lot.id) > 1) {
                 return true;
             }
             break;
         case 'competitiveDialogueUA':
         case 'competitiveDialogueEU':
+        case 'closeFrameworkAgreementUA':
             if (count_lot_qualifications((tender.qualifications || []), lot.id) > 2) {
                 return true;
             }
@@ -558,85 +552,15 @@ function find_tender_data (tender, results) {
     }
 }
 
-function get_bids_disclojure_date(tender) {
-    return (tender.qualificationPeriod || {}).startDate || (tender.awardPeriod || {}).startDate || null;
-}
-
-function exclude_not_tender_doc_type(doc) {
-    return doc.doc_type !== "Tender";
-}
-
-function exclude_esco(doc) {
-    return doc.procurementMethodType === 'esco';
-}
-
-function exclude_competitive(doc) {
-    var type = doc.procurementMethodType;
-
-    // only first stage is completed
-    if (['competitiveDialogueEU', 'competitiveDialogueUA'].indexOf(type) !== -1) {
-        if (['unsuccessful', 'cancelled'].indexOf(doc.status) === -1) {
-            return true;
-        }
-    }
-}
-
-function exclude_not_bids_disclojure_date(doc) {
-    if(!bids_disclojure_date) {
-        return true;
-    }
-}
-
-function exclude_not_open(doc) {
-    var method = doc.procurementMethod;
-    var type = doc.procurementMethodType;
-
-    if (method !== "open") {
-        if (type.indexOf('stage2') !== -1) {
-            if (method !== 'selective') {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function exclude_old() {
-    return ((!start_date) || (start_date < "2016-04-01"));
-}
-
-function exclude_old_cfa(doc) {
-    var cfa_start_date = '2019-11-01T00:00:01+02:00';
-    if (doc.procurementMethodType === 'closeFrameworkAgreementUA') {
-        return cfa_start_date > start_date
-    }
-}
-
 function main(doc, mode) {
     if ((mode !== "__all__") && ((doc.mode || null) !== mode)) {
         return [];
     }
 
-    start_date = (doc.enquiryPeriod || {}).startDate || find_first_revision_date(doc);
-    bids_disclojure_date = get_bids_disclojure_date(doc);
+    start_date = utils.get_start_date(doc) || '';
 
-    var excluders = [
-        exclude_not_tender_doc_type,
-        exclude_esco,
-        exclude_not_open,
-        exclude_competitive,
-        exclude_not_bids_disclojure_date,
-        exclude_old,
-        exclude_old_cfa
-    ];
-
-    for (var i = 0; i < excluders.length; i++) {
-        if (excluders[i](doc)) {
-            return [];
-        }
+    if (utils.exclude_tenders(doc)) {
+        return [];
     }
 
     //global tender values
@@ -653,7 +577,6 @@ function main(doc, mode) {
 }
 
 exports.main = main;
-exports.find_first_revision_date = find_first_revision_date;
 exports.count_lot_bids = count_lot_bids;
 exports.filter_bids = filter_bids;
 exports.count_lot_qualifications = count_lot_qualifications;

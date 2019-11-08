@@ -23,19 +23,19 @@ class ReportTendersTestCase(BaseTenderUtilityTest):
 
     def test_tenders_view_invalid_method(self):
         data = {
+            "procurementMethod": "test",
             "procurementMethodType": "aboveThresholdUA",
             "contracts": [{
                 "status": "active",
                 "date": "2017-12-18T22:00:00"
             }],
-            "procurementMethod": "test"
         }
         self.assertLen(0, data)
 
     def test_tenders_view_invalid_mode(self):
         data = {
             "mode": "test",
-            "procurementMethod": "open",
+            "procurementMethodType": "aboveThresholdUA",
             "enquiryPeriod": {
                 "startDate": '2016-04-17T13:32:25.774673+02:00',
             },
@@ -49,7 +49,7 @@ class ReportTendersTestCase(BaseTenderUtilityTest):
 
     def test_tenders_view_invalid_status(self):
         data = {
-            "procurementMethod": "open",
+            "procurementMethodType": "aboveThresholdUA",
             "enquiryPeriod": {
                 "startDate": '2016-04-17T13:32:25.774673+02:00',
             },
@@ -110,6 +110,7 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
 
     def test_tenders_utility_output(self):
         data = {
+            "procurementMethodType": "aboveThresholdUA",
             "procuringEntity": {
                 "kind": "general"
             },
@@ -139,6 +140,7 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
 
     def test_before_2019_changes(self):
         data = {
+            "procurementMethodType": "aboveThresholdUA",
             "enquiryPeriod": {
                 "startDate": "2019-07-22T00:01:50+02:00"
             },
@@ -176,6 +178,7 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
 
     def test_2019(self):
         data = {
+            "procurementMethodType": "aboveThresholdUA",
             "enquiryPeriod": {
                 "startDate": "2019-08-22T00:01:50+02:00"
             },

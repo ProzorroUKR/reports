@@ -1,25 +1,27 @@
 "use strict";
 
-let tenders = require("../../design/lib/tenders");
-let bids = require("../../design/lib/bids");
-let assert = require("../../../node_modules/chai").assert;
+let tenders = require("../../../design/lib/tenders");
+let bids = require("../../../design/lib/bids");
+let utils = require("../../../design/lib/utils");
+let assert = require("../../../../node_modules/chai").assert;
 
-let tender = {
-    procurementMethodType: "competitiveDialogueUA"
-};
-let lot = {
-    id: "lot_id"
-};
-let bid = {
-    id: "bid_id"
-}
+let tender, lot, bid;
 
-describe("competitiveDialogueUA", () => {
+describe("competitiveDialogueEU", () => {
+    beforeEach(() => {
+        tender = {
+            doc_type: "Tender",
+            qualificationPeriod: {startDate: "2019-12-01"},
+            enquiryPeriod: {startDate: "2019-12-01"},
+            procurementMethod: "open",
+            procurementMethodType: "competitiveDialogueEU"
+        };
+        lot = {id: "lot_id"};
+        bid = {id: "bid_id"};
+    });
+
     describe("check_lot", () => {
         it("should return count_lot_qualifications((tender.qualifications || []), lot.id) > 2", () => {
-            if ("qualifications" in tender) {
-                delete tender.qualifications;
-            }
             assert.strictEqual(tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2, tenders.check_lot(lot, tender));
             tender.qualifications = [{
                 lotID: lot.id
@@ -113,6 +115,29 @@ describe("competitiveDialogueUA", () => {
                 status: "active"
             }];
             assert.strictEqual(bids.check_qualification_for_EU_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+        });
+    });
+
+    describe("exclude_tenders", () => {
+        it("should return false - unsuccessful tenders", () => {
+            tender.status = "unsuccessful";
+            assert.isFalse(utils.exclude_tenders(tender));
+        });
+
+        it("should return false - cancelled tenders", () => {
+            tender.status = "cancelled";
+            assert.isFalse(utils.exclude_tenders(tender));
+        });
+
+        it("should return true - completed tenders", () => {
+            tender.status = "completed";
+            assert.isTrue(utils.exclude_tenders(tender));
+        });
+    });
+
+    describe("exclude_bids", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_bids(tender));
         });
     });
 });

@@ -136,27 +136,6 @@ describe("bids view tests", () => {
         });
     });
 
-    describe("find_first_revision_date", () => {
-        let tender;
-
-        it("tender has no revisions - should return empty string.", () => {
-            tender = {};
-            assert.strictEqual(bids.find_first_revision_date(tender), "");
-        });
-
-        it("tender revisions is empty array - should return empty string.", () => {
-            tender.revisions = [];
-            assert.strictEqual(bids.find_first_revision_date(tender), "");
-        });
-
-        it("tender has revision with date - should return revision date.", () => {
-            tender.revisions.push({
-                date: "2017-11-13T00:00:00Z"
-            });
-            assert.strictEqual(bids.find_first_revision_date(tender), tender.revisions[0].date);
-        });
-    });
-
     describe("date_normalize", () => {
         // ???
     });
@@ -799,7 +778,7 @@ describe("bids view tests", () => {
                         }
                     ]
                 }
-            ]
+            ];
             tender.qualifications[0].status = "cancelled";
 
             assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));

@@ -161,6 +161,7 @@ class ReportInvoicesUtilityTestCase(BaseInvoicesUtilityTest):
 
     def test_success_4m1_output_2019(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 4000001,
@@ -223,6 +224,7 @@ class ReportInvoicesUtilityTestCase(BaseInvoicesUtilityTest):
 
     def test_cancelled_4m_output_2019(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 4000000,
@@ -284,6 +286,7 @@ class ReportInvoicesUtilityTestCase(BaseInvoicesUtilityTest):
 
     def test_cancelled_4m1_output_2019(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 4000001,
@@ -345,6 +348,7 @@ class ReportInvoicesUtilityTestCase(BaseInvoicesUtilityTest):
 
     def test_cancelled_4m1_output_2017(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 4000001,
@@ -407,6 +411,7 @@ class ReportInvoicesUtilityTestCase(BaseInvoicesUtilityTest):
 
     def test_cancelled_3m_output_2017(self):
         data = {
+            "procurementMethodType": "belowThreshold",
             "value": {
                 "currency": "UAH",
                 "amount": 3000000,
