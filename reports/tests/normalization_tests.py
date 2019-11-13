@@ -5,9 +5,8 @@ from reports.tests.utils import MockCurrencyResponce
 
 
 class ValueNormalizationTestCase(unittest.TestCase):
-    @mock.patch(
-        'reports.helpers.requests.get',
-        new=lambda *args, **kwargs: MockCurrencyResponce())
+    @mock.patch('reports.helpers.requests.get',  new=lambda *args, **kwargs: MockCurrencyResponce())
+    @mock.patch('reports.helpers.sleep', new=lambda *args, **kwargs: mock.Mock())
     def test_value_normalization(self):
         self.assertRaises(
             ValueError,
