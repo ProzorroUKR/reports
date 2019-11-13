@@ -11,21 +11,21 @@ describe("utils tests", () => {
             doc = {}
         });
 
-        it("should return null - no revisions.", () => {
-            assert.strictEqual(utils.find_first_revision_date(doc), null);
+        it("should return empty string - no revisions.", () => {
+            assert.strictEqual(utils.find_first_revision_date(doc), "");
         });
 
-        it("should return null - revisions are empty array.", () => {
+        it("should return empty string - revisions are empty array.", () => {
             doc.revisions = [];
-            assert.strictEqual(utils.find_first_revision_date(doc), null);
+            assert.strictEqual(utils.find_first_revision_date(doc), "");
         });
 
-        it("should return null - first revision has no date.", () => {
+        it("should return empty string - first revision has no date.", () => {
             doc.revisions = [{}];
-            assert.strictEqual(utils.find_first_revision_date(doc), null);
+            assert.strictEqual(utils.find_first_revision_date(doc), "");
         });
 
-        it("should return null - tender has revision with date.", () => {
+        it("should return empty string - tender has revision with date.", () => {
             doc.revisions = [{date: "2017-11-13T00:00:00Z"}];
             assert.strictEqual(utils.find_first_revision_date(doc), doc.revisions[0].date);
         });
@@ -38,8 +38,8 @@ describe("utils tests", () => {
             doc = {}
         });
 
-        it("should return null - no qualificationPeriod and no awardPeriod.", () => {
-            assert.strictEqual(utils.get_bids_disclojure_date(doc), null);
+        it("should return empty string - no qualificationPeriod and no awardPeriod.", () => {
+            assert.strictEqual(utils.get_bids_disclojure_date(doc), "");
         });
 
         it("should return qualificationPeriod startDate - qualificationPeriod and awardPeriod.", () => {
@@ -64,10 +64,10 @@ describe("utils tests", () => {
             assert.strictEqual(utils.get_bids_disclojure_date(doc), "2018-01-01T00:00:00Z");
         });
 
-        it("should return null - no startDate in qualificationPeriod and no startDate in awardPeriod.", () => {
+        it("should return empty string - no startDate in qualificationPeriod and no startDate in awardPeriod.", () => {
             doc.qualificationPeriod = {};
             doc.awardPeriod = {};
-            assert.strictEqual(utils.get_bids_disclojure_date(doc), null);
+            assert.strictEqual(utils.get_bids_disclojure_date(doc), "");
         });
     });
 
@@ -88,9 +88,9 @@ describe("utils tests", () => {
             assert.strictEqual(utils.get_start_date(doc), "2017-01-01T00:00:00Z");
         });
 
-        it("should return null - awardPeriod not exists and no revisions.", () => {
+        it("should return empty string - awardPeriod not exists and no revisions.", () => {
             doc.revisions = [{}];
-            assert.strictEqual(utils.get_start_date(doc), null);
+            assert.strictEqual(utils.get_start_date(doc), "");
         });
     });
 

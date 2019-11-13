@@ -1,28 +1,20 @@
 var jsp = require('./jsonpatch');
 var utils = require('./utils');
 
-var bids_disclojure_date;
-var start_date;
-var id;
-var tender_start_date;
-var tender_id;
-var is_multilot;
-// Date of new algorithm
-var new_date = '2017-08-16T00:00:01+03:00';
 var emitter = {
     lot: function(owner, date, bid, lot, tender, audits, init_date, date_terminated, state, results) {
         results.push({
             key: [owner, date, bid.id, lot.id, state],
             value: {
-                tender: id,
+                tender: tender._id,
                 lot: lot.id,
                 value: lot.value ? lot.value.amount : null,
                 currency: lot.value ? lot.value.currency : null,
                 bid: bid.id,
-                startdate: start_date,
+                startdate: utils.get_start_date(tender),
                 audits: audits,
-                tender_start_date: tender_start_date,
-                tenderID: tender_id,
+                tender_start_date: tender.tenderPeriod.startDate,
+                tenderID: tender.tenderID,
                 initialDate: init_date,
                 lot_status: lot.status,
                 tender_status: tender.status,
@@ -36,14 +28,14 @@ var emitter = {
         results.push({
             key: [owner, date, bid.id, state],
             value: {
-                tender: id,
+                tender: tender._id,
                 value: tender.value ? tender.value.amount : null,
                 currency: tender.value ? tender.value.currency : null,
                 bid: bid.id,
                 audits: audits,
-                startdate: start_date,
-                tender_start_date: tender_start_date,
-                tenderID: tender_id,
+                startdate: utils.get_start_date(tender),
+                tender_start_date: tender.tenderPeriod.startDate,
+                tenderID: tender.tenderID,
                 initialDate: init_date,
                 status: tender.status,
                 date_terminated: date_terminated,
@@ -87,8 +79,10 @@ function filter_bids(bids) {
     var min_date = Date.parse("2017-01-01T00:00:00+03:00");
     return bids.filter(function(bid) {
         var bid_date = Date.parse(bid.date);
-        return ((["active", "invalid.pre-qualification"].indexOf(bid.status) !== -1) &&
-         (+bid_date > +min_date));
+        return (([
+            "active",
+            "invalid.pre-qualification"
+        ].indexOf(bid.status) !== -1) && (+bid_date > +min_date));
     });
 }
 
@@ -112,10 +106,10 @@ function get_bids(tender) {
 function count_lot_bids(lot, tender) {
     var bids = get_bids(tender);
     return bids.map(function(bid) {
-        return ( bid.lotValues || [] ).filter(function(value) {
+        return (bid.lotValues || []).filter(function(value) {
             return value.relatedLot === lot.id;
         }).length;
-    }).reduce(function( total, curr) {
+    }).reduce(function(total, curr) {
         return total + curr;
     }, 0);
 }
@@ -138,18 +132,20 @@ function count_lot_qualifications(qualifications, lot) {
 
 function check_bids_from_bt_atu(tender, lot) {
     var type = tender.procurementMethodType;
-    if (type === 'aboveThresholdUA') {
-        var bids_n = 0;
-        if ('lots' in tender) {
-            bids_n = count_lot_bids(lot, tender);
-        } else {
-            bids_n = tender.numberOfBids || 0;
-        }
-        return bids_n >= 2;
-    } else if (['belowThreshold', 'aboveThresholdUA.defense'].indexOf(type) !== -1) {
-        return true;
-    } else {
-        return false;
+    switch (type) {
+        case 'aboveThresholdUA':
+            var bids_n = 0;
+            if (utils.check_tender_multilot(tender)) {
+                bids_n = count_lot_bids(lot, tender);
+            } else {
+                bids_n = tender.numberOfBids || 0;
+            }
+            return bids_n >= 2;
+        case 'belowThreshold':
+        case 'aboveThresholdUA.defense':
+            return true;
+        default:
+            return false
     }
 }
 
@@ -446,6 +442,7 @@ function emit_deleted_lotValues(tender, actual_bids, results) {
     if (cancelled_lots_ids.length > 0) {
         var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
         var tender_copy = JSON.parse(JSON.stringify(tender));
+        var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
         for (var i = 0; i < revs.length; i++) {
             if (cancelled_lots_ids.length === 0) { return; }
             try {
@@ -492,11 +489,13 @@ function emit_deleted_lotValues(tender, actual_bids, results) {
 
 function emit_results(tender, results) {
     var bids = get_bids(tender);
-    if((tender.status === 'cancelled') && (tender.date <  bids_disclojure_date)) {
+    var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
+    if((tender.status === 'cancelled') && (tender.date < bids_disclojure_date)) {
         return;
     }
     if (bids) {
-        if (start_date > new_date) {
+        var new_alg_date = '2017-08-16T00:00:01';
+        if (utils.get_start_date(tender) > new_alg_date) {
             if (('cancellations' in tender) && ([
                 'aboveThresholdEU',
                 'competitiveDialogueEU',
@@ -506,7 +505,7 @@ function emit_results(tender, results) {
                 emit_deleted_lotValues(tender, bids, results);
             }
             bids.forEach(function(bid) {
-                if (is_multilot) {
+                if ("lots" in tender) {
                     (bid.lotValues || []).forEach(function(lotValue) {
                         var lot = find_lot_for_bid(tender, lotValue);
                         if (!lot) {
@@ -557,7 +556,7 @@ function emit_results(tender, results) {
                 }
             });
         } else {
-            if(is_multilot) {
+            if("lots" in tender) {
                 (bids || []).forEach(function(bid) {
                     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
                     (bid.lotValues || []).forEach(function(value) {
@@ -588,17 +587,9 @@ function main(doc, mode) {
         return [];
     }
 
-    start_date = utils.get_start_date(doc) || '';
-    bids_disclojure_date = utils.get_bids_disclojure_date(doc);
-
     if (utils.exclude_bids(doc)) {
         return [];
     }
-
-    id = doc._id;
-    tender_start_date = doc.tenderPeriod.startDate;
-    tender_id = doc.tenderID;
-    is_multilot = "lots" in doc;
 
     var results = [];
     emit_results(doc, results);

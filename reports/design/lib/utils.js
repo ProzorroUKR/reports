@@ -1,16 +1,20 @@
 function find_first_revision_date(doc) {
     if ((typeof doc.revisions === 'undefined') || (doc.revisions.length === 0)) {
-        return null;
+        return '';
     }
-    return doc.revisions[0].date || null;
+    return doc.revisions[0].date || '';
 }
 
 function get_start_date(doc) {
-    return (doc.enquiryPeriod || {}).startDate || find_first_revision_date(doc) || null;
+    return (doc.enquiryPeriod || {}).startDate || find_first_revision_date(doc) || '';
 }
 
 function get_bids_disclojure_date(doc) {
-    return (doc.qualificationPeriod || {}).startDate || (doc.awardPeriod || {}).startDate || null;
+    return (doc.qualificationPeriod || {}).startDate || (doc.awardPeriod || {}).startDate || '';
+}
+
+function check_tender_multilot(tender) {
+    return 'lots' in tender;
 }
 
 function exclude_not_tender_doc_type(doc) {
@@ -105,6 +109,7 @@ function exclude_bids(doc) {
 exports.find_first_revision_date = find_first_revision_date;
 exports.get_bids_disclojure_date = get_bids_disclojure_date;
 exports.get_start_date = get_start_date;
+exports.check_tender_multilot = check_tender_multilot;
 exports.exclude_not_tender_doc_type = exclude_not_tender_doc_type;
 exports.exclude_not_bids_disclojure_date = exclude_not_bids_disclojure_date;
 exports.exclude_cd_not_completed_tenders = exclude_cd_completed_tenders;
