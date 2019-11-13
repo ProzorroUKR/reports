@@ -586,7 +586,7 @@ function main(doc, mode) {
     start_date = utils.get_start_date(doc) || '';
     bids_disclojure_date = utils.get_bids_disclojure_date(doc);
 
-    if (utils.exclude_tenders(doc)) {
+    if (utils.exclude_bids(doc)) {
         return [];
     }
 
