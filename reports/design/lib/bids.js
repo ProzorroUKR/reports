@@ -28,6 +28,7 @@ var emitter = {
                 tender_status: tender.status,
                 date_terminated: date_terminated,
                 state: state,
+                method: tender.procurementMethodType,
             }
         });
     },
@@ -47,6 +48,7 @@ var emitter = {
                 status: tender.status,
                 date_terminated: date_terminated,
                 state: state,
+                method: tender.procurementMethodType,
             }
         });
     }

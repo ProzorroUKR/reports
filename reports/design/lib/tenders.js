@@ -22,7 +22,8 @@ var emitter = {
                 status: tender_status,
                 datemodified: datemodified,
                 startdate: start_date,
-                tenderID: tenderID
+                tenderID: tenderID,
+                method: tender.procurementMethodType,
             }
         });
     },
@@ -37,7 +38,8 @@ var emitter = {
                 status: tender_status,
                 datemodified: datemodified,
                 startdate: start_date,
-                tenderID: tenderID
+                tenderID: tenderID,
+                method: tender.procurementMethodType,
             }
         });
     }

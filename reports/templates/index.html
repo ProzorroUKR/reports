@@ -1,7 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-    <label>Contents of {{ config_name }}:
+    <div class="jumbotron">
+        <h1 class="display-4">Billing!</h1>
+        <p class="lead">Reports is a collection of utilities for generating OpenProcurement billing reports.</p>
+        <hr class="my-4">
+        <div class="text-center">
+            <h3>Get Started</h3>
+            <div class="btn-group" role="group" aria-label="Start with">
+                <a class="btn btn-outline-primary" href="/invoices?{{ request.query_string }}">Invoices</a>
+                <a class="btn btn-outline-primary" href="/bids?{{ request.query_string }}">Bids</a>
+                <a class="btn btn-outline-primary" href="/refunds?{{ request.query_string }}">Refunds</a>
+                <a class="btn btn-outline-primary" href="/tenders?{{ request.query_string }}">Tenders</a>
+            </div>
+        </div>
+    </div>
+    <details>
+        <summary>Contents of {{ config_name }}</summary>
         <pre><code>{{ config }}</code></pre>
-    </label>
-
+    </details>
 {% endblock %}
