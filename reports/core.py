@@ -121,7 +121,7 @@ class BaseUtility(object):
 
     def convert_value(self, row):
         value, curr = row.get(u'value', 0), row.get(u'currency', u'UAH')
-        if curr != u'UAH':
+        if value and curr != u'UAH':
             old = float(value)
             value, rate = value_currency_normalize(
                 old, row[u'currency'], row[u'startdate'], self.config.proxy_address

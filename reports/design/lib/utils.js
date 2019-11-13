@@ -57,7 +57,8 @@ function exclude_methods_tenders(doc) {
         "open:competitiveDialogueUA",
         "selective:competitiveDialogueEU.stage2",
         "selective:competitiveDialogueUA.stage2",
-        "open:closeFrameworkAgreementUA"
+        "open:closeFrameworkAgreementUA",
+        "open:esco",
     ])
 }
 
@@ -69,7 +70,8 @@ function exclude_methods_bids(doc) {
         "open:aboveThresholdEU",
         "open:competitiveDialogueEU",
         "open:competitiveDialogueUA",
-        "open:closeFrameworkAgreementUA"
+        "open:closeFrameworkAgreementUA",
+        "open:esco",
     ])
 }
 

@@ -17,14 +17,14 @@ describe("esco", () => {
     });
 
     describe("exclude_tenders", () => {
-        it("should return true", () => {
-            assert.isTrue(utils.exclude_tenders(tender));
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_tenders(tender));
         });
     });
 
     describe("exclude_bids", () => {
-        it("should return true", () => {
-            assert.isTrue(utils.exclude_bids(tender));
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_bids(tender));
         });
     });
 });

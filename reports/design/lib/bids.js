@@ -16,8 +16,8 @@ var emitter = {
             value: {
                 tender: id,
                 lot: lot.id,
-                value: lot.value.amount,
-                currency: lot.value.currency,
+                value: lot.value ? lot.value.amount : null,
+                currency: lot.value ? lot.value.currency : null,
                 bid: bid.id,
                 startdate: start_date,
                 audits: audits,
@@ -37,8 +37,8 @@ var emitter = {
             key: [owner, date, bid.id, state],
             value: {
                 tender: id,
-                value: tender.value.amount,
-                currency: tender.value.currency,
+                value: tender.value ? tender.value.amount : null,
+                currency: tender.value ? tender.value.currency : null,
                 bid: bid.id,
                 audits: audits,
                 startdate: start_date,
@@ -102,6 +102,7 @@ function get_bids(tender) {
         case 'competitiveDialogueEU':
         case 'competitiveDialogueUA':
         case 'closeFrameworkAgreementUA':
+        case 'esco':
             return get_eu_tender_bids(tender);
         default:
             return filter_bids(tender.bids || []);
@@ -156,6 +157,7 @@ function check_tender_bids(tender) {
     var type = tender.procurementMethodType;
     switch (type) {
         case 'aboveThresholdEU':
+        case 'esco':
             return ((tender.qualifications || []).length >= 2);
         case 'competitiveDialogueEU':
         case 'competitiveDialogueUA':
@@ -174,6 +176,7 @@ function check_lot_bids(tender, lot) {
     var type = tender.procurementMethodType;
     switch (type) {
         case 'aboveThresholdEU':
+        case 'esco':
             return (count_lot_qualifications(tender.qualifications, lot) >= 2);
         case 'competitiveDialogueEU':
         case 'competitiveDialogueUA':
@@ -354,7 +357,7 @@ function check_qualification_for_EU_bid(tender, bid, lot) {
         if (tender.status === 'unsuccessful') {
             return check_qualification_for_bid(tender, bid);
         } else {
-            var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1)
+            var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
             var tender_copy = JSON.parse(JSON.stringify(tender));
             var prev = jsp.apply_patch(tender_copy, revs[0].changes);
             if (prev.status === 'active.pre-qualification') {
@@ -388,6 +391,7 @@ function check_award_and_qualification(tender, bid, lot) {
         'competitiveDialogueEU',
         'competitiveDialogueUA',
         'closeFrameworkAgreementUA',
+        'esco'
     ].indexOf(type) !== -1) {
         return check_qualification_for_EU_bid(tender, bid, lot);
     } else {
@@ -497,6 +501,7 @@ function emit_results(tender, results) {
                 'aboveThresholdEU',
                 'competitiveDialogueEU',
                 'closeFrameworkAgreementUA',
+                'esco'
             ].indexOf(tender.procurementMethodType) !== -1)) {
                 emit_deleted_lotValues(tender, bids, results);
             }

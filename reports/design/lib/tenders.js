@@ -15,8 +15,8 @@ var emitter = {
             value: {
                 tender: tender_id,
                 lot: lot.id,
-                value: lot.value.amount,
-                currency: lot.value.currency,
+                value: lot.value ? lot.value.amount : null,
+                currency: lot.value ? lot.value.currency : null,
                 kind: kind,
                 lot_status: lot.status,
                 status: tender_status,
@@ -32,8 +32,8 @@ var emitter = {
             key: [owner, date_normalize(date)],
             value: {
                 tender: tender_id,
-                value: tender.value.amount,
-                currency: tender.value.currency,
+                value: tender.value ? tender.value.amount : null,
+                currency: tender.value ? tender.value.currency : null,
                 kind: kind,
                 status: tender_status,
                 datemodified: datemodified,
@@ -314,6 +314,7 @@ function check_lot(lot, tender) {
             break;
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
+        case 'esco':
             if (count_lot_qualifications((tender.qualifications || []), lot.id) > 1) {
                 return true;
             }

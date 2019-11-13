@@ -135,10 +135,10 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_tenders(doc), true);
         });
 
-        it("should return true - open:esco.", () => {
+        it("should return false - open:esco.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "esco";
-            assert.strictEqual(utils.exclude_methods_tenders(doc), true);
+            assert.strictEqual(utils.exclude_methods_tenders(doc), false);
         });
 
         it("should return false - open:belowThreshold.", () => {
@@ -215,10 +215,10 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_bids(doc), true);
         });
 
-        it("should return true - open:esco.", () => {
+        it("should return false - open:esco.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "esco";
-            assert.strictEqual(utils.exclude_methods_bids(doc), true);
+            assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
 
         it("should return false - open:belowThreshold.", () => {
