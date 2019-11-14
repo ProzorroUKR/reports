@@ -39,6 +39,7 @@ var emitter = {
                 tenderID: tender.tenderID,
                 initialDate: init_date,
                 date_terminated: date_terminated,
+                state: state,
                 status: tender.status,
                 lot_status: undefined,
                 bid_status: bid.status,
