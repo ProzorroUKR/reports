@@ -25,6 +25,7 @@ class BidsUtility(BaseBidsUtility, ItemsUtility):
             operation=operation, timezone=timezone, mode=mode)
 
     def row(self, record):
+        self.calculate_esco_value(record)
         state = record.get('state', '')
         row = list(record.get(col, '') for col in self.headers[:-3])
         value, rate = self.convert_value(record)

@@ -8,8 +8,8 @@ var emitter = {
             value: {
                 tender: tender._id,
                 lot: lot.id,
-                value: lot.value ? lot.value.amount : null,
-                currency: lot.value ? lot.value.currency : null,
+                value: (lot.value || {}).amount,
+                currency: (lot.value || {}).currency,
                 kind: tender.procuringEntity.kind || "_kind",
                 lot_status: lot.status,
                 status: tender.status,
@@ -25,8 +25,8 @@ var emitter = {
             key: [tender.owner, date_normalize(date)],
             value: {
                 tender: tender._id,
-                value: tender.value ? tender.value.amount : null,
-                currency: tender.value ? tender.value.currency : null,
+                value: (tender.value || {}).amount,
+                currency: (tender.value || {}).currency,
                 kind: tender.procuringEntity.kind || "_kind",
                 status: tender.status,
                 datemodified: tender.dateModified,

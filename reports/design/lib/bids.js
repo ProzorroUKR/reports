@@ -8,8 +8,8 @@ var emitter = {
             value: {
                 tender: tender._id,
                 lot: lot.id,
-                value: lot.value ? lot.value.amount : null,
-                currency: lot.value ? lot.value.currency : null,
+                value: (lot.value || {}).amount,
+                currency: (lot.value || {}).currency,
                 bid: bid.id,
                 startdate: utils.get_start_date(tender),
                 audits: audits,
@@ -21,6 +21,11 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
+                percentage: (bid.value || {}).yearlyPaymentsPercentage,
+                reduction: (bid.value || {}).annualCostsReduction,
+                years: ((bid.value || {}).contractDuration || {}).years,
+                days: ((bid.value || {}).contractDuration || {}).days,
+                announcement: tender.noticePublicationDate,
             }
         });
     },
@@ -29,8 +34,8 @@ var emitter = {
             key: [owner, date, bid.id, state],
             value: {
                 tender: tender._id,
-                value: tender.value ? tender.value.amount : null,
-                currency: tender.value ? tender.value.currency : null,
+                value: (tender.value || {}).amount,
+                currency: (tender.value || {}).currency,
                 bid: bid.id,
                 audits: audits,
                 startdate: utils.get_start_date(tender),
@@ -41,6 +46,11 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
+                percentage: (bid.value || {}).yearlyPaymentsPercentage,
+                reduction: (bid.value || {}).annualCostsReduction,
+                years: ((bid.value || {}).contractDuration || {}).years,
+                days: ((bid.value || {}).contractDuration || {}).days,
+                announcement: tender.noticePublicationDate,
             }
         });
     }

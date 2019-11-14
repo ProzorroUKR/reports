@@ -14,6 +14,9 @@ from reports.design import (
 )
 from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
 from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
+from esculator import escp
+from decimal import Decimal, ROUND_HALF_UP
+from iso8601 import parse_date
 
 
 VIEWS = [
@@ -119,6 +122,20 @@ class BaseUtility(object):
         }
         self.adb.save(original)
 
+    def calculate_esco_value(self, row):
+        fields = {'years', 'days', 'percentage', 'reduction', 'announcement'}
+        if not row.get('value') and fields.issubset(row.keys()):
+            fraction = escp(
+                row.get(u'years'),
+                row.get(u'days'),
+                row.get(u'percentage'),
+                row.get(u'reduction'),
+                parse_date(row.get(u'announcement')),
+            )
+            value = Decimal(fraction.numerator) / Decimal(fraction.denominator)
+            row['value'] = value.quantize(Decimal('1E-2'), rounding=ROUND_HALF_UP).normalize()
+            row['currency'] = u'UAH'
+
     def convert_value(self, row):
         value, curr = row.get(u'value', 0), row.get(u'currency', u'UAH')
         if value and curr != u'UAH':
@@ -127,17 +144,14 @@ class BaseUtility(object):
                 old, row[u'currency'], row[u'startdate'], self.config.proxy_address
             )
             if not rate:
-                self.Logger.fatal(
-                        "Unalbe to change value {} for tender {} with currency {}".format(
-                            old, row['tender'], row['currency']
-                            )
+                msg = "Unalbe to change value {} for tender {} with currency {}".format(
+                    old, row['tender'], row['currency']
                 )
+                self.Logger.fatal(msg)
                 return value, ""
-            msg = "Changed value {} {} by exgange rate {} on {}"\
-                " is  {} UAH in {}".format(
-                    old, row[u'currency'], rate,
-                    row[u'startdate'], value, row['tender']
-                )
+            msg = "Changed value {} {} by exgange rate {} on {} is  {} UAH in {}".format(
+                old, row[u'currency'], rate, row[u'startdate'], value, row['tender']
+            )
             self.Logger.info(msg)
             return value, rate
         return value, "-"
