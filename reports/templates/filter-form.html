@@ -3,15 +3,25 @@
 <form>
     <div class="form-row">
         <div class="form-group col-md-2">
-            <label>From</label>
-            <input name="from" class="form-control" placeholder="xxxx-xx-xx" value="{{ period[0] }}">
+            <label class="font-weight-bold">From</label>
+            <input type="text"
+                   name="from"
+                   id="datetimepicker_from"
+                   value="{{ period[0] }}"
+                   placeholder="xxxx-xx-xx"
+                   class="form-control datetimepicker-input">
         </div>
         <div class="form-group col-md-2">
-            <label>To</label>
-            <input name="to" class="form-control" placeholder="xxxx-xx-xx" value="{{ period[1] }}">
+            <label class="font-weight-bold">To</label>
+            <input type="text"
+                   name="to"
+                   id="datetimepicker_to"
+                   value="{{ period[1] }}"
+                   placeholder="xxxx-xx-xx"
+                   class="form-control datetimepicker-input">
         </div>
         <div class="form-group col-md-3">
-            <label>Mode</label>
+            <label class="font-weight-bold">Mode</label>
             <select name="mode" class="form-control">
                 {% for m in modes %}
                     <option {% if m == mode %}selected="selected"{% endif %}>{{ m }}</option>
@@ -20,7 +30,7 @@
 
         </div>
         <div class="form-group col-md-3">
-            <label>Broker</label>
+            <label class="font-weight-bold">Broker</label>
             <select name="broker" class="form-control">
                 {% for b in brokers %}
                     <option {% if b == broker %}selected="selected"{% endif %}>{{ b }}</option>
