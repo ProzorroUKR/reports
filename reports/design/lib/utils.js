@@ -13,6 +13,43 @@ function get_bids_disclojure_date(doc) {
     return (doc.qualificationPeriod || {}).startDate || (doc.awardPeriod || {}).startDate || '';
 }
 
+function find_value(tender, lot, bid) {
+    switch (tender.procurementMethodType) {
+        case 'esco':
+            return find_bid_value(tender, lot, bid);
+        default:
+            return find_tender_value(tender, lot);
+
+    }
+}
+
+function find_tender_value(tender, lot) {
+    if (lot) {
+        return lot.value;
+    } else {
+        return tender.value;
+    }
+}
+
+function find_bid_value(tender, lot, bid) {
+    if (lot) {
+        return find_lot_value_for_bid(lot, bid);
+    } else {
+        return bid.value;
+    }
+}
+
+function find_lot_value_for_bid(lot, bid) {
+    var values = (bid.lotValues || []).filter(function(value) {
+        return value.relatedLot === lot.id;
+    });
+    if (values.length > 0) {
+        return values[0].value;
+    } else {
+        return false
+    }
+}
+
 function check_tender_multilot(tender) {
     return 'lots' in tender;
 }
@@ -110,6 +147,7 @@ exports.find_first_revision_date = find_first_revision_date;
 exports.get_bids_disclojure_date = get_bids_disclojure_date;
 exports.get_start_date = get_start_date;
 exports.check_tender_multilot = check_tender_multilot;
+exports.find_value = find_value;
 exports.exclude_not_tender_doc_type = exclude_not_tender_doc_type;
 exports.exclude_not_bids_disclojure_date = exclude_not_bids_disclojure_date;
 exports.exclude_cd_not_completed_tenders = exclude_cd_completed_tenders;

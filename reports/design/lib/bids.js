@@ -16,10 +16,11 @@ var emitter = {
                 tender_start_date: tender.tenderPeriod.startDate,
                 tenderID: tender.tenderID,
                 initialDate: init_date,
-                lot_status: lot.status,
-                tender_status: tender.status,
                 date_terminated: date_terminated,
                 state: state,
+                status: tender.status,
+                lot_status: lot.status,
+                bid_status: bid.status,
                 method: tender.procurementMethodType,
             }
         });
@@ -37,9 +38,10 @@ var emitter = {
                 tender_start_date: tender.tenderPeriod.startDate,
                 tenderID: tender.tenderID,
                 initialDate: init_date,
-                status: tender.status,
                 date_terminated: date_terminated,
-                state: state,
+                status: tender.status,
+                lot_status: undefined,
+                bid_status: bid.status,
                 method: tender.procurementMethodType,
             }
         });
@@ -238,17 +240,6 @@ function find_lot_for_bid(tender, lotValue) {
     });
     if (lots.length > 0) {
         return lots[0];
-    } else {
-        return false
-    }
-}
-
-function find_lot_value_for_bid(lot, bid) {
-    var values = (bid.lotValues || []).filter(function(value) {
-        return value.relatedLot === lot.id;
-    });
-    if (values.length > 0) {
-        return values[0].value;
     } else {
         return false
     }
@@ -490,39 +481,13 @@ function check_cancelled_with_award_and_qualification(tender, bid, lot, status) 
     return (['unsuccessful', 'cancelled'].indexOf(status) !== -1) && (check_award_and_qualification(tender, bid, lot));
 }
 
-function find_value(tender, lot, bid) {
-    switch (tender.procurementMethodType) {
-        case 'esco':
-            return find_bid_value(tender, lot, bid);
-        default:
-            return find_tender_value(tender, lot);
-
-    }
-}
-
-function find_tender_value(tender, lot) {
-    if (lot) {
-        return lot.value;
-    } else {
-        return tender.value;
-    }
-}
-
-function find_bid_value(tender, lot, bid) {
-    if (lot) {
-        return find_lot_value_for_bid(lot, bid);
-    } else {
-        return bid.value;
-    }
-}
-
 function emit_cancelled(bid, lot, tender, date_terminated, deleted, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var state = (get_month(bids_disclojure_date) !== get_month(date_terminated)) ? 3: 2;
     var term_norm = date_normalize(date_terminated);
     var discl_norm = date_normalize(bids_disclojure_date);
-    var value = find_value(tender, lot, bid);
+    var value = utils.find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
         if (state === 2 || deleted) {
@@ -542,7 +507,7 @@ function emit_successful(bid, lot, tender, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var discl_norm = date_normalize(bids_disclojure_date);
-    var value = find_value(tender, lot, bid);
+    var value = utils.find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
         emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, 1, results);
@@ -558,7 +523,7 @@ function emit_old(bid, lot, tender, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var discl_norm = date_normalize(bids_disclojure_date);
-    var value = find_value(tender, lot, bid);
+    var value = utils.find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
         emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, false, results);

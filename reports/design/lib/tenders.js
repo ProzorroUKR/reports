@@ -28,6 +28,7 @@ var emitter = {
                 value: (tender.value || {}).amount,
                 currency: (tender.value || {}).currency,
                 kind: tender.procuringEntity.kind || "_kind",
+                lot_status: undefined,
                 status: tender.status,
                 datemodified: tender.dateModified,
                 startdate: utils.get_start_date(tender),

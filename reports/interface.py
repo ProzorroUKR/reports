@@ -30,7 +30,7 @@ def invoices():
 
 @app.route("/bids")
 def bids():
-    return utility_view(BidsUtility, headers_info=['method'])
+    return utility_view(BidsUtility, headers_info=['status', 'lot_status', 'bid_status', 'method'])
 
 
 @app.route("/refunds")
