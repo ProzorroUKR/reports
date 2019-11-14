@@ -20,8 +20,6 @@ REQUIRES = [
     'repoze.lru',
     'hvac',
     'retrying',
-    'esculator',
-    'iso8601',
 ]
 EXTRA = REQUIRES + [
     'python-swiftclient',

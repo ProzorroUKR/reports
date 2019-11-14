@@ -42,7 +42,6 @@ class InvoicesUtility(BaseBidsUtility):
         return 2017
 
     def row(self, record):
-        self.calculate_esco_value(record)
         value, rate = self.convert_value(record)
         payment_year = self.get_payment_year(record)
         payment = self.get_payment(value, year=payment_year)

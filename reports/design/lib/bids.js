@@ -21,11 +21,6 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
-                percentage: value.yearlyPaymentsPercentage,
-                reduction: value.annualCostsReduction,
-                years: (value.contractDuration || {}).years,
-                days: (value.contractDuration || {}).days,
-                announcement: tender.noticePublicationDate,
             }
         });
     },
@@ -46,11 +41,6 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
-                percentage: value.yearlyPaymentsPercentage,
-                reduction: value.annualCostsReduction,
-                years: (value.contractDuration || {}).years,
-                days: (value.contractDuration || {}).days,
-                announcement: tender.noticePublicationDate,
             }
         });
     }
