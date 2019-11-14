@@ -121,18 +121,26 @@ class BaseUtility(object):
 
     def convert_value(self, row):
         value, curr = row.get(u'value', 0), row.get(u'currency', u'UAH')
-        if value and curr != u'UAH':
-            old = float(value)
+        try:
+            value = float(value)
+        except Exception:
+            msg = "Unable to parse value {} for tender {}".format(
+                value, row['tender']
+            )
+            self.Logger.fatal(msg)
+            return None, "-"
+        if curr != u'UAH':
+            old = value
             value, rate = value_currency_normalize(
                 old, row[u'currency'], row[u'startdate'], self.config.proxy_address
             )
             if not rate:
-                msg = "Unalbe to change value {} for tender {} with currency {}".format(
+                msg = "Unable to change value {} for tender {} with currency {}".format(
                     old, row['tender'], row['currency']
                 )
                 self.Logger.fatal(msg)
                 return value, ""
-            msg = "Changed value {} {} by exgange rate {} on {} is  {} UAH in {}".format(
+            msg = "Changed value {} {} by exgange rate {} on {} is {} UAH in {}".format(
                 old, row[u'currency'], rate, row[u'startdate'], value, row['tender']
             )
             self.Logger.info(msg)
