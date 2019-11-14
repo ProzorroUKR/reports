@@ -1,7 +1,7 @@
 <!-- shows the table of contents -->
 <!-- requires headers and rows to be in the context -->
 <div class="table-responsive">
-    <table class="table table-striped table-borderless table-prozorro">
+    <table class="table table-striped table-borderless table-report">
         <tr class="thead-dark">
             {% for header in headers %}
                 <th>{{ header }}</th>
@@ -13,7 +13,8 @@
         {% for row in rows %}
             <tr>
                 {% for value in row %}
-                    <td {% if loop.length == 1 %}class="bg-warning text-white" colspan="{{ headers|length }}"{% endif %}>
+                    <td class="text-line-brick-disabled{% if loop.length == 1 %} bg-warning text-white{% endif %}"
+                        {% if loop.length == 1 %}colspan="{{ headers|length }}"{% endif %}>
                         {{ value }}
                     </td>
                     {% if loop.length == 1 and headers_info %}

@@ -1,5 +1,58 @@
 {% extends "base.html" %}
+
+{% block head %}
+
+{{ super() }}
+
+<style type="text/css">
+    .table-report {
+        font-size: .75rem;
+    }
+    .table-report th,
+    .table-report td {
+        padding: .75rem .4rem;
+    }
+    .table-report td.text-line-brick-enabled {
+        overflow: hidden;
+        word-break: break-all;
+    }
+    .table-report td.text-line-brick-disabled {
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .bg-primary-warning {
+        background: repeating-linear-gradient(45deg, #ffc107, #ffc107 10px, #007bff 10px, #007bff 20px);
+    }
+
+    .xdsoft_datetimepicker .xdsoft_calendar td,
+    .xdsoft_datetimepicker .xdsoft_calendar th {
+        border: none;
+    }
+</style>
+
+{% endblock %}
+
 {% block content %}
     {% include 'filter-form.html' %}
     {% include 'table.html' %}
+{% endblock %}
+
+{% block scripts %}
+
+{{ super() }}
+
+<!-- Bootstrap Datetimepicker -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"
+        integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk="
+        crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('.datetimepicker-input').datetimepicker({
+            timepicker: false,
+            format: 'Y-m-d'
+        });
+    });
+</script>
+
 {% endblock %}
