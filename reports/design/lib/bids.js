@@ -2,14 +2,14 @@ var jsp = require('./jsonpatch');
 var utils = require('./utils');
 
 var emitter = {
-    lot: function (owner, date, bid, lot, tender, audits, init_date, date_terminated, state, results) {
+    lot: function (owner, date, bid, value, lot, tender, audits, init_date, date_terminated, state, results) {
         results.push({
             key: [owner, date, bid.id, lot.id, state],
             value: {
                 tender: tender._id,
                 lot: lot.id,
-                value: (lot.value || {}).amount,
-                currency: (lot.value || {}).currency,
+                value: value.amount,
+                currency: value.currency,
                 bid: bid.id,
                 startdate: utils.get_start_date(tender),
                 audits: audits,
@@ -21,21 +21,21 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
-                percentage: (tender.value || {}).yearlyPaymentsPercentage,
-                reduction: (tender.value || {}).annualCostsReduction,
-                years: ((tender.value || {}).contractDuration || {}).years,
-                days: ((tender.value || {}).contractDuration || {}).days,
+                percentage: value.yearlyPaymentsPercentage,
+                reduction: value.annualCostsReduction,
+                years: (value.contractDuration || {}).years,
+                days: (value.contractDuration || {}).days,
                 announcement: tender.noticePublicationDate,
             }
         });
     },
-    tender: function(owner, date, bid, tender, audits, init_date, date_terminated, state, results) {
+    tender: function(owner, date, bid, value, tender, audits, init_date, date_terminated, state, results) {
         results.push({
             key: [owner, date, bid.id, state],
             value: {
                 tender: tender._id,
-                value: (tender.value || {}).amount,
-                currency: (tender.value || {}).currency,
+                value: value.amount,
+                currency: value.currency,
                 bid: bid.id,
                 audits: audits,
                 startdate: utils.get_start_date(tender),
@@ -46,10 +46,10 @@ var emitter = {
                 date_terminated: date_terminated,
                 state: state,
                 method: tender.procurementMethodType,
-                percentage: (bid.value || {}).yearlyPaymentsPercentage,
-                reduction: (bid.value || {}).annualCostsReduction,
-                years: ((bid.value || {}).contractDuration || {}).years,
-                days: ((bid.value || {}).contractDuration || {}).days,
+                percentage: value.yearlyPaymentsPercentage,
+                reduction: value.annualCostsReduction,
+                years: (value.contractDuration || {}).years,
+                days: (value.contractDuration || {}).days,
                 announcement: tender.noticePublicationDate,
             }
         });
@@ -248,6 +248,17 @@ function find_lot_for_bid(tender, lotValue) {
     });
     if (lots.length > 0) {
         return lots[0];
+    } else {
+        return false
+    }
+}
+
+function find_lot_value_for_bid(lot, bid) {
+    var values = (bid.lotValues || []).filter(function(value) {
+        return value.relatedLot === lot.id;
+    });
+    if (values.length > 0) {
+        return values[0].value;
     } else {
         return false
     }
@@ -471,7 +482,7 @@ function emit_deleted_lot_values(tender, actual_bids, results) {
                                     emit_cancelled(old_bid, actual_lot, tender, date_normalize(tender.date), true, results);
                                 } else {
                                     actual_lot = find_actual_lot(tender, old_lot.id)[0];
-                                    emit_successfull(old_bid, actual_lot, tender, results);
+                                    emit_successful(old_bid, actual_lot, tender, results);
                                 }
                             }
                         });
@@ -489,39 +500,67 @@ function check_cancelled_with_award_and_qualification(tender, bid, lot, status) 
     return (['unsuccessful', 'cancelled'].indexOf(status) !== -1) && (check_award_and_qualification(tender, bid, lot));
 }
 
+function find_value(tender, lot, bid) {
+    switch (tender.procurementMethodType) {
+        case 'esco':
+            return find_bid_value(tender, lot, bid);
+        default:
+            return find_tender_value(tender, lot);
+
+    }
+}
+
+function find_tender_value(tender, lot) {
+    if (lot) {
+        return lot.value;
+    } else {
+        return tender.value;
+    }
+}
+
+function find_bid_value(tender, lot, bid) {
+    if (lot) {
+        return find_lot_value_for_bid(lot, bid);
+    } else {
+        return bid.value;
+    }
+}
+
 function emit_cancelled(bid, lot, tender, date_terminated, deleted, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var state = (get_month(bids_disclojure_date) !== get_month(date_terminated)) ? 3: 2;
     var term_norm = date_normalize(date_terminated);
     var discl_norm = date_normalize(bids_disclojure_date);
+    var value = find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
         if (state === 2 || deleted) {
-            emitter.lot(bid.owner, discl_norm, bid, lot, tender, audit, init_date, false, 1, results);
+            emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, 1, results);
         }
-        emitter.lot(bid.owner, term_norm, bid, lot, tender, audit, init_date, term_norm, state, results);
+        emitter.lot(bid.owner, term_norm, bid, value, lot, tender, audit, init_date, term_norm, state, results);
     } else {
         var audits = get_audit(tender, "audit");
         if (state === 2 || deleted) {
-            emitter.tender(bid.owner, discl_norm, bid, tender, audits, init_date, false, 1, results);
+            emitter.tender(bid.owner, discl_norm, bid, value, tender, audits, init_date, false, 1, results);
         }
-        emitter.tender(bid.owner, term_norm, bid, tender, audits, init_date, term_norm, state, results);
+        emitter.tender(bid.owner, term_norm, bid, value, tender, audits, init_date, term_norm, state, results);
     }
 }
 
-function emit_successfull(bid, lot, tender, results) {
+function emit_successful(bid, lot, tender, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var discl_norm = date_normalize(bids_disclojure_date);
+    var value = find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
-        emitter.lot(bid.owner, discl_norm, bid, lot, tender, audit, init_date, false, 1, results);
-        emitter.lot(bid.owner, discl_norm, bid, lot, tender, audit, init_date, false, 4, results);
+        emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, 1, results);
+        emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, 4, results);
     } else {
         var audits = get_audit(tender, "audit");
-        emitter.tender(bid.owner, discl_norm, bid, tender, audits, init_date, false, 1, results);
-        emitter.tender(bid.owner, discl_norm, bid, tender, audits, init_date, false, 4, results);
+        emitter.tender(bid.owner, discl_norm, bid, value, tender, audits, init_date, false, 1, results);
+        emitter.tender(bid.owner, discl_norm, bid, value, tender, audits, init_date, false, 4, results);
     }
 }
 
@@ -529,12 +568,13 @@ function emit_old(bid, lot, tender, results) {
     var init_date = find_initial_bid_date(tender.revisions || [], tender.bids.indexOf(bid));
     var bids_disclojure_date = utils.get_bids_disclojure_date(tender);
     var discl_norm = date_normalize(bids_disclojure_date);
+    var value = find_value(tender, lot, bid);
     if (lot) {
         var audit = get_audit(tender, "audit_" + tender.id + "_" + lot.id);
-        emitter.lot(bid.owner, discl_norm, bid, lot, tender, audit, init_date, false, false, results);
+        emitter.lot(bid.owner, discl_norm, bid, value, lot, tender, audit, init_date, false, false, results);
     } else {
         var audits = get_audit(tender, "audit");
-        emitter.tender(bid.owner, discl_norm, bid, tender, audits, init_date, false, false, results);
+        emitter.tender(bid.owner, discl_norm, bid, value, tender, audits, init_date, false, false, results);
     }
 }
 
@@ -582,7 +622,7 @@ function emit_results_new(tender, bids, results) {
                         emit_cancelled(bid, lot, tender, date_normalize(tender.date), false, results);
 
                     } else {
-                        emit_successfull(bid,lot, tender, results);
+                        emit_successful(bid, lot, tender, results);
                     }
                 }
             });
@@ -592,7 +632,7 @@ function emit_results_new(tender, bids, results) {
                     emit_cancelled(bid, "", tender, date_normalize(tender.date), false, results);
 
                 } else {
-                    emit_successfull(bid, "", tender, results);
+                    emit_successful(bid, "", tender, results);
                 }
             }
         }
