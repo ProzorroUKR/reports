@@ -128,14 +128,14 @@ describe("aboveThresholdEU", () => {
     });
 
     describe("check_award_and_qualification", () => {
-        it("should return check_qualification_for_EU_bid", () => {
+        it("should return check_qualification_for_eu_bid", () => {
             lot.status = "unsuccessful";
             tender.qualifications = [{
                 bidID: bid.id,
                 lotID: lot.id,
                 status: "active"
             }];
-            assert.strictEqual(bids.check_qualification_for_EU_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+            assert.strictEqual(bids.check_qualification_for_eu_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
         });
     });
 

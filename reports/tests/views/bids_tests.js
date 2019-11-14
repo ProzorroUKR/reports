@@ -514,7 +514,7 @@ describe("bids view tests", () => {
         });
     });
 
-    describe("check_qualification_for_EU_bid", () => {
+    describe("check_qualification_for_eu_bid", () => {
         let bid, lot, tender, results;
 
         it("lot is in status unsuccessful - should return true (the results of check_qualification_for_bid and check_award_for_bid_multilot).", () => {
@@ -533,7 +533,7 @@ describe("bids view tests", () => {
                 }]
             };
 
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("tender status is active.pre-qualification, lot status is not unsuccessful and tender qualifications is all in status cancelled - should return false.", () => {
@@ -541,7 +541,7 @@ describe("bids view tests", () => {
             tender.status = "active.pre-qualification";
             tender.qualifications[0].status = "cancelled";
             tender.revisions = [];
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("tender status is active.pre-qualification (couse of revisions), lot status is not unsuccessful and tender qualifications is all in status cancelled - should return false.", () => {
@@ -570,13 +570,13 @@ describe("bids view tests", () => {
                 }
             );
 
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("tender status is active.pre-qualification.stand-still, lot status is not unsuccessful and tender has no qualifications in status active - should return false.", () => {
             lot.status = "";
             tender.status = "active.pre-qualification.stand-still";
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
 
@@ -629,7 +629,7 @@ describe("bids view tests", () => {
                     ]
                 }
             ];
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("tender has cancelled lot and prev status was active.pre-qualification.stand-still, and qualifications was active - should return true", () => {
@@ -681,7 +681,7 @@ describe("bids view tests", () => {
                     ]
                 }
             ];
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("tender has cancelled lot and prev status was active.pre-qualification.stand-still, and qualifications wasn't active - should return true", () => {
@@ -733,7 +733,7 @@ describe("bids view tests", () => {
                     ]
                 }
             ];
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
 
@@ -747,7 +747,7 @@ describe("bids view tests", () => {
                 }]
             };
 
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("no lot, no revisions, tender status is unsuccessful and tender has awards - should return true (the results of check_award_for_bid and check_qualification_for_bid).", () => {
@@ -759,7 +759,7 @@ describe("bids view tests", () => {
                 bidID: bid.id
             }];
 
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("no lot, revisions change tender status to active.pre-qualification, all qualifications have status cancelled - should return false.", () => {
@@ -781,23 +781,23 @@ describe("bids view tests", () => {
             ];
             tender.qualifications[0].status = "cancelled";
 
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("no lot, revisions change tender status to active.pre-qualification, tender has qualification not in status cancelled - should return true.", () => {
             tender.qualifications[0].status = "active";
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("no lot, revisions change tender status to active.pre-qualification.stand-still, tender has qualification in status active - should return true.", () => {
             tender.revisions[0].changes[1].value = "active.pre-qualification.stand-still";
             tender.qualifications.push({status: "cancelled"});
-            assert.isTrue(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isTrue(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
 
         it("no lot, revisions change tender status to active.pre-qualification.stand-still, tender has no qualifications in status active - should return false.", () => {
             tender.qualifications[0].status = "cancelled";
-            assert.isFalse(bids.check_qualification_for_EU_bid(tender, bid, lot));
+            assert.isFalse(bids.check_qualification_for_eu_bid(tender, bid, lot));
         });
     });
 });
