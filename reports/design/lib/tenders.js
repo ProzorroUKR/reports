@@ -2,14 +2,14 @@ var jsp = require('./jsonpatch');
 var utils = require('./utils');
 
 var emitter = {
-    lot: function (tender, lot, date, results) {
+    lot: function (tender, lot, value, date, results) {
         results.push({
             key: [tender.owner, date_normalize(date), lot.id],
             value: {
                 tender: tender._id,
                 lot: lot.id,
-                value: (lot.value || {}).amount,
-                currency: (lot.value || {}).currency,
+                value: value.amount,
+                currency: value.currency,
                 kind: tender.procuringEntity.kind || "_kind",
                 lot_status: lot.status,
                 status: tender.status,
@@ -20,13 +20,13 @@ var emitter = {
             }
         });
     },
-    tender: function(tender, date, results) {
+    tender: function(tender, value, date, results) {
         results.push({
             key: [tender.owner, date_normalize(date)],
             value: {
                 tender: tender._id,
-                value: (tender.value || {}).amount,
-                currency: (tender.value || {}).currency,
+                value: value.amount,
+                currency: value.currency,
                 kind: tender.procuringEntity.kind || "_kind",
                 lot_status: undefined,
                 status: tender.status,
@@ -512,7 +512,8 @@ function emit_results_old() {
             if (check_lot(lot, tender)) {
                 var lot_handler = new lotHandler(lot, tender);
                 if (lot_handler.lot_date !== null) {
-                    emitter.lot(tender, lot, lot_handler.lot_date, results);
+                    var value = utils.find_value(tender, lot, find_bid_for_lot(tender, lot));
+                    emitter.lot(tender, lot, value, lot_handler.lot_date, results);
                 }
             }
         });
@@ -522,24 +523,73 @@ function emit_results_old() {
                 if (handler.tender_date < handler.bids_disclosure_standstill) { return; }
             }
             if (handler.tender_date !==  null) {
-                emitter.tender(tender, handler.tender_date, results);
+                var value = utils.find_value(tender, "", find_bid_for_tender(tender));
+                emitter.tender(tender, value, handler.tender_date, results);
             }
         }
     }
+}
+
+function find_bid_for_lot(tender, lot) {
+    var date = null;
+    var value = {};
+    (tender.awards || []).forEach(function(award) {
+        if (award.lotID === lot.id) {
+            if (['active', 'pending', 'cancelled'].indexOf(award.status) !== -1) {
+                (tender.bids || []).forEach(function (bid) {
+                    if (award.bid_id === bid.id) {
+                        if (date === null) {
+                            date = award.date;
+                        }
+                        if (award.date >= date) {
+                            date = award.date;
+                            value = bid;
+                        }
+                    }
+                });
+            }
+        }
+    });
+    return value;
+}
+
+function find_bid_for_tender(tender) {
+    var date = null;
+    var value = {};
+    (tender.awards || []).forEach(function(award) {
+        if (['active', 'pending', 'cancelled'].indexOf(award.status) !== -1) {
+            (tender.bids || []).forEach(function (bid) {
+                if (award.bid_id === bid.id) {
+                    if (award.bid_id === bid.id) {
+                        if (date === null) {
+                            date = award.date;
+                        }
+                        if (award.date >= date) {
+                            date = award.date;
+                            value = bid;
+                        }
+                    }
+                }
+            });
+        }
+    });
+    return value;
 }
 
 function emit_results_new(tender, results) {
     if (utils.check_tender_multilot(tender)) {
         tender.lots.forEach(function(lot) {
             var date_opened = lot_date_new_alg(tender, lot);
+            var value = utils.find_value(tender, lot, find_bid_for_lot(tender, lot));
             if (date_opened) {
-                emitter.lot(tender, lot, date_opened, results);
+                emitter.lot(tender, lot, value, date_opened, results);
             }
         });
     } else {
         var date_opened = tender_date_new_alg(tender);
+        var value = utils.find_value(tender, "", find_bid_for_tender(tender));
         if (date_opened) {
-            emitter.tender(tender, date_opened, results);
+            emitter.tender(tender, value, date_opened, results);
         }
     }
 }
