@@ -1,4 +1,3 @@
-var jsp = require('./jsonpatch');
 var utils = require('./utils');
 
 var emitter = {
@@ -330,6 +329,19 @@ function get_info_about_cancelled_lot(actual_tender, old_tender, bid, lot) {
     return checker;
 }
 
+function find_prev_revision(tender) {
+    return utils.apply_revisions(tender, function () { return true; })
+}
+
+
+function check_tender_lot_not_canceled(tender, lot_id) {
+    var found = tender.lots.filter(function(l) {
+        return ((l.status !== 'cancelled') && (l.id === lot_id));
+    });
+    if (found.length > 0) {
+        return true;
+    }
+}
 
 function check_qualification_for_eu_bid(tender, bid, lot) {
     var checker = false;
@@ -337,26 +349,16 @@ function check_qualification_for_eu_bid(tender, bid, lot) {
         if (lot.status === 'unsuccessful') {
             return (check_qualification_for_bid(tender, bid, lot) && check_award_for_bid_multilot(tender, bid, lot));
         } else {
-            var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
-            var tender_copy = JSON.parse(JSON.stringify(tender));
-            for (var i = 0; i < revs.length; i++) {
-                tender_copy = jsp.apply_patch(tender_copy, revs[i].changes);
-                var found = tender_copy.lots.filter(function(l) {
-                    return ((l.status !== 'cancelled') && (l.id === lot.id));
-                });
-                if (found.length > 0) {
-                    break;
-                }
-            }
-            return get_info_about_cancelled_lot(tender, tender_copy, bid, lot);
+            var tender_old = utils.apply_revisions(tender, function(tender_old) {
+                return check_tender_lot_not_canceled(tender_old, lot.id);
+            });
+            return get_info_about_cancelled_lot(tender, tender_old, bid, lot);
         }
     } else {
         if (tender.status === 'unsuccessful') {
             return check_qualification_for_bid(tender, bid);
         } else {
-            var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
-            var tender_copy = JSON.parse(JSON.stringify(tender));
-            var prev = jsp.apply_patch(tender_copy, revs[0].changes);
+            var prev = find_prev_revision(tender);
             if (prev.status === 'active.pre-qualification') {
                 prev.qualifications.forEach(function(qual) {
                     if (qual.status !== 'cancelled') {
@@ -430,36 +432,29 @@ function emit_deleted_lot_values(tender, actual_bids, results) {
     }).map(function (lot) {
         return lot.relatedLot;
     });
+    
     var all_lot_values = [];
     actual_bids.forEach(function (bid) {
         (bid.lotValues || []).forEach(function (lotValue) {
             all_lot_values.push(lotValue.relatedLot);
         });
     });
+    
     cancelled_lots_ids = cancelled_lots_ids.filter(function (id) {
         return all_lot_values.indexOf(id) === -1;
     });
 
     if (cancelled_lots_ids.length > 0) {
-        var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
-        var tender_copy = JSON.parse(JSON.stringify(tender));
-        for (var i = 0; i < revs.length; i++) {
-            if (cancelled_lots_ids.length === 0) { return; }
-            try {
-                tender_copy = jsp.apply_patch(tender_copy, revs[i].changes);
-            }
-            catch (e) {
-                log(e)
-            }
-            var non_cancelled_lots = check_if_lot_not_cancelled(tender_copy, cancelled_lots_ids);
+        utils.apply_revisions(tender, function (old_tender) {
+            var non_cancelled_lots = check_if_lot_not_cancelled(old_tender, cancelled_lots_ids);
             (non_cancelled_lots || []).forEach(function (old_lot) {
                 var id = old_lot.id;
-                (tender_copy.bids || []).forEach(function (old_bid) {
+                (old_tender.bids || []).forEach(function (old_bid) {
                     if (check_bid(actual_bids, old_bid)) {
                         (old_bid.lotValues || []).forEach(function (lotValue) {
                             if (lotValue.relatedLot === old_lot.id) {
                                 var actual_lot;
-                                if (get_info_about_cancelled_lot(tender, tender_copy, old_bid, old_lot)) {
+                                if (get_info_about_cancelled_lot(tender, old_tender, old_bid, old_lot)) {
                                     actual_lot = find_actual_lot(tender, old_lot.id)[0];
                                     emit_cancelled(old_bid, actual_lot, tender, date_normalize(tender.date), true, results);
                                 } else {
@@ -474,7 +469,7 @@ function emit_deleted_lot_values(tender, actual_bids, results) {
                     return id_ !== id;
                 });
             });
-        }
+        })
     }
 }
 

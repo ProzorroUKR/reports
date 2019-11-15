@@ -1,3 +1,5 @@
+var jsp = require('./jsonpatch');
+
 function find_first_revision_date(doc) {
     if ((typeof doc.revisions === 'undefined') || (doc.revisions.length === 0)) {
         return '';
@@ -52,6 +54,23 @@ function find_lot_value_for_bid(lot, bid) {
 
 function check_tender_multilot(tender) {
     return 'lots' in tender;
+}
+
+function apply_revisions(tender, callback) {
+    var revs = tender.revisions.slice().reverse().slice(0, tender.revisions.length - 1);
+    var tender_old = JSON.parse(JSON.stringify(tender));
+    for (var i = 0; i < revs.length; i++) {
+        try {
+            tender_old = jsp.apply_patch(tender_old, revs[i].changes);
+        }
+        catch (e) {
+            log(e)
+        }
+        if (callback(tender_old)) {
+            return tender_old;
+        }
+    }
+    return tender_old
 }
 
 function exclude_not_tender_doc_type(doc) {
@@ -148,6 +167,7 @@ exports.get_bids_disclojure_date = get_bids_disclojure_date;
 exports.get_start_date = get_start_date;
 exports.check_tender_multilot = check_tender_multilot;
 exports.find_value = find_value;
+exports.apply_revisions = apply_revisions;
 exports.exclude_not_tender_doc_type = exclude_not_tender_doc_type;
 exports.exclude_not_bids_disclojure_date = exclude_not_bids_disclojure_date;
 exports.exclude_cd_not_completed_tenders = exclude_cd_completed_tenders;

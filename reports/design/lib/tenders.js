@@ -1,4 +1,3 @@
-var jsp = require('./jsonpatch');
 var utils = require('./utils');
 
 var emitter = {
@@ -435,17 +434,9 @@ function find_date_from_revisions(original_tender, lot) {
     if (active_awards.length > 0) {
         date = active_awards[0].date;
     }
-    var revs = original_tender.revisions.slice().reverse().slice(0, original_tender.revisions.length - 1);
-    var tender = JSON.parse(JSON.stringify(original_tender));
-    for (var i = 0; i < revs.length; i++) {
-        try{
-            var prev = jsp.apply_patch(tender, revs[i].changes);
-        }
-        catch (e) {
-            log(e)
-        }
+    utils.apply_revisions(original_tender, function (prev) {
         if (!('awards' in prev)) {
-            break;
+            return true;
         } else {
             for (var j = 0; j < prev.awards.length; j++) {
                 var award = prev.awards[j];
@@ -454,7 +445,7 @@ function find_date_from_revisions(original_tender, lot) {
                 }
             }
         }
-    }
+    });
     if (date !== 'date') {
         return date;
     }
