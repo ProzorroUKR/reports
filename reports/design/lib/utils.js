@@ -34,6 +34,18 @@ function find_tender_value(tender, lot) {
 }
 
 function find_bid_value(tender, lot, bid) {
+    if ((tender.qualifications || []).length > 0) {
+        var old_tender = apply_revisions(tender, function (prev) {
+            return (prev.qualifications || []).length === 0;
+        });
+
+        (old_tender.bids || []).forEach(function (old_bid) {
+            if (old_bid.id === bid.id) {
+                bid = old_bid;
+            }
+        });
+    }
+
     if (lot) {
         return find_lot_value_for_bid(lot, bid);
     } else {
