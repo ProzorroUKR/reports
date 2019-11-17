@@ -135,15 +135,17 @@ describe("closeFrameworkAgreementUA", () => {
             assert.isFalse(utils.exclude_tenders(tender));
         });
 
-        it("should return true for tender before 2019-11-01T00:00:01+02:00", () => {
-            let doc = {
-                procurementMethod: tender.procurementMethod,
-                procurementMethodType: tender.procurementMethodType,
-                revisions: [{
-                    date: "2019-10-31T23:59:59+02:00"
-                }]
-            };
-            assert.isTrue(utils.exclude_tenders(doc));
+        it("should return true for tender enquiryPeriod startDate before 2019-11-01T00:00:01+02:00", () => {
+            tender["enquiryPeriod"] = {"startDate": "2019-10-31T23:59:59+02:00"};
+            assert.isTrue(utils.exclude_tenders(tender));
+        });
+
+        it("should return true for tender first revision before 2019-11-01T00:00:01+02:00", () => {
+            tender["enquiryPeriod"] = undefined;
+            tender["revisions"] = [{
+                date: "2019-10-31T23:59:59+02:00"
+            }];
+            assert.isTrue(utils.exclude_tenders(tender));
         });
     });
 

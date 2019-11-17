@@ -93,13 +93,20 @@ function exclude_not_bids_disclojure_date(doc) {
     return !get_bids_disclojure_date(doc)
 }
 
-function exclude_old_tenders(doc) {
+function exclude_old(doc) {
     var start_date = get_start_date(doc);
     return ((!start_date) || (start_date < "2016-04-01"));
 }
 
-function exclude_old_cfa_tenders(doc) {
+function exclude_old_cfa(doc) {
     if (doc.procurementMethodType === 'closeFrameworkAgreementUA') {
+        var start_date = get_start_date(doc);
+        return (!start_date) || (start_date < "2019-11-01T00:00:01+02:00")
+    }
+}
+
+function exclude_old_esco(doc) {
+    if (doc.procurementMethodType === 'esco') {
         var start_date = get_start_date(doc);
         return (!start_date) || (start_date < "2019-11-01T00:00:01+02:00")
     }
@@ -161,8 +168,9 @@ function exclude_tenders(doc) {
         exclude_methods_tenders,
         exclude_cd_completed_tenders,
         exclude_not_bids_disclojure_date,
-        exclude_old_tenders,
-        exclude_old_cfa_tenders
+        exclude_old,
+        exclude_old_cfa,
+        exclude_old_esco,
     ]);
 }
 
@@ -170,7 +178,8 @@ function exclude_bids(doc) {
     return exclude(doc, [
         exclude_not_tender_doc_type,
         exclude_methods_bids,
-        exclude_not_bids_disclojure_date
+        exclude_not_bids_disclojure_date,
+        exclude_old_esco,
     ]);
 }
 
@@ -183,8 +192,9 @@ exports.apply_revisions = apply_revisions;
 exports.exclude_not_tender_doc_type = exclude_not_tender_doc_type;
 exports.exclude_not_bids_disclojure_date = exclude_not_bids_disclojure_date;
 exports.exclude_cd_not_completed_tenders = exclude_cd_completed_tenders;
-exports.exclude_old_tenders = exclude_old_tenders;
-exports.exclude_old_cfa_tenders = exclude_old_cfa_tenders;
+exports.exclude_old_tenders = exclude_old;
+exports.exclude_old_cfa = exclude_old_cfa;
+exports.exclude_old_esco = exclude_old_esco;
 exports.exclude_methods_tenders = exclude_methods_tenders;
 exports.exclude_methods_bids = exclude_methods_bids;
 exports.exclude_tenders = exclude_tenders;

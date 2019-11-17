@@ -350,6 +350,7 @@ function check_tender(tender) {
             break;
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
+        case 'esco':
             if (((tender.qualifications || []).length) > 1) {
                 return true;
             }
