@@ -1,9 +1,11 @@
 var utils = require('./utils');
 
+var NEW_ALG_START_DATE = "2017-08-16T00:00:01";
+
 var emitter = {
     lot: function (tender, lot, value, date, results) {
         results.push({
-            key: [tender.owner, date_normalize(date), lot.id],
+            key: [tender.owner, utils.date_normalize(date), lot.id],
             value: {
                 tender: tender._id,
                 lot: lot.id,
@@ -21,7 +23,7 @@ var emitter = {
     },
     tender: function(tender, value, date, results) {
         results.push({
-            key: [tender.owner, date_normalize(date)],
+            key: [tender.owner, utils.date_normalize(date)],
             value: {
                 tender: tender._id,
                 value: value.amount,
@@ -82,11 +84,6 @@ function max_date(obj) {
         }
     });
     return new Date(Math.max.apply(null, dates));
-}
-
-function date_normalize(date) {
-    //return date in UTC format
-    return ((typeof date === 'object') ? date : (new Date(date))).toISOString().slice(0, 23);
 }
 
 function find_complaint_date(complaints) {
@@ -332,10 +329,13 @@ function check_lot(lot, tender) {
                 }
             }
             break;
-        default:
+        case 'belowThreshold':
             if (count_lot_bids(lot, bids) > 0) {
                 return true;
             }
+            break;
+        default:
+            throw 'Not implemented';
     }
     return false;
 }
@@ -372,10 +372,13 @@ function check_tender(tender) {
             break;
         case 'closeFrameworkAgreementUA':
             throw 'Not implemented';
-        default:
+        case 'belowThreshold':
             if (tender.numberOfBids > 0) {
                 return true;
             }
+            break;
+        default:
+            throw 'Not implemented';
     }
     return false;
 }
@@ -479,10 +482,19 @@ function tender_date_new_alg(tender) {
     switch (tender.procurementMethodType) {
         case 'belowThreshold':
             return get_first_award_date(tender);
+        case 'competitiveDialogueUA.stage2':
+        case 'aboveThresholdUA':
+        case 'competitiveDialogueEU.stage2':
+        case 'aboveThresholdEU':
+        case 'esco':
+        case 'aboveThresholdUA.defense':
+        case 'competitiveDialogueUA':
+        case 'competitiveDialogueEU':
+            return get_contract_date(tender);
         case 'closeFrameworkAgreementUA':
             throw 'Not implemented';
         default:
-            return get_contract_date(tender);
+            throw 'Not implemented';
     }
 }
 
@@ -490,21 +502,40 @@ function lot_date_new_alg(tender, lot) {
     switch (tender.procurementMethodType) {
         case 'belowThreshold':
             return get_first_award_date(tender, lot);
+        case 'competitiveDialogueUA.stage2':
+        case 'aboveThresholdUA':
+        case 'competitiveDialogueEU.stage2':
+        case 'aboveThresholdEU':
+        case 'esco':
+        case 'aboveThresholdUA.defense':
+        case 'competitiveDialogueUA':
+        case 'competitiveDialogueEU':
+            return get_contract_date_for_lot(tender, lot);
         case 'closeFrameworkAgreementUA':
             return get_agreement_date_for_lot(tender, lot);
         default:
-            return get_contract_date_for_lot(tender, lot);
+            throw 'Not implemented';
     }
 }
 
-function emit_results_old() {
+function find_value(tender, lot, bid) {
+    switch (tender.procurementMethodType) {
+        case 'esco':
+            return utils.find_bid_value(tender, lot, bid);
+        default:
+            return utils.find_lot_value(tender, lot);
+
+    }
+}
+
+function emit_results_old(tender, results) {
     var handler = new Handler(tender);
     if (handler.is_multilot) {
         tender.lots.forEach(function(lot){
             if (check_lot(lot, tender)) {
                 var lot_handler = new lotHandler(lot, tender);
                 if (lot_handler.lot_date !== null) {
-                    var value = utils.find_value(tender, lot, find_bid_for_lot(tender, lot));
+                    var value = find_value(tender, lot, find_bid_for_lot(tender, lot));
                     emitter.lot(tender, lot, value, lot_handler.lot_date, results);
                 }
             }
@@ -515,7 +546,7 @@ function emit_results_old() {
                 if (handler.tender_date < handler.bids_disclosure_standstill) { return; }
             }
             if (handler.tender_date !==  null) {
-                var value = utils.find_value(tender, "", find_bid_for_tender(tender));
+                var value = find_value(tender, null, find_bid_for_tender(tender));
                 emitter.tender(tender, value, handler.tender_date, results);
             }
         }
@@ -572,14 +603,14 @@ function emit_results_new(tender, results) {
     if (utils.check_tender_multilot(tender)) {
         tender.lots.forEach(function(lot) {
             var date_opened = lot_date_new_alg(tender, lot);
-            var value = utils.find_value(tender, lot, find_bid_for_lot(tender, lot));
+            var value = find_value(tender, lot, find_bid_for_lot(tender, lot));
             if (date_opened) {
                 emitter.lot(tender, lot, value, date_opened, results);
             }
         });
     } else {
         var date_opened = tender_date_new_alg(tender);
-        var value = utils.find_value(tender, "", find_bid_for_tender(tender));
+        var value = find_value(tender, null, find_bid_for_tender(tender));
         if (date_opened) {
             emitter.tender(tender, value, date_opened, results);
         }
@@ -587,8 +618,7 @@ function emit_results_new(tender, results) {
 }
 
 function emit_results(tender, results) {
-    var new_alg_date = '2017-08-16T00:00:01';
-    if (utils.get_start_date(tender) < new_alg_date) {
+    if (utils.get_start_date(tender) < NEW_ALG_START_DATE) {
         emit_results_old(tender, results);
     } else {
         emit_results_new(tender, results);
@@ -625,3 +655,6 @@ exports.get_contract_date = get_contract_date;
 exports.get_contract_date_for_lot = get_contract_date_for_lot;
 exports.find_date_from_revisions = find_date_from_revisions;
 exports.get_first_award_date = get_first_award_date;
+exports.emit_results = emit_results;
+exports.emit_results_old = emit_results_old;
+exports.emit_results_new = emit_results_new;

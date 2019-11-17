@@ -77,11 +77,17 @@ describe("belowThreshold", () => {
 
     describe("check_award_and_qualification", () => {
         it("should return check_award_for_bid_multilot(tender, bid, lot).", () => {
-            assert.strictEqual(bids.check_award_and_qualification(tender, bid, lot), bids.check_award_for_bid_multilot(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_award_and_qualification(tender, bid, lot),
+                bids.check_award_for_bid_multilot(tender, bid, lot)
+            );
         });
 
         it("should return check_award_for_bid(tender, bid).", () => {
-            assert.strictEqual(bids.check_award_and_qualification(tender, bid), bids.check_award_for_bid_multilot(tender, bid));
+            assert.strictEqual(
+                bids.check_award_and_qualification(tender, bid),
+                bids.check_award_for_bid_multilot(tender, bid)
+            );
         });
     });
 

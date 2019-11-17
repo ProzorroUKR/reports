@@ -22,7 +22,10 @@ describe("aboveThresholdEU", () => {
 
     describe("check_lot", () => {
         it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
 
             tender.bids = [
                 {
@@ -39,7 +42,10 @@ describe("aboveThresholdEU", () => {
                 }
             ];
 
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
 
             tender.bids.push({
                 date: "2017-11-20T00:00:00Z",
@@ -48,18 +54,30 @@ describe("aboveThresholdEU", () => {
                 }]
             });
 
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
         });
     });
 
     describe("check_tender", () => {
         it("should return (tender.qualifications || []).length > 1", () => {
             tender.qualifications = [];
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
+            assert.strictEqual(
+                (tender.qualifications || []).length > 1,
+                tenders.check_tender(tender)
+            );
             tender.qualifications.push(null);
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
+            assert.strictEqual(
+                (tender.qualifications || []).length > 1,
+                tenders.check_tender(tender)
+            );
             tender.qualifications.push(null);
-            assert.strictEqual((tender.qualifications || []).length > 1, tenders.check_tender(tender));
+            assert.strictEqual(
+                (tender.qualifications || []).length > 1,
+                tenders.check_tender(tender)
+            );
         })
     });
 
@@ -74,9 +92,16 @@ describe("aboveThresholdEU", () => {
             tender.bids.push({
                 id: bid.id
             });
-            assert.deepEqual(bids.get_eu_tender_bids(tender), bids.get_bids(tender));
+            assert.deepEqual(
+                bids.get_eu_tender_bids(tender),
+                bids.get_bids(tender)
+            );
             tender.qualifications[0].bidID = bid.id;
-            assert.deepEqual(bids.get_eu_tender_bids(tender), bids.get_bids(tender));
+            assert.deepEqual(
+                bids.get_eu_tender_bids(tender),
+                bids.get_bids(tender)
+            );
+            assert.lengthOf(bids.get_bids(tender), 1);
         });
     });
 
@@ -102,7 +127,10 @@ describe("aboveThresholdEU", () => {
         it("should return count_lot_qualifications(tender.qualifications, lot) >= 2", () => {
             lot.status = "cancelled";
             tender.qualifications = [];
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications = [
                 {
                     lotID: lot.id,
@@ -117,13 +145,25 @@ describe("aboveThresholdEU", () => {
                     status: ""
                 }
             ];
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications.push(tender.qualifications[0]);
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             lot.status = "active";
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications.push(tender.qualifications[0]);
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(bids.count_lot_qualifications(
+                tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
         });
     });
 
@@ -135,7 +175,10 @@ describe("aboveThresholdEU", () => {
                 lotID: lot.id,
                 status: "active"
             }];
-            assert.strictEqual(bids.check_qualification_for_eu_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_qualification_for_eu_bid(tender, bid, lot),
+                bids.check_award_and_qualification(tender, bid, lot)
+            );
         });
     });
 

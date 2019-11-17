@@ -22,7 +22,10 @@ describe("aboveThresholdUA", () => {
 
     describe("check_lot", () => {
         it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
 
             tender.bids = [
                 {
@@ -39,7 +42,10 @@ describe("aboveThresholdUA", () => {
                 }
             ];
 
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
 
             tender.bids.push({
                 date: "2017-11-20T00:00:00Z",
@@ -48,7 +54,10 @@ describe("aboveThresholdUA", () => {
                 }]
             });
 
-            assert.strictEqual(tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.check_lot(tender, lot));
+            assert.strictEqual(
+                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
+                tenders.check_lot(lot, tender)
+            );
         });
     });
 
@@ -93,32 +102,56 @@ describe("aboveThresholdUA", () => {
 
     describe("check_bids_from_bt_atu", () => {
         it("no lots in tender", () => {
-            assert.strictEqual((tender.numberOfBids || 0) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                (tender.numberOfBids || 0) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
             tender.numberOfBids = 0;
-            assert.strictEqual((tender.numberOfBids || 0) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                (tender.numberOfBids || 0) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
             tender.numberOfBids = 2;
-            assert.strictEqual((tender.numberOfBids || 0) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                (tender.numberOfBids || 0) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
         });
 
         it("lots in tender", () => {
             tender.lots = [];
-            assert.strictEqual(bids.count_lot_bids(lot, tender) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_bids(lot, tender) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
             tender.bids = [{
                 lotValues: [{
                     relatedLot: lot.id
                 }]
             }];
-            assert.strictEqual(bids.count_lot_bids(lot, tender) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_bids(lot, tender) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
             tender.bids.push(tender.bids[0]);
-            assert.strictEqual(bids.count_lot_bids(lot, tender) >= 2, bids.check_bids_from_bt_atu(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_bids(lot, tender) >= 2,
+                bids.check_bids_from_bt_atu(tender, lot)
+            );
         });
     });
 
     describe("check_tender_bids", () => {
         it("no awards in tender", () => {
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender),
+                bids.check_tender_bids(tender)
+            );
             tender.numberOfBids = 2;
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender),
+                bids.check_tender_bids(tender)
+            );
         });
         it("awards in tender", () => {
             tender.awards = [];
@@ -128,14 +161,20 @@ describe("aboveThresholdUA", () => {
 
     describe("check_lot_bids", () => {
         it("no awards", () => {
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender, lot), bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender, lot),
+                bids.check_lot_bids(tender, lot)
+            );
         });
 
         it("awards", () => {
             tender.awards = [{
                 lotID: "not_lot_id"
             }];
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender, lot), bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender, lot),
+                bids.check_lot_bids(tender, lot)
+            );
             tender.awards[0].lotID = lot.id;
             assert.isTrue(bids.check_lot_bids(tender, lot));
         });
@@ -146,15 +185,27 @@ describe("aboveThresholdUA", () => {
             tender.awards = [{
                 lotID: "not_lot_id"
             }];
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
             tender.awards[0].bidID = bid.id;
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
             tender.awards[0].status = "active";
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
         });
 
         it("lot", () => {
-            assert.strictEqual(bids.check_award_for_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid, lot),
+                bids.check_award_and_qualification(tender, bid, lot)
+            );
         });
     });
 

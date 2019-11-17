@@ -1,7 +1,14 @@
 "use strict";
 
-let utils = require("../../design/lib/utils");
-let assert = require("../../../node_modules/chai").assert;
+const utils = require("../../design/lib/utils");
+const chai = require("../../../node_modules/chai");
+const spies = require("../../../node_modules/chai-spies");
+
+chai.use(spies);
+
+const expect = chai.expect;
+const assert = chai.assert;
+const spy = chai.spy;
 
 describe("utils tests", () => {
     describe("find_first_revision_date", () => {
@@ -290,6 +297,234 @@ describe("utils tests", () => {
 
         it("should return false - can't get bids disclojure date.", () => {
             assert.strictEqual(utils.exclude_not_bids_disclojure_date(doc), true);
+        });
+    });
+
+    describe("find_lot_value", () => {
+        let tender, lot;
+
+        beforeEach(() => {
+            tender = {};
+            lot = {};
+        });
+
+        it("should return lot.value - if lot passed.", () => {
+            tender.value = "tender.value";
+            lot.value = "lot.value";
+            assert.strictEqual(utils.find_lot_value(tender, lot), lot.value);
+        });
+
+        it("should return tender.value - if lot doesn't passed.", () => {
+            assert.strictEqual(utils.find_lot_value(tender, ""), tender.value);
+        });
+    });
+
+    describe("find_lot_value_for_bid", () => {
+        let bid, lot, lot_value;
+
+        beforeEach(() => {
+            lot_value = {
+                value: {amount: 100},
+                relatedLot: 'lot_id'
+            };
+            bid = {};
+            lot = {};
+        });
+
+        it("should return value - if lotValues relatedLot exists.", () => {
+            lot.id = 'lot_id';
+            lot_value.relatedLot = 'lot_id';
+            bid.lotValues = [lot_value];
+            assert.strictEqual(utils.find_lot_value_for_bid(lot, bid), lot_value);
+        });
+
+        it("should return false - if lotValues relatedLot doesn't exists.", () => {
+            lot.id = 'lot_id';
+            lot_value.relatedLot = 'lot_id_wrong';
+            bid.lotValues = [lot_value];
+            assert.isFalse(utils.find_lot_value_for_bid(lot, bid));
+        });
+
+        it("should return false - if no lotValues.", () => {
+            lot.id = 'lot_id_1';
+            assert.isFalse(utils.find_lot_value_for_bid(lot, bid));
+        });
+    });
+
+    describe("find_bid_value", () => {
+        let tender, bid, lot;
+
+        beforeEach(() => {
+            bid = {};
+            lot = {};
+            tender = {};
+        });
+
+        it("should return bid.value - if lot doesn't passed.", () => {
+            assert.strictEqual(utils.find_bid_value(tender, null, bid), bid.value);
+        });
+
+        it("should return find_lot_value_for_bid(lot, bid) - if lot passed.", () => {
+            lot.id = 'lot_id';
+            bid.lotValues = [{
+                value: {amount: 100},
+                relatedLot: 'lot_id'
+            }];
+            var actual = utils.find_bid_value(tender, lot, bid);
+            var expected = utils.find_lot_value_for_bid(lot, bid).value;
+            assert.strictEqual(actual, expected);
+            assert.strictEqual(actual.amount, 100);
+        });
+
+        it("should return value for pre qual bid - if qualifications.", () => {
+            bid.value = {amount: 100};
+            tender.qualifications = [{}];
+            tender.bids = [bid];
+            tender.revisions = [];
+            tender.revisions.push({
+                date: "2017-11-07T00:00:00Z",
+                changes: [{
+                    path: "/something",
+                    op: "remove"
+                }]
+            });
+            tender.revisions.push({
+                date: "2019-11-09T00:00:00Z",
+                changes: [
+                    {
+                        path: "/qualifications/0",
+                        op: "remove"
+                    }
+                ]
+            });
+            tender.revisions.push({
+                date: "2019-11-10T00:00:00Z",
+                changes: [
+                    {
+                        path: "/bids/0/value/amount",
+                        op: "replace",
+                        value:  90
+                    }
+                ]
+            });
+
+            assert.strictEqual(utils.find_bid_value(tender, null, bid).amount, 90);
+        });
+    });
+
+    describe("find_pre_qual_bid", () => {
+        let tender, bid;
+
+        beforeEach(() => {
+            bid = {};
+            tender = {};
+        });
+
+        it("should return value for pre qual bid - if qualifications.", () => {
+            bid.id = "bid_id";
+            bid.value = {
+                amount: 100
+            };
+            tender.qualifications = [{}];
+            tender.bids = [bid];
+            tender.revisions = [];
+            tender.revisions.push({
+                date: "2017-11-07T00:00:00Z",
+                changes: [{
+                    path: "/something",
+                    op: "remove"
+                }]
+            });
+            tender.revisions.push({
+                date: "2019-11-08T00:00:00Z",
+                changes: [
+                    {
+                        path: "/bids/0/value/amount",
+                        op: "replace",
+                        value:  80
+                    }
+                ]
+            });
+            tender.revisions.push({
+                date: "2019-11-09T00:00:00Z",
+                changes: [
+                    {
+                        path: "/qualifications/0",
+                        op: "remove"
+                    }
+                ]
+            });
+            tender.revisions.push({
+                date: "2019-11-10T00:00:00Z",
+                changes: [
+                    {
+                        path: "/bids/0/value/amount",
+                        op: "replace",
+                        value:  90
+                    }
+                ]
+            });
+
+            assert.strictEqual(utils.find_pre_qual_bid(tender, bid).value.amount, 90);
+        });
+    });
+
+    describe("apply_revisions", () => {
+        let doc;
+
+        beforeEach(() => {
+            doc = {};
+        });
+
+        it("should return old doc version by callback condition.", () => {
+            doc.something = 'something';
+            doc.revisions = [];
+            doc.revisions.push({
+                date: "2017-11-09T00:30:00Z",
+                changes: [{
+                    path: "/something",
+                    op: "remove"
+                }]
+            });
+            doc.revisions.push({
+                date: "2019-11-09T01:00:00Z",
+                changes: [
+                    {
+                        path: "/something",
+                        op: "replace",
+                        value:  "previous"
+                    }
+                ]
+            });
+
+            assert.strictEqual(utils.apply_revisions(doc, function (prev) {
+                return prev.something === "previous";
+            }).something, "previous");
+        });
+
+        it("should log if apply goes wrong.", () => {
+            doc.something = 'something';
+            doc.revisions = [];
+            doc.revisions.push({
+                date: "2017-11-09T00:00:00Z",
+                changes: [{
+                    path: "/something",
+                    op: "remove"
+                }]
+            });
+            doc.revisions.push({
+                date: "2017-11-09T00:30:00Z",
+                changes: [{
+                    path: "/wrongpath",
+                    op: "remove"
+                }]
+            });
+
+            spy.on(console, 'error', function (msg) {});
+
+            utils.apply_revisions(doc, function (prev) { return true; });
+
+            expect(console.error).to.have.been.called();
         });
     });
 });

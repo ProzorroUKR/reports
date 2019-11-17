@@ -4,6 +4,7 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
+    "chai-spies": "^1.0.0",
     "mocha": "^4.0.1",
     "nyc": "^11.3.0"
   },
@@ -19,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/ProzorroUKR/reports/issues"
   },
-  "homepage": "https://github.com/ProzorroUKR/reports#readme"
+  "homepage": "https://github.com/ProzorroUKR/reports#readme",
+  "dependencies": {
+    "rewire": "^4.0.1"
+  }
 }

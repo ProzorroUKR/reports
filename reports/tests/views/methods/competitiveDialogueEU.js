@@ -22,13 +22,22 @@ describe("competitiveDialogueEU", () => {
 
     describe("check_lot", () => {
         it("should return count_lot_qualifications((tender.qualifications || []), lot.id) > 2", () => {
-            assert.strictEqual(tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2, tenders.check_lot(lot, tender));
+            assert.strictEqual(
+                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
+                tenders.check_lot(lot, tender)
+            );
             tender.qualifications = [{
                 lotID: lot.id
             }];
-            assert.strictEqual(tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2, tenders.check_lot(lot, tender));
+            assert.strictEqual(
+                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
+                tenders.check_lot(lot, tender)
+            );
             tender.qualifications.push(tender.qualifications[0], tender.qualifications[0]);
-            assert.strictEqual(tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2, tenders.check_lot(lot, tender));
+            assert.strictEqual(
+                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
+                tenders.check_lot(lot, tender)
+            );
         });
     });
 
@@ -45,16 +54,26 @@ describe("competitiveDialogueEU", () => {
         it("should return get_eu_tender_bids(tender)", () => {
             tender.qualifications = [];
             tender.bids = [];
-            assert.deepEqual(bids.get_eu_tender_bids(tender), bids.get_bids(tender));
+            assert.deepEqual(
+                bids.get_eu_tender_bids(tender),
+                bids.get_bids(tender)
+            );
             tender.qualifications.push({
                 bidID: "not_bid_id"
             });
             tender.bids.push({
                 id: bid.id
             });
-            assert.deepEqual(bids.get_eu_tender_bids(tender), bids.get_bids(tender));
+            assert.deepEqual(
+                bids.get_eu_tender_bids(tender),
+                bids.get_bids(tender)
+            );
             tender.qualifications[0].bidID = bid.id;
-            assert.deepEqual(bids.get_eu_tender_bids(tender), bids.get_bids(tender));
+            assert.deepEqual(
+                bids.get_eu_tender_bids(tender),
+                bids.get_bids(tender)
+            );
+            assert.lengthOf(bids.get_bids(tender), 1);
         });
     });
 
@@ -81,7 +100,10 @@ describe("competitiveDialogueEU", () => {
         it("should return count_lot_qualifications(tender.qualifications, lot) >= 2", () => {
             lot.status = "cancelled";
             tender.qualifications = [];
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications = [
                 {
                     lotID: lot.id,
@@ -96,13 +118,25 @@ describe("competitiveDialogueEU", () => {
                     status: ""
                 }
             ];
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications.push(tender.qualifications[0], tender.qualifications[0]);
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             lot.status = "active";
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
             tender.qualifications.push(tender.qualifications[0]);
-            assert.strictEqual(bids.count_lot_qualifications(tender.qualifications, lot) >= 2, bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.count_lot_qualifications(tender.qualifications, lot) >= 2,
+                bids.check_lot_bids(tender, lot)
+            );
         });
     });
 
@@ -114,7 +148,10 @@ describe("competitiveDialogueEU", () => {
                 lotID: lot.id,
                 status: "active"
             }];
-            assert.strictEqual(bids.check_qualification_for_eu_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_qualification_for_eu_bid(tender, bid, lot),
+                bids.check_award_and_qualification(tender, bid, lot)
+            );
         });
     });
 

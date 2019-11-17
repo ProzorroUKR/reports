@@ -73,24 +73,28 @@ describe("aboveThresholdUA.defense", () => {
     });
 
     describe("check_tender", () => {
-        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', 'numberOfBids' is less than '2' and no 'awards' - should return false.", () => {
+        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', " +
+            "'numberOfBids' is less than '2' and no 'awards' - should return false.", () => {
             tender.numberOfBids = 1;
             assert.isFalse(tenders.check_tender(tender));
         });
 
-        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', 'numberOfBids' is less than '2' and has 'awards' - should return true.", () => {
+        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', " +
+            "'numberOfBids' is less than '2' and has 'awards' - should return true.", () => {
             tender.numberOfBids = 1;
             tender.awards = undefined;
             assert.isTrue(tenders.check_tender(tender));
         });
 
-        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', 'numberOfBids' field is '2' and no 'awards' field - should return true.", () => {
+        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense', " +
+            "'numberOfBids' field is '2' and no 'awards' field - should return true.", () => {
             tender.numberOfBids = 2;
             tender.awards = undefined;
             assert.isTrue(tenders.check_tender(tender));
         });
 
-        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense' and 'numberOfBids' field is '0' - should return false.", () => {
+        it("tender 'procurementMethodType' field is 'aboveThresholdUA.defense' and " +
+            "'numberOfBids' field is '0' - should return false.", () => {
             tender.numberOfBids = 0;
             tender.awards = undefined;
             assert.isFalse(tenders.check_tender(tender));
@@ -105,11 +109,21 @@ describe("aboveThresholdUA.defense", () => {
                 date: "2016-11-21T00:00:00Z",
                 status: "cancelled"
             }];
-            assert.deepEqual(bids.get_bids(tender), bids.filter_bids(tender.bids || []));
+            assert.deepEqual(
+                bids.get_bids(tender),
+                bids.filter_bids(tender.bids || [])
+            );
             tender.bids[0].status = "active";
-            assert.deepEqual(bids.get_bids(tender), bids.filter_bids(tender.bids || []));
+            assert.deepEqual(
+                bids.get_bids(tender),
+                bids.filter_bids(tender.bids || [])
+            );
             tender.bids[0].date = "2017-11-21T00:00:00Z";
-            assert.deepEqual(bids.get_bids(tender), bids.filter_bids(tender.bids || []));
+            assert.deepEqual(
+                bids.get_bids(tender),
+                bids.filter_bids(tender.bids || [])
+            );
+            assert.lengthOf(bids.get_bids(tender), 1);
         })
     });
 
@@ -122,9 +136,15 @@ describe("aboveThresholdUA.defense", () => {
 
     describe("check_tender_bids", () => {
         it("no awards in tender", () => {
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender),
+                bids.check_tender_bids(tender)
+            );
             tender.numberOfBids = 2;
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender), bids.check_tender_bids(tender));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender),
+                bids.check_tender_bids(tender)
+            );
         });
         it("awards in tender", () => {
             tender.awards = [];
@@ -134,14 +154,20 @@ describe("aboveThresholdUA.defense", () => {
 
     describe("check_lot_bids", () => {
         it("no awards", () => {
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender, lot), bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender, lot),
+                bids.check_lot_bids(tender, lot)
+            );
         });
 
         it("awards", () => {
             tender.awards = [{
                 lotID: "not_lot_id"
             }];
-            assert.strictEqual(bids.check_bids_from_bt_atu(tender, lot), bids.check_lot_bids(tender, lot));
+            assert.strictEqual(
+                bids.check_bids_from_bt_atu(tender, lot),
+                bids.check_lot_bids(tender, lot)
+            );
             tender.awards[0].lotID = lot.id;
             assert.isTrue(bids.check_lot_bids(tender, lot));
         });
@@ -152,15 +178,27 @@ describe("aboveThresholdUA.defense", () => {
             tender.awards = [{
                 lotID: "not_lot_id"
             }];
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
             tender.awards[0].bidID = bid.id;
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
             tender.awards[0].status = "active";
-            assert.strictEqual(bids.check_award_for_bid(tender, bid), bids.check_award_and_qualification(tender, bid));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid),
+                bids.check_award_and_qualification(tender, bid)
+            );
         });
 
         it("lot", () => {
-            assert.strictEqual(bids.check_award_for_bid(tender, bid, lot), bids.check_award_and_qualification(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_award_for_bid(tender, bid, lot),
+                bids.check_award_and_qualification(tender, bid, lot)
+            );
         });
     });
 
