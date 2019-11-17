@@ -95,11 +95,20 @@ function get_bids(tender) {
         case 'aboveThresholdEU':
         case 'competitiveDialogueEU':
         case 'competitiveDialogueUA':
-        case 'closeFrameworkAgreementUA':
         case 'esco':
             return get_eu_tender_bids(tender);
-        default:
+        case 'aboveThresholdUA':
+        case 'belowThreshold':
+        case 'aboveThresholdUA.defense':
             return filter_bids(tender.bids || []);
+        case 'closeFrameworkAgreementUA':
+            if (utils.exclude_old_cfa(tender)) {
+                return filter_bids(tender.bids || []);
+            } else {
+                return get_eu_tender_bids(tender);
+            }
+        default:
+            throw 'Not implemented';
     }
 }
 
