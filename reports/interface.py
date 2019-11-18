@@ -30,7 +30,9 @@ def invoices():
 
 @app.route("/bids")
 def bids():
-    return utility_view(BidsUtility, headers_info=['status', 'lot_status', 'bid_status', 'method'])
+    return utility_view(BidsUtility, headers_info=[
+        'status', 'lot_status', 'bid_status', 'method', 'startdate'
+    ])
 
 
 @app.route("/refunds")
@@ -40,7 +42,9 @@ def refunds():
 
 @app.route("/tenders")
 def tenders():
-    return utility_view(TendersUtility, headers_info=['method'])
+    return utility_view(TendersUtility, headers_info=[
+        'method', 'startdate'
+    ])
 
 
 def utility_view(utility_class, headers_info=None):

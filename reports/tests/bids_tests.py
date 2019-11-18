@@ -284,7 +284,7 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
         }
         self.assertLen(1, data)
         response = list(self.utility.response)
-        self.assertEqual(response[0]["value"]["initialDate"], "")
+        self.assertEqual(response[0]["value"]["initial_date"], "")
         del self.utility.db["tender_id"]
 
         data["revisions"] = [
@@ -301,7 +301,7 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
         ]
         self.assertLen(1, data)
         response = list(self.utility.response)
-        self.assertEqual(response[0]["value"]["initialDate"], data["revisions"][0]["date"])
+        self.assertEqual(response[0]["value"]["initial_date"], data["revisions"][0]["date"])
 
 
 class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
