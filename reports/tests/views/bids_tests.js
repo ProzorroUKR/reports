@@ -9,12 +9,14 @@ describe("bids view tests", () => {
     describe("get_eu_tender_bids", () => {
         let tender;
 
-        it("tender qualifications and bids are empty - should return empty array.", () => {
+        beforeEach(() => {
             tender = {
                 qualifications: [],
                 bids: []
             };
+        });
 
+        it("tender qualifications and bids are empty - should return empty array.", () => {
             assert.deepEqual(bids.get_eu_tender_bids(tender), []);
         });
 
@@ -30,7 +32,12 @@ describe("bids view tests", () => {
         });
 
         it("ID's match - should return array containing bid.", () => {
-            tender.qualifications[0].bidID = "bid_id";
+            tender.qualifications.push({
+                bidID: "bid_id"
+            });
+            tender.bids.push({
+                id: "bid_id"
+            });
             assert.deepEqual(bids.get_eu_tender_bids(tender), tender.bids);
         });
     });
@@ -39,10 +46,9 @@ describe("bids view tests", () => {
         const pattern = "/something";
         const antipattern = "/smth_else";
         const date = "2017-11-10T00:00:00Z";
-        let revisions;
 
         it("there are no paths matching pattern - should return empty array.", () => {
-            revisions = [
+            let revisions = [
                 {
                     date: date,
                     changes: [{
@@ -51,26 +57,30 @@ describe("bids view tests", () => {
                     }]
                 }
             ];
-
             assert.deepEqual(bids.find_matched_revs(revisions, pattern), []);
         });
 
         it("there are paths matching pattern - should return revisions.", () => {
-            revisions[0].changes.push({
-                path: pattern,
-                op: "remove"
-            });
+            let revisions = [
+                {
+                    date: date,
+                    changes: [{
+                        path: antipattern,
+                        op: "remove"
+                    }, {
+                        path: pattern,
+                        op: "remove"
+                    }]
+                }
+            ];
 
             assert.deepEqual(bids.find_matched_revs(revisions, pattern), revisions);
         });
     });
 
     describe("find_initial_bid_date", () => {
-        const bid_index = "bid_index";
-        let revisions;
-
         it("revisions has no changes with '/bids/' path - should return empty string.", () => {
-            revisions = [
+            let revisions = [
                 {
                     date: "2017-11-13T00:00:00Z",
                     changes: [{
@@ -79,22 +89,42 @@ describe("bids view tests", () => {
                     }]
                 }
             ];
-
             assert.strictEqual(bids.find_initial_bid_date(revisions), "");
         });
 
         it("there are '/bids' in changes path - should return first revision date.", () => {
-            revisions[0].changes.push({
-                path: "/bids",
-                op: "remove"
-            });
-
+            let revisions = [
+                {
+                    date: "2017-11-13T00:00:00Z",
+                    changes: [{
+                        path: "/something",
+                        op: "remove"
+                    },{
+                        path: "/bids",
+                        op: "remove"
+                    }]
+                }
+            ];
             assert.strictEqual(bids.find_initial_bid_date(revisions), revisions[0].date);
         });
 
         it("there are '/bids/' + bid_index in changes path - should return first revision date.", () => {
-            revisions[0].changes.path += "/" + bid_index;
-            assert.strictEqual(bids.find_initial_bid_date(revisions, bid_index), revisions[0].date);
+            let revisions = [
+                {
+                    date: "2017-11-13T00:00:00Z",
+                    changes: [{
+                        path: "/something",
+                        op: "remove"
+                    }, {
+                        path: "/bids",
+                        op: "remove"
+                    }, {
+                        path: "/bids/bid_index",
+                        op: "remove"
+                    }]
+                }
+            ];
+            assert.strictEqual(bids.find_initial_bid_date(revisions, "bid_index"), revisions[0].date);
         });
     });
 
@@ -142,18 +172,21 @@ describe("bids view tests", () => {
     describe("count_lot_bids", () => {
         let lot, tender;
 
-        it("tender bids is empty array - should return 0 (length of empty array).", () => {
-            lot = {
-                id: "lot_id"
-            };
+        beforeEach(() => {
+            lot = {};
             tender = {
-                bids : []
+                procurementMethodType: "belowThreshold"
             };
+        });
 
+        it("tender bids is empty array - should return 0 (length of empty array).", () => {
+            lot.id = "lot_id";
+            tender.bids = [];
             assert.strictEqual(bids.count_lot_bids(lot, tender), 0);
         });
 
         it("tender has one valid bid - should return 1.", () => {
+            lot.id = "lot_id";
             tender.bids = [
                 {
                     status: "active",
@@ -256,28 +289,26 @@ describe("bids view tests", () => {
     describe("check_lot", () => {
         let lot, tender;
 
-        it("lot status is undefined - should return true.", () => {
-            lot = {
-            };
+        beforeEach(() => {
+            lot = {};
+            tender = {};
+        });
 
+        it("lot status is undefined - should return true.", () => {
             assert.isTrue(bids.check_lot(undefined, lot));
         });
 
         it("lot status is unsuccessful - should return true (the result of check_lot_bids).", () => {
             lot.status = "unseccessful";
-            tender = {
-                procurementMethodType: "belowThreshold"
-            };
-
+            tender.procurementMethodType = "belowThreshold";
             assert.isTrue(bids.check_lot(tender, lot));
         });
 
         it("lot status is cancelled and lot date is earlier " +
             "then bids disclojure date - should return false.", () => {
             lot.status = "cancelled";
-            tender.qualificationPeriod = {
-                startDate: "2017-11-14T00:00:00Z"
-            };
+            tender.procurementMethodType = "belowThreshold";
+            tender.qualificationPeriod = {startDate: "2017-11-14T00:00:00Z"};
             lot.date = "2016-11-14T00:00:00Z";
 
             assert.isFalse(bids.check_lot(tender, lot));
@@ -286,6 +317,8 @@ describe("bids view tests", () => {
         it("lot status is cancelled and lot date is not earlier " +
             "then bids disclojure date - should return true.", () => {
             lot.status = "cancelled";
+            tender.procurementMethodType = "belowThreshold";
+            tender.qualificationPeriod = {startDate: "2017-11-14T00:00:00Z"};
             lot.date = tender.qualificationPeriod.startDate;
             assert.isTrue(bids.check_lot(tender, lot));
         });
@@ -293,15 +326,17 @@ describe("bids view tests", () => {
 
     describe("get_audit", () => {
         let lot, tender, lot_pattern;
+
         const tender_pattern = "audit";
 
+        beforeEach(() => {
+            lot = {};
+            tender = {};
+        });
+
         it("tender has no documents - should return null.", () => {
-            lot = {
-                id: "lot_id"
-            };
-            tender = {
-                id: "tender_id"
-            };
+            lot.id = "lot_id";
+            tender.id = "tender_id";
 
             lot_pattern = "audit_" + tender.id + "_" + lot.id;
 
@@ -310,8 +345,12 @@ describe("bids view tests", () => {
         });
 
         it("tender has one valid document - should return this document.", () => {
+            lot.id = "lot_id";
+            tender.id = "tender_id";
+
+            lot_pattern = "audit_" + tender.id + "_" + lot.id;
             tender.documents = [{
-                title: "audit_" + tender.id + "_" + lot.id
+                title: lot_pattern
             }];
 
             assert.deepEqual(tender.documents[0], bids.get_audit(tender, lot_pattern));
@@ -319,19 +358,34 @@ describe("bids view tests", () => {
         });
 
         it("tender has one invalid and one valid documents - should return valid document.", () => {
-            tender.documents.splice(0, 0, {
+            lot.id = "lot_id";
+            tender.id = "tender_id";
+
+            lot_pattern = "audit_" + tender.id + "_" + lot.id;
+            tender.documents = [{
                 title: ""
-            });
+            }, {
+                title: lot_pattern
+            }];
+
             assert.deepEqual(tender.documents[1], bids.get_audit(tender, lot_pattern));
             assert.deepEqual(tender.documents[1], bids.get_audit(tender, tender_pattern));
         });
 
         it("tender has two valid documents - should return the one with earlier dateModified.", () => {
-            tender.documents[1].dateModified = "2017-11-14T00:00:00Z";
-            tender.documents.push({
-                title: "audit_" + tender.id + "_" + lot.id,
+            lot.id = "lot_id";
+            tender.id = "tender_id";
+
+            lot_pattern = "audit_" + tender.id + "_" + lot.id;
+            tender.documents = [{
+                title: ""
+            }, {
+                title: lot_pattern,
+                dateModified: "2017-11-14T00:00:00Z"
+            }, {
+                title: lot_pattern,
                 dateModified: "2017-11-13T00:00:00Z"
-            });
+            }];
 
             assert.deepEqual(tender.documents[2], bids.get_audit(tender, lot_pattern));
             assert.deepEqual(tender.documents[2], bids.get_audit(tender, tender_pattern));
@@ -341,36 +395,33 @@ describe("bids view tests", () => {
     describe("find_lot_for_bid", () => {
         let tender, lotValue;
 
-        it("tender has no lots - should return false.", () => {
-            tender = {
-                lots: []
-            }
-            lotValue = {
-            }
+        beforeEach(() => {
+            tender = {};
+            lotValue = {};
+        });
 
+        it("tender has no lots - should return false.", () => {
+            tender.lots = []
             assert.isFalse(bids.find_lot_for_bid(tender, lotValue));
         });
 
         it("tender has no lots matching lotValue id - should return false.", () => {
-            tender.lots.push({
-                id: "not_lot_id"
-            });
+            tender.lots = [{id: "not_lot_id"}];
             lotValue.relatedLot = "lot_id";
-
             assert.isFalse(bids.find_lot_for_bid(tender, lotValue));
         });
 
         it("tender has lots matching lotValue id - should return first of them.", () => {
-            tender.lots.push(
-                {
-                    id: "lot_id",
-                    dateModified: "2017-11-14T00:00:00Z"
-                },
-                {
-                    id: "lot_id",
-                    dateModified: "2017-11-15T00:00:00Z"
-                }
-            );
+            tender.lots = [{
+                id: "not_lot_id"
+            }, {
+                id: "lot_id",
+                dateModified: "2017-11-14T00:00:00Z"
+            }, {
+                id: "lot_id",
+                dateModified: "2017-11-15T00:00:00Z"
+            }];
+            lotValue.relatedLot = "lot_id";
 
             assert.deepEqual(tender.lots[1], bids.find_lot_for_bid(tender, lotValue));
         });
@@ -379,10 +430,8 @@ describe("bids view tests", () => {
     describe("check_award_for_bid", () => {
         let tender, bid;
         it("tender has no awards - should return true.", () => {
-            tender = {
-            };
-            bid = {
-            };
+            tender = {};
+            bid = {};
 
             assert.isTrue(bids.check_award_for_bid(tender));
         });
@@ -401,7 +450,7 @@ describe("bids view tests", () => {
             tender.awards[0].bid_id = bid.id;
             tender.awards[0].date = bid.date;
             assert.isFalse(bids.check_award_for_bid(tender, bid));
-        })
+        });
 
         it("tender has valid award and award in status active or pending - should return true.", () => {
             tender.awards[0].status = "active";
@@ -432,10 +481,8 @@ describe("bids view tests", () => {
             tender = {
                 procurementMethodType: "belowThreshold"
             };
-            bid = {
-            };
-            lot = {
-            };
+            bid = {};
+            lot = {};
 
             assert.isTrue(bids.check_award_for_bid_multilot(tender, bid, lot));
         });
@@ -505,7 +552,7 @@ describe("bids view tests", () => {
         it("tender has no qualifications related to lot - should return false.", () => {
             lot = {
                 id: "lot_id"
-            }
+            };
             tender.qualifications[0].lotID = "not_lot_id";
             assert.isFalse(bids.check_qualification_for_bid(tender, bid, lot));
         });
