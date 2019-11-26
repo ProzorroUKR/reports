@@ -20,8 +20,5 @@
   "bugs": {
     "url": "https://github.com/ProzorroUKR/reports/issues"
   },
-  "homepage": "https://github.com/ProzorroUKR/reports#readme",
-  "dependencies": {
-    "rewire": "^4.0.1"
-  }
+  "homepage": "https://github.com/ProzorroUKR/reports#readme"
 }
