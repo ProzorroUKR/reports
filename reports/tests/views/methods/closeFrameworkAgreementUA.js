@@ -113,7 +113,7 @@ describe("closeFrameworkAgreementUA", () => {
             lot.status = "cancelled";
             tender.qualifications = [];
             assert.strictEqual(
-                bids.count_lot_qualifications(tender.qualifications, lot) >= 3,
+                bids.count_lot_qualifications(tender, lot) >= 3,
                 bids.check_lot_bids(tender, lot)
             );
             tender.qualifications = [
@@ -131,22 +131,22 @@ describe("closeFrameworkAgreementUA", () => {
                 }
             ];
             assert.strictEqual(
-                bids.count_lot_qualifications(tender.qualifications, lot) >= 3,
+                bids.count_lot_qualifications(tender, lot) >= 3,
                 bids.check_lot_bids(tender, lot)
             );
             tender.qualifications.push(tender.qualifications[0]);
             assert.strictEqual(
-                bids.count_lot_qualifications(tender.qualifications, lot) >= 3,
+                bids.count_lot_qualifications(tender, lot) >= 3,
                 bids.check_lot_bids(tender, lot)
             );
             lot.status = "active";
             assert.strictEqual(
-                bids.count_lot_qualifications(tender.qualifications, lot) >= 3,
+                bids.count_lot_qualifications(tender, lot) >= 3,
                 bids.check_lot_bids(tender, lot)
             );
             tender.qualifications.push(tender.qualifications[0]);
             assert.strictEqual(
-                bids.count_lot_qualifications(tender.qualifications, lot) >= 3,
+                bids.count_lot_qualifications(tender, lot) >= 3,
                 bids.check_lot_bids(tender, lot)
             );
         });

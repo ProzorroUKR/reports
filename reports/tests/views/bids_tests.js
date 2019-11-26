@@ -207,15 +207,20 @@ describe("bids view tests", () => {
     });
 
     describe("count_lot_qualifications", () => {
-        let qualifications, lot;
+        let tender, qualifications, lot;
+
+        beforeEach(() => {
+            lot = {};
+            tender = {};
+        });
 
         it("qualifications is undefined - should return 0.", () => {
-            assert.strictEqual(bids.count_lot_qualifications(qualifications), 0);
+            assert.strictEqual(bids.count_lot_qualifications(tender), 0);
         });
 
         it("qualifications is empty array - should return 0.", () => {
-            qualifications = [];
-            assert.strictEqual(bids.count_lot_qualifications(qualifications), 0);
+            tender.qualifications = [];
+            assert.strictEqual(bids.count_lot_qualifications(tender), 0);
         });
 
         it("there is one qualification with lotID matching lot id and valid status - should return 1.", () => {
@@ -224,7 +229,7 @@ describe("bids view tests", () => {
                 id: "lot_id"
             };
 
-            qualifications.push(
+            tender.qualifications = [
                 {
                     status: "active",
                     lotID: lot.id
@@ -237,20 +242,38 @@ describe("bids view tests", () => {
                     status: "active",
                     lotID: "not_lot_id"
                 }
-            );
+            ];
 
-            assert.strictEqual(bids.count_lot_qualifications(qualifications, lot), 1);
+            assert.strictEqual(bids.count_lot_qualifications(tender, lot), 1);
         });
 
         it("there is two qualifications with lotID matching " +
             "lot id and status is not cancelled - should return 2.", () => {
-            lot.status = "active";
-            qualifications.push({
-                status: "cancelled",
-                lotID: lot.id
-            });
+            lot = {
+                status: "active",
+                id: "lot_id"
+            };
 
-            assert.strictEqual(bids.count_lot_qualifications(qualifications, lot), 2);
+            tender.qualifications = [
+                {
+                    status: "active",
+                    lotID: lot.id
+                },
+                {
+                    status: "",
+                    lotID: lot.id
+                },
+                {
+                    status: "active",
+                    lotID: "not_lot_id"
+                },
+                {
+                    status: "cancelled",
+                    lotID: lot.id
+                }
+            ];
+
+            assert.strictEqual(bids.count_lot_qualifications(tender, lot), 2);
         });
     });
 
