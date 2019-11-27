@@ -5,7 +5,8 @@ VERSION = '1.1.0'
 AUTHOR = 'Quintagroup, Ltd.'
 LICENSE = 'Apache License 2.0'
 REQUIRES = [
-    'gunicorn[gevent]',
+    'gunicorn',
+    'gevent',
     'flask',
     'couchdb',
     'pbkdf2',
