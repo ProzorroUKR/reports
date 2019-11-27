@@ -20,67 +20,6 @@ describe("esco", () => {
         bid = {id: "bid_id"};
     });
 
-    describe("check_lot", () => {
-        it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
-                tenders.check_lot(lot, tender)
-            );
-
-            tender.bids = [
-                {
-                    date: "2017-11-20T00:00:00Z",
-                    lotValues: [{
-                        relatedLot: lot.id
-                    }]
-                },
-                {
-                    date: "2017-11-20T00:00:00Z",
-                    lotValues: [{
-                        relatedLot: "not_lot_id"
-                    }]
-                }
-            ];
-
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1, tenders.
-                check_lot(lot, tender)
-            );
-
-            tender.bids.push({
-                date: "2017-11-20T00:00:00Z",
-                lotValues: [{
-                    relatedLot: lot.id
-                }]
-            });
-
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
-                tenders.check_lot(lot, tender)
-            );
-        });
-    });
-
-    describe("check_tender", () => {
-        it("should return (tender.qualifications || []).length > 1", () => {
-            tender.qualifications = [];
-            assert.strictEqual(
-                (tender.qualifications || []).length > 1,
-                tenders.check_tender(tender)
-            );
-            tender.qualifications.push(null);
-            assert.strictEqual(
-                (tender.qualifications || []).length > 1,
-                tenders.check_tender(tender)
-            );
-            tender.qualifications.push(null);
-            assert.strictEqual(
-                (tender.qualifications || []).length > 1,
-                tenders.check_tender(tender)
-            );
-        })
-    });
-
     describe("get_bids", () => {
         it("should return get_eu_tender_bids(tender)", () => {
             tender.qualifications = [];
