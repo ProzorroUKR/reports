@@ -1,52 +1,30 @@
 "use strict";
 
-let tenders = require("../../design/lib/tenders");
-let assert = require("../../../node_modules/chai").assert;
+const tenders = require("../../design/lib/tenders");
+const chai = require("../../../node_modules/chai");
+
+const assert = chai.assert;
 
 describe("tenders view tests", () => {
-    describe("find_first_revision_date", () => {
-        let doc = {};
-
-        it("no revisions - should return empty string.", () => {
-            doc.revisions = undefined;
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");
-        });
-
-        it("revisions are empty array - should return empty string.", () => {
-            doc.revisions = [];
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");
-        });
-
-        it("first revision has no date - should return empty string.", () => {
-            doc.revisions = [{}];
-            assert.strictEqual(tenders.find_first_revision_date(doc), "");    
-        });
-
-        it("everything is ok - should return date.", () => {
-            let date = "2016-04-01T00:00:00+03:00";
-            doc.revisions = [{date: date}];
-            assert.strictEqual(tenders.find_first_revision_date(doc), date);
-        });
-    });
-
     describe("count_lot_bids", () => {
         let lot, bids;
 
-        it("bids are undefined - should return 0.", () => {
-            assert.strictEqual(tenders.count_lot_bids(lot, bids), 0);
+        beforeEach(() => {
+            lot = {};
+            bids = [];
         });
-
-        bids = [];
 
         it("bids are empty array - should return 0.", () => {
             assert.strictEqual(tenders.count_lot_bids(lot, bids), 0);
-        })
+        });
 
-        lot = {
-            id: "lot_id"
-        }
+        it("bids are undefined - should return 0.", () => {
+            bids = undefined;
+            assert.strictEqual(tenders.count_lot_bids(lot, bids), 0);
+        });
 
         it("no related lots - should return 0.", () => {
+            lot.id = "lot_id";
             bids.push({
                 lotValues: [{
                     relatedLot: "not_lot_id"
@@ -65,15 +43,26 @@ describe("tenders view tests", () => {
         });
 
         it("two related lots - should return 2", () => {
-            bids[0].lotValues.push({
-                relatedLot: lot.id
+            bids.push({
+                lotValues: [
+                    {
+                        relatedLot: lot.id
+                    },
+                    {
+                        relatedLot: lot.id
+                    }
+                ]
             });
             assert.strictEqual(tenders.count_lot_bids(lot, bids), 2);
         });
     });
 
     describe("filter_bids", () => {
-        let bids = [];
+        let bids;
+
+        beforeEach(() => {
+            bids = []
+        });
 
         it("bids are empty array - should return empty array.", () => {
             assert.deepEqual(bids, tenders.filter_bids(bids));
@@ -95,14 +84,15 @@ describe("tenders view tests", () => {
                 status: "active"
             });
             assert.deepEqual([], tenders.filter_bids(bids));
-        })
+        });
 
-        it("bid date is later then minimal date and status is active - should return array containing this bid.", () => {
+        it("bid date is later then minimal date and status is active - " +
+            "should return array containing this bid.", () => {
             bids.push({
                 date: "2017-11-02T00:00:00Z",
                 status: "active"
-            });    
-            assert.deepEqual([bids[2]], tenders.filter_bids(bids));
+            });
+            assert.deepEqual([bids[0]], tenders.filter_bids(bids));
         });
 
     });
@@ -194,7 +184,10 @@ describe("tenders view tests", () => {
                     dateAnswered: "2017-11-03T00:00:00Z"
                 }
             ];
-            let max_date = Math.max.apply(null, [new Date(complaints[0].dateAnswered), new Date(complaints[1].dateAnswered)]);
+            let max_date = Math.max.apply(null, [
+                new Date(complaints[0].dateAnswered),
+                new Date(complaints[1].dateAnswered)
+            ]);
             assert.deepEqual(tenders.find_complaint_date(complaints).getTime(), max_date);
         });
     });
@@ -245,7 +238,8 @@ describe("tenders view tests", () => {
             assert.deepEqual(new Date(awards[0].complaintPeriod.endDate), tenders.find_awards_max_date(awards));
         });
 
-        it("award has complaints but complaint date hasn't finded - should return award.complaintPeriod.endDate.", () => {
+        it("award has complaints but complaint date hasn't finded - " +
+            "should return award.complaintPeriod.endDate.", () => {
             awards[0].complaints = [];
             assert.deepEqual(new Date(awards[0].complaintPeriod.endDate), tenders.find_awards_max_date(awards));
         });
@@ -255,7 +249,10 @@ describe("tenders view tests", () => {
                 type: "",
                 dateDecision: "2017-11-03T00:00:00+03:00"
             });
-            let max_date = Math.max.apply(null, [new Date(awards[0].complaintPeriod.endDate), new Date(awards[0].complaints[0].dateDecision)]);
+            let max_date = Math.max.apply(null, [
+                new Date(awards[0].complaintPeriod.endDate),
+                new Date(awards[0].complaints[0].dateDecision)
+            ]);
             assert.deepEqual(max_date, tenders.find_awards_max_date(awards).getTime());
         });
     });
@@ -285,29 +282,37 @@ describe("tenders view tests", () => {
         });
 
 
-        it("tender has date and status is cancelled but date is earlier than bids disclojure date - should return null.", () => {
+        it("tender has date and status is cancelled but date is earlier than bids disclojure date - " +
+            "should return null.", () => {
             tender.qualificationPeriod = {
                 startDate: "2017-01-01T00:00:00Z"
             };
             bids_disclojure_date = tender.qualificationPeriod.startDate;
             tender.status = "cancelled";
-            tender.date = bids_disclojure_date.substring(0, 3) + (bids_disclojure_date[3] - 1) + bids_disclojure_date.substring(4);
+            tender.date = bids_disclojure_date.substring(0, 3)
+                + (bids_disclojure_date[3] - 1)
+                + bids_disclojure_date.substring(4);
             assert.isNull(new tenders.Handler(tender).tender_date);
         });
 
-        it("tender has date and status is cancelled and date is later than bids disclojure date - should return tender date.", () => {
+        it("tender has date and status is cancelled and date is later than bids disclojure date - " +
+            "should return tender date.", () => {
             tender.status = "cancelled";
-            tender.date = bids_disclojure_date.substring(0, 3) + (bids_disclojure_date[3] + 1) + bids_disclojure_date.substring(4);
+            tender.date = bids_disclojure_date.substring(0, 3)
+                + (bids_disclojure_date[3] + 1)
+                + bids_disclojure_date.substring(4);
             assert.deepEqual(new Date(tender.date), new tenders.Handler(tender).tender_date);
         });
 
-        it("tender hasn't date and status is complete but tender hasn't contracts - should return invalid Date.", () => {
+        it("tender hasn't date and status is complete but tender hasn't contracts - " +
+            "should return invalid Date.", () => {
             delete tender.date;
             tender.status = "complete";
             assert.isNaN(new tenders.Handler(tender).tender_date.getTime());
         });
 
-        it("tender hasn't date and status is complete and tender has contracts with valid date - should return the latest contracts date.", () => {
+        it("tender hasn't date and status is complete and tender has contracts with valid date - " +
+            "should return the latest contracts date.", () => {
             tender.status = "complete";
             tender.contracts = [
                 {
@@ -324,40 +329,53 @@ describe("tenders view tests", () => {
             assert.deepEqual(new tenders.Handler(tender).tender_date.getTime(), max_date);
         });
 
-        it("tender hasn't date and status is unsuccessful but tender hasn't awards - should return null.", () => {
+        it("tender hasn't date and status is unsuccessful but tender hasn't awards - " +
+            "should return null.", () => {
             tender.status = "unsuccessful";
             assert.isNull(new tenders.Handler(tender).tender_date);
         });
 
-        it("tender hasn't date and status is unsuccessful, tender has awards field with valid date - should return the latest awards date.", () => {
+        it("tender hasn't date and status is unsuccessful, tender has awards field with valid date - " +
+            "should return the latest awards date.", () => {
             tender.awards = [{
                 complaintPeriod: {
                     endDate: "2017-11-02T00:00:00Z"
-                },
+                }
+            },
+            {
                 complaintPeriod: {
                     endDate: "2017-11-03T00:00:00Z"
                 }
             }];
-            let max_date = Math.max.apply(null, tender.awards.map((c) => { return new Date (c.complaintPeriod.endDate); }));
+            let max_date = Math.max.apply(null, tender.awards.map((c) => {
+                return new Date (c.complaintPeriod.endDate);
+            }));
             assert.deepEqual(new tenders.Handler(tender).tender_date.getTime(), max_date);
         });
         
-        it("tender hasn't date and status is cancelled but tender cancellations is empty array - should return null.", () => {
+        it("tender hasn't date and status is cancelled but tender cancellations is empty array - " +
+            "should return null.", () => {
             tender.status = "cancelled";
             tender.cancellations = [];
             assert.isNull(new tenders.Handler(tender).tender_date);
         });
 
-        it("tender hasn't date and status is cancelled, tender has cancellations with valid date - should return the latest cancellations date.", () => {
+        it("tender hasn't date and status is cancelled, tender has cancellations with valid date - " +
+            "should return the latest cancellations date.", () => {
             tender.status = "cancelled";
             tender.cancellations = [
                 {
-                    date: bids_disclojure_date.substring(0, 3) + (bids_disclojure_date[3] + 1) + bids_disclojure_date.substring(4),
+                    date: bids_disclojure_date.substring(0, 3)
+                        + (bids_disclojure_date[3] + 1)
+                        + bids_disclojure_date.substring(4),
                     status: "active",
                     cancellationOf: "tender"
                 }
             ];
-            assert.deepEqual(new Date(tender.cancellations[0].date), new tenders.Handler(tender).tender_date);
+            assert.deepEqual(
+                new Date(tender.cancellations[0].date),
+                new tenders.Handler(tender).tender_date
+            );
         });
     });
 
@@ -370,7 +388,8 @@ describe("tenders view tests", () => {
             assert.isNull(new tenders.lotHandler(lot, tender).lot_date);
         });
         
-        it("lot has no status and lot date is undefined, lot has status cancelled and has valid date - should return tender date.", () => {
+        it("lot has no status and lot date is undefined, lot has status cancelled and has valid date - " +
+            "should return tender date.", () => {
             lot.date = undefined;
             tender.status = "cancelled";
             tender.date = "2017-11-06T00:00:00+03:00";
@@ -393,24 +412,31 @@ describe("tenders view tests", () => {
             assert.deepEqual(new Date(lot.date), new tenders.lotHandler(lot, tender).lot_date);
         });
 
-        it("lot status is cancelled and lot date is earlier then bids disclojure date - should return null.", () => {
+        it("lot status is cancelled and lot date is earlier then bids disclojure date - " +
+            "should return null.", () => {
             tender.qualificationPeriod = {
                 startDate: "2017-01-01T00:00:00Z"
             };
             bids_disclojure_date = tender.qualificationPeriod.startDate;
             lot.status = "cancelled";
-            lot.date = bids_disclojure_date.substring(0, 3) + (bids_disclojure_date[3] - 1) + bids_disclojure_date.substring(4);
+            lot.date = bids_disclojure_date.substring(0, 3)
+                + (bids_disclojure_date[3] - 1)
+                + bids_disclojure_date.substring(4);
             assert.isNull(new tenders.lotHandler(lot, tender).lot_date);
         });
 
         it("lot status is cancelled and lot date is later then bids disclojure date - should return lot date.", () => {
-            lot.status = "cancelled"
-            lot.date = bids_disclojure_date.substring(0, 3) + (bids_disclojure_date[3] + 1) + bids_disclojure_date.substring(4);
+            lot.status = "cancelled";
+            lot.date = bids_disclojure_date.substring(0, 3)
+                + (bids_disclojure_date[3] + 1)
+                + bids_disclojure_date.substring(4);
             assert.deepEqual(new Date(lot.date), new tenders.lotHandler(lot, tender).lot_date);
         });
 
 
-        it("lot status is unsuccessful, lot has no date - should return the result of find_awards_max_date. (tender awards is fine)", () => {
+        it("lot status is unsuccessful, lot has no date - " +
+            "should return the result of find_awards_max_date. " +
+            "(tender awards is fine)", () => {
             delete lot.date;
             lot.id = "lot_id";
         
@@ -421,7 +447,10 @@ describe("tenders view tests", () => {
                 },
                 lotID: lot.id
             }];
-            assert.deepEqual(tenders.find_awards_max_date(tender.awards), new tenders.lotHandler(lot, tender).lot_date);
+            assert.deepEqual(
+                tenders.find_awards_max_date(tender.awards),
+                new tenders.lotHandler(lot, tender).lot_date
+            );
         });
 
         it("lot status is cancelled, lot has no date - should return the result of find_cancellation_max_date. (tender cancellations is fine)", () => {
@@ -432,7 +461,10 @@ describe("tenders view tests", () => {
                 cancellationOf: "lot",
                 relatedLot: lot.id
             }];
-            assert.deepEqual(tenders.find_cancellation_max_date(tender.cancellations), new tenders.lotHandler(lot, tender).lot_date);
+            assert.deepEqual(
+                tenders.find_cancellation_max_date(tender.cancellations),
+                new tenders.lotHandler(lot, tender).lot_date
+            );
         });
 
         it("lot status is complete, lot has no date - should return the result of max_date. (tender contracts is fine)", () => {
@@ -443,7 +475,10 @@ describe("tenders view tests", () => {
                 date: "2017-11-09T00:00:00+03:00",
                 awardID: lot.id
             }]; 
-            assert.deepEqual(tenders.max_date(tender.contracts[0]), new tenders.lotHandler(lot, tender).lot_date);
+            assert.deepEqual(
+                tenders.max_date(tender.contracts[0]),
+                new tenders.lotHandler(lot, tender).lot_date
+            );
         });
 
         it("lot status is udnefined, tender status is cancelled", () => {
@@ -452,11 +487,16 @@ describe("tenders view tests", () => {
             let Handler = new tenders.Handler(tender);
             if (Handler.tender_date !== null) {
                 if (Handler.tender_date > Handler.bids_disclosure_standstill) {
-                    it("Handler.tender_date is later then bids disclojure date - should return Handler.tender_date", () => {
-                        assert.deepEqual(Handler.tender_date, new tenders.lotHandler(lot, tender).lot_date);
+                    it("Handler.tender_date is later then bids disclojure date - " +
+                        "should return Handler.tender_date", () => {
+                        assert.deepEqual(
+                            Handler.tender_date,
+                            new tenders.lotHandler(lot, tender).lot_date
+                        );
                     });
                 } else {
-                    it("Handler.tender_date is earlier then bids disclojure date - should return null.", () => {
+                    it("Handler.tender_date is earlier then bids disclojure date - " +
+                        "should return null.", () => {
                         assert.isNull(new tenders.lotHandler(lot, tender).lot_date);
                     });
                 }
@@ -467,10 +507,15 @@ describe("tenders view tests", () => {
             }
         });
 
-        it("lot status and tender status is undefined - should return the result of max_date. (tender contracts is fine)", () => {
+        it("lot status and tender status is undefined - " +
+            "should return the result of max_date. " +
+            "(tender contracts is fine)", () => {
             tender.status = undefined;
             lot.status = undefined;
-            assert.deepEqual(tenders.max_date(tender.contracts[0]), new tenders.lotHandler(lot, tender).lot_date);
+            assert.deepEqual(
+                tenders.max_date(tender.contracts[0]),
+                new tenders.lotHandler(lot, tender).lot_date
+            );
         });
     });
 
@@ -532,7 +577,8 @@ describe("tenders view tests", () => {
         
             tender = {
                 awards: [],
-                revisions: []
+                revisions: [],
+                something: 'something'
             };
             
             assert.isUndefined(tenders.find_date_from_revisions(tender));
@@ -667,7 +713,8 @@ describe("tenders view tests", () => {
             assert.isNull(tenders.get_first_award_date(tender, lot));
         });
 
-        it("tender has one cancelled and one active award, awards 'lotID's match lot id - should return active award date.", () => {
+        it("tender has one cancelled and one active award, awards 'lotID's match lot id - " +
+            "should return active award date.", () => {
             tender.awards.forEach(function(award) {
                 award.lotID = "lot_id";
             });

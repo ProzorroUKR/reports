@@ -1,17 +1,27 @@
 <!-- shows the table of contents -->
 <!-- requires headers and rows to be in the context -->
-<table class="table table-striped">
-    <tr class="thead-dark">
-        {% for header in headers %}
-        <th>{{ header }}</th>
+<div class="table-responsive">
+    <table class="table table-striped table-borderless table-report">
+        <tr class="thead-dark">
+            {% for header in headers %}
+                <th>{{ header }}</th>
+            {% endfor %}
+            {% for header in headers_info %}
+                <th class="bg-primary">{{ header }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in rows %}
+            <tr>
+                {% for value in row %}
+                    <td class="text-line-brick-disabled{% if loop.length == 1 %} bg-warning text-white{% endif %}"
+                        {% if loop.length == 1 %}colspan="{{ headers|length }}"{% endif %}>
+                        {{ value }}
+                    </td>
+                    {% if loop.length == 1 and headers_info %}
+                    <td class="bg-primary-warning" colspan="{{ headers_info|length }}"></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
         {% endfor %}
-    </tr>
-    {% for row in rows %}
-    <tr>
-        {% for value in row %}
-        <td style="max-width: 200px;overflow:hidden;word-break: break-all;"
-            class="{% if loop.length == 1 %}bg-success{% endif %}" >{{ value }}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
+    </table>
+</div>

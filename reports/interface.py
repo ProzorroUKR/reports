@@ -30,7 +30,9 @@ def invoices():
 
 @app.route("/bids")
 def bids():
-    return utility_view(BidsUtility)
+    return utility_view(BidsUtility, headers_info=[
+        'status', 'lot_status', 'bid_status', 'method', 'startdate'
+    ])
 
 
 @app.route("/refunds")
@@ -40,16 +42,24 @@ def refunds():
 
 @app.route("/tenders")
 def tenders():
-    return utility_view(TendersUtility)
+    return utility_view(TendersUtility, headers_info=[
+        'method', 'startdate'
+    ])
 
 
-def utility_view(utility_class):
+def utility_view(utility_class, headers_info=None):
     context = get_context()
-    utility = utility_class(broker=context["broker"], mode=context["mode"],
-                            period=context["period"], config=context["config"])
+    utility_kwargs = dict(
+        broker=context["broker"], mode=context["mode"],
+        period=context["period"], config=context["config"]
+    )
+    if headers_info:
+        utility_kwargs['headers_info'] = headers_info
+    utility = utility_class(**utility_kwargs)
 
     context.update(
         headers=utility.headers,
+        headers_info=headers_info or [],
         rows=utility.rows(),
     )
     return render_template('utility.html', **context)

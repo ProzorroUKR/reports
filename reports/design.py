@@ -24,6 +24,9 @@ with open(os.path.join(basepath, 'design/tenders_test.js')) as tenders_test_file
 with open(os.path.join(basepath, 'design/lib/jsonpatch.js')) as jsonp:
     jsonpatch = jsonp.read()
 
+with open(os.path.join(basepath, 'design/lib/utils.js')) as ul:
+    utils = ul.read()
+
 with open(os.path.join(basepath, 'design/lib/tenders.js')) as tl:
     tenders_lib = tl.read()
 

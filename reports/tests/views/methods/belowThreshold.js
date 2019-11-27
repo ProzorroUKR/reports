@@ -1,19 +1,25 @@
 "use strict";
 
-let tenders = require("../../design/lib/tenders");
-let bids = require("../../design/lib/bids");
-let assert = require("../../../node_modules/chai").assert;
+let tenders = require("../../../design/lib/tenders");
+let bids = require("../../../design/lib/bids");
+let utils = require("../../../design/lib/utils");
+let assert = require("../../../../node_modules/chai").assert;
 
-let tender = {
-    procurementMethodType: "belowThreshold"
-};
-let lot = {
-    id: "lot_id"
-};
-let bid = {
-    id: "bid_id"
-}
+let tender, lot, bid;
+
 describe("belowThreshold", () => {
+    beforeEach(() => {
+        tender = {
+            doc_type: "Tender",
+            qualificationPeriod: {startDate: "2019-12-01"},
+            enquiryPeriod: {startDate: "2019-12-01"},
+            procurementMethod: "open",
+            procurementMethodType: "belowThreshold"
+        };
+        lot = {id: "lot_id"};
+        bid = {id: "bid_id"};
+    });
+
     describe("get_bids", () => {
         it("should return filter_bids(tender.bids).", () => {
             tender.bids = [
@@ -40,7 +46,7 @@ describe("belowThreshold", () => {
             ];
             assert.deepEqual(bids.get_bids(tender), bids.filter_bids(tender.bids));
         });
-    })
+    });
 
     describe("check_bids_from_bt_atu", () => {
     it("should return true.", () => {
@@ -71,11 +77,29 @@ describe("belowThreshold", () => {
 
     describe("check_award_and_qualification", () => {
         it("should return check_award_for_bid_multilot(tender, bid, lot).", () => {
-            assert.strictEqual(bids.check_award_and_qualification(tender, bid, lot), bids.check_award_for_bid_multilot(tender, bid, lot));
+            assert.strictEqual(
+                bids.check_award_and_qualification(tender, bid, lot),
+                bids.check_award_for_bid_multilot(tender, bid, lot)
+            );
         });
 
         it("should return check_award_for_bid(tender, bid).", () => {
-            assert.strictEqual(bids.check_award_and_qualification(tender, bid), bids.check_award_for_bid_multilot(tender, bid));
+            assert.strictEqual(
+                bids.check_award_and_qualification(tender, bid),
+                bids.check_award_for_bid_multilot(tender, bid)
+            );
+        });
+    });
+
+    describe("exclude_tenders", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_tenders(tender));
+        });
+    });
+
+    describe("exclude_bids", () => {
+        it("should return false", () => {
+            assert.isFalse(utils.exclude_bids(tender));
         });
     });
 });

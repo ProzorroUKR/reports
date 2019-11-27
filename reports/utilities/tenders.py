@@ -23,10 +23,13 @@ class TendersUtility(ItemsUtility):
     }
 
     headers = HEADERS
+    headers_info = None
 
     def __init__(self, broker, period, config,
-                 timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
+                 timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE,
+                 headers_info=None):
         self.kinds = ['general', 'special', 'defense', 'other', '_kind']
+        self.headers_info = headers_info
         super(TendersUtility, self).__init__(
             broker, period, config,
             operation="tenders", timezone=timezone, mode=mode)
@@ -42,6 +45,8 @@ class TendersUtility(ItemsUtility):
         payment_year = self.get_payment_year(record)
         payment = self.get_payment(value, year=payment_year)
         row.append(payment)
+        if self.headers_info:
+            row += list(record.get(col, '') for col in self.headers_info)
         self.Logger.info(
             "Tenders: refund {} for tender {} with value {}".format(
                 payment, row[0], value

@@ -1,6 +1,7 @@
 from logging.config import dictConfig
 from reports.core import BaseBidsUtility, ItemsUtility
 from reports.helpers import get_arguments_parser, read_config
+from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE
 
 
 HEADERS = [
@@ -13,6 +14,15 @@ HEADERS = [
 class BidsUtility(BaseBidsUtility, ItemsUtility):
 
     headers = HEADERS
+    headers_info = None
+
+    def __init__(self, broker, period, config,
+                 timezone=DEFAULT_TIMEZONE, operation="bids", mode=DEFAULT_MODE,
+                 headers_info=None):
+        self.headers_info = headers_info
+        super(BidsUtility, self).__init__(
+            broker, period, config,
+            operation=operation, timezone=timezone, mode=mode)
 
     def row(self, record):
         state = record.get('state', '')
@@ -25,6 +35,10 @@ class BidsUtility(BaseBidsUtility, ItemsUtility):
         row.append(payment)
         if state:
             row.append(state)
+        if self.headers_info:
+            if not state:
+                row.append('')
+            row += list(record.get(col, '') for col in self.headers_info)
         self.Logger.info(
             "Bids: bill {} for tender {} with value {}".format(
                 payment, row[0], value
