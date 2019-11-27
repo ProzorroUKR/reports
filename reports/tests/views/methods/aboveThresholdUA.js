@@ -20,58 +20,6 @@ describe("aboveThresholdUA", () => {
         bid = {id: "bid_id"};
     });
 
-    describe("check_lot", () => {
-        it("should return count_lot_bids(lot, filter_bids(tender.bids || []) > 1", () => {
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
-                tenders.check_lot(lot, tender)
-            );
-
-            tender.bids = [
-                {
-                    date: "2017-11-20T00:00:00Z",
-                    lotValues: [{
-                        relatedLot: lot.id
-                    }]
-                },
-                {
-                    date: "2017-11-20T00:00:00Z",
-                    lotValues: [{
-                        relatedLot: "not_lot_id"
-                    }]      
-                }
-            ];
-
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
-                tenders.check_lot(lot, tender)
-            );
-
-            tender.bids.push({
-                date: "2017-11-20T00:00:00Z",
-                lotValues: [{
-                    relatedLot: lot.id
-                }]
-            });
-
-            assert.strictEqual(
-                tenders.count_lot_bids(lot, tenders.filter_bids(tender.bids || [])) > 1,
-                tenders.check_lot(lot, tender)
-            );
-        });
-    });
-
-    describe("check_tender", () => {
-        it("should return tender.numberOfBids > 1", () => {
-            tender.numberOfBids = 0;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
-            tender.numberOfBids = 1;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
-            tender.numberOfBids = 2;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
-        });
-    });
-
     describe("get_bids", () => {
         it("should return filter_bids(tender.bids).", () => {
             tender.bids = [

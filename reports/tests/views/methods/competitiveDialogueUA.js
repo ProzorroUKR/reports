@@ -20,36 +20,6 @@ describe("competitiveDialogueUA", () => {
         bid = {id: "bid_id"};
     });
 
-    describe("check_lot", () => {
-        it("should return count_lot_qualifications((tender.qualifications || []), lot.id) > 2", () => {
-            assert.strictEqual(
-                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
-                tenders.check_lot(lot, tender)
-            );
-            tender.qualifications = [{
-                lotID: lot.id
-            }];
-            assert.strictEqual(
-                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
-                tenders.check_lot(lot, tender)
-            );
-            tender.qualifications.push(tender.qualifications[0], tender.qualifications[0]);
-            assert.strictEqual(
-                tenders.count_lot_qualifications((tender.qualifications || []), lot.id) > 2,
-                tenders.check_lot(lot, tender)
-            );
-        });
-    });
-
-    describe("check_tender", () => {
-        it("should return (tender.qualifiactions || []).length > 2", () => {
-            tender.qualifications = [];
-            assert.isFalse(tenders.check_tender(tender));
-            tender.qualifications = [null, null, null];
-            assert.isTrue(tenders.check_tender(tender));
-        })
-    });
-
     describe("get_bids", () => {
         it("should return get_eu_tender_bids(tender)", () => {
             tender.qualifications = [];

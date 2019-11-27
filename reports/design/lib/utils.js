@@ -1,6 +1,6 @@
 var jsp = require('./jsonpatch');
 
-var TENDERS_START_DATE = "2016-04-01";
+var START_DATE = "2017-08-16T00:00:01";
 var CFA_START_DATE = "2019-11-01T00:00:01+02:00";
 var ESCO_START_DATE = "2019-11-01T00:00:01+02:00";
 
@@ -104,7 +104,7 @@ function exclude_before(doc, date) {
 }
 
 function exclude_old(doc) {
-    return exclude_before(doc, TENDERS_START_DATE);
+    return exclude_before(doc, START_DATE);
 }
 
 function exclude_old_cfa(doc) {
@@ -190,6 +190,7 @@ function exclude_bids(doc) {
         exclude_not_tender_doc_type,
         exclude_methods_bids,
         exclude_not_bids_disclojure_date,
+        exclude_old,
         exclude_old_esco,
     ]);
 }
