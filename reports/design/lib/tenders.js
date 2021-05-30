@@ -316,6 +316,7 @@ function check_lot(lot, tender) {
             }
             break;
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             var lot_awards = ('awards' in tender) ? (
                 tender.awards.filter(function(a) {
                     return a.lotID === lot.id;
@@ -356,6 +357,7 @@ function check_tender(tender) {
             }
             break;
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             if((tender.numberOfBids < 2) && !('awards' in tender)) {
                 return false;
             } else {
@@ -488,6 +490,7 @@ function tender_date_new_alg(tender) {
         case 'aboveThresholdEU':
         case 'esco':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
         case 'competitiveDialogueUA':
         case 'competitiveDialogueEU':
             return get_contract_date(tender);
@@ -508,6 +511,7 @@ function lot_date_new_alg(tender, lot) {
         case 'aboveThresholdEU':
         case 'esco':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
         case 'competitiveDialogueUA':
         case 'competitiveDialogueEU':
             return get_contract_date_for_lot(tender, lot);

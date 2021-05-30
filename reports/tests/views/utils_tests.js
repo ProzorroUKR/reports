@@ -246,6 +246,12 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
 
+        it("should return false - open:simple.defense.", () => {
+            doc.procurementMethod = "open";
+            doc.procurementMethodType = "simple.defense";
+            assert.strictEqual(utils.exclude_methods_bids(doc), false);
+        });
+
         it("should return false - open:aboveThresholdEU.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "aboveThresholdEU";
