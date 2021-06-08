@@ -100,6 +100,7 @@ function get_bids(tender) {
         case 'aboveThresholdUA':
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             return filter_bids(tender.bids);
         case 'closeFrameworkAgreementUA':
             if (utils.exclude_old_cfa(tender)) {
@@ -184,6 +185,7 @@ function check_bids_from_bt_atu(tender, lot) {
             return bids_n >= 2;
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             return true;
         case 'aboveThresholdEU':
         case 'esco':
@@ -207,6 +209,7 @@ function check_tender_bids(tender) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             return check_tender_bids_from_bt_atu(tender);
         case 'closeFrameworkAgreementUA':
             if (utils.exclude_old_cfa(tender)) {
@@ -230,6 +233,7 @@ function check_lot_bids(tender, lot) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             return check_lot_bids_from_bt_atu(tender, lot);
         case 'closeFrameworkAgreementUA':
             if (utils.exclude_old_cfa(tender)) {
@@ -451,6 +455,7 @@ function check_award_and_qualification(tender, bid, lot) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThresholdUA.defense':
+        case 'simple.defense':
             return check_award_for_bt_atu_bid(tender, bid, lot);
         case 'closeFrameworkAgreementUA':
             if (utils.exclude_old_cfa(tender)) {

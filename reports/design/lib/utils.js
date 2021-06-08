@@ -142,13 +142,14 @@ function exclude_methods_tenders(doc) {
         "open:belowThreshold",
         "open:aboveThresholdUA",
         "open:aboveThresholdUA.defense",
+        "open:simple.defense",
         "open:aboveThresholdEU",
         "open:competitiveDialogueEU",
         "open:competitiveDialogueUA",
         "selective:competitiveDialogueEU.stage2",
         "selective:competitiveDialogueUA.stage2",
         "open:closeFrameworkAgreementUA",
-        "open:esco",
+        "open:esco"
     ])
 }
 
@@ -157,11 +158,12 @@ function exclude_methods_bids(doc) {
         "open:belowThreshold",
         "open:aboveThresholdUA",
         "open:aboveThresholdUA.defense",
+        "open:simple.defense",
         "open:aboveThresholdEU",
         "open:competitiveDialogueEU",
         "open:competitiveDialogueUA",
         "open:closeFrameworkAgreementUA",
-        "open:esco",
+        "open:esco"
     ])
 }
 
