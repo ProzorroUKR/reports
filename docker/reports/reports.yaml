@@ -29,6 +29,12 @@ memory:
   help: 'curl -X PUT http://0.0.0.0:1234/v1/secret/billing/storage -H "Content-Type: application/json" -H "X-Vault-Token: myroot" -d {"user": "", "password": ""}'
   help_help: "Wrap -d arguments with single quotes in the request above"
 
+catalog_api:
+  url: 'http://catalogue.prozorro.local:8001/api/0'
+  access_token: ''
+  user: ''
+  password: ''
+
 swift:
   hey_you: this section isn't working at the moment as i can't connect to swift from inside the container
   here: is the host http://id-swift-np.dc.prozorro.gov.ua/v3

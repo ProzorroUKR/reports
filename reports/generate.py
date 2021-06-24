@@ -13,17 +13,18 @@ from reports.utilities.invoices import InvoicesUtility
 from reports.utilities.refunds import RefundsUtility
 from reports.utilities.bids import BidsUtility, HEADERS
 from reports.utilities.tenders import TendersUtility
+from reports.utilities.tenders_prozorro_market import TendersProzorroMarketUtility
 from reports.helpers import parse_period_string, MODES, DEFAULT_TIMEZONE, DEFAULT_MODE
 from reports.vault import Vault
 from reports.utilities.send import Porter
 from reports.utilities.zip import compress
 
 
-SCRIPTS = [BidsUtility, InvoicesUtility, TendersUtility, RefundsUtility]
+SCRIPTS = [BidsUtility, InvoicesUtility, TendersUtility, RefundsUtility, TendersProzorroMarketUtility]
 YES = ['y', 'yes', 'true', 't']
 NO = ['n', 'no', 'false', 'f']
 DEFAULT_KINDS = ['general', 'special', 'defense', 'other', '_kind']
-DEFAULT_INCLUDE = "bids,invoices,tenders,refunds"
+DEFAULT_INCLUDE = "bids,invoices,tenders,refunds,tenders_prozorro_market"
 parser = argparse.ArgumentParser(description="Openprocurement Billing")
 parser.add_argument('-c', '--config', required=True)
 parser.add_argument('--brokers', dest='brokers', action="store")
@@ -161,7 +162,7 @@ def zip_all_tenders(brokers, period):
         return compress(
             [
                 "{}@{}--{}-{}.csv".format(broker, start, end, type)
-                for type in ['tenders', 'refunds']
+                for type in ['tenders', 'refunds', 'tenders_prozorro_market']
                 for broker in brokers
                 if brokers != 'all'
             ],

@@ -153,6 +153,20 @@ function exclude_methods_tenders(doc) {
     ])
 }
 
+function exclude_methods_tenders_prozorro_market(doc) {
+    // exclude_methods returns true (to exclude) if doc method is NOT in list
+    is_not_pq = exclude_methods(doc, [
+        "selective:priceQuotation",
+    ])
+
+    is_direct = (
+        !exclude_methods(doc, ["limited:reporting"]) &&
+        (doc.procurementMethodRationale || "").indexOf("catalogue, offer=") === 0
+    )
+
+    return is_not_pq && !is_direct
+}
+
 function exclude_methods_bids(doc) {
     return exclude_methods(doc, [
         "open:belowThreshold",
@@ -165,6 +179,18 @@ function exclude_methods_bids(doc) {
         "open:closeFrameworkAgreementUA",
         "open:esco"
     ])
+}
+
+function exclude_no_active_contracts(doc) {
+    return (doc.contracts || []).map(
+        function (contract) {
+            return contract.status !== 'active'
+        }
+    ).every(
+        function (element) {
+            return element === true
+        }
+    )
 }
 
 function exclude(doc, excluders) {
@@ -184,6 +210,14 @@ function exclude_tenders(doc) {
         exclude_old,
         exclude_old_cfa,
         exclude_old_esco,
+    ]);
+}
+
+function exclude_tenders_prozorro_market(doc) {
+    return exclude(doc, [
+        exclude_not_tender_doc_type,
+        exclude_methods_tenders_prozorro_market,
+        exclude_no_active_contracts,
     ]);
 }
 
@@ -215,4 +249,5 @@ exports.exclude_old_esco = exclude_old_esco;
 exports.exclude_methods_tenders = exclude_methods_tenders;
 exports.exclude_methods_bids = exclude_methods_bids;
 exports.exclude_tenders = exclude_tenders;
+exports.exclude_tenders_prozorro_market = exclude_tenders_prozorro_market;
 exports.exclude_bids = exclude_bids;

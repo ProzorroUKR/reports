@@ -7,10 +7,10 @@ from couchdb.design import ViewDefinition
 from logging import getLogger
 from reports.config import Config
 from reports.design import (
-    bids_owner_date, tenders_owner_date,
-    bids_test_owner_date, tenders_test_owner_date,
-    bids_all_owner_date, tenders_all_owner_date,
-    jsonpatch, utils, tenders_lib, bids_lib,
+    bids_owner_date, tenders_owner_date, tenders_prozorro_market_owner_date,
+    bids_test_owner_date, tenders_test_owner_date, tenders_prozorro_market_test_owner_date,
+    bids_all_owner_date, tenders_all_owner_date, tenders_prozorro_market_all_owner_date,
+    jsonpatch, utils, tenders_lib, tenders_prozorro_market_lib, bids_lib,
 )
 from reports.helpers import prepare_report_interval, prepare_result_file_name, value_currency_normalize
 from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_TEST, MODE_ALL
@@ -19,10 +19,13 @@ from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE, MODE_REGULAR, MODE_T
 VIEWS = [
     bids_owner_date,
     tenders_owner_date,
+    tenders_prozorro_market_owner_date,
     bids_test_owner_date,
     tenders_test_owner_date,
+    tenders_prozorro_market_test_owner_date,
     bids_all_owner_date,
-    tenders_all_owner_date
+    tenders_all_owner_date,
+    tenders_prozorro_market_all_owner_date,
 ]
 NEW_ALG_DATE = "2017-08-16"
 CHANGE_2019_DATE = "2019-08-22"
@@ -115,6 +118,7 @@ class BaseUtility(object):
             'jsonpatch': jsonpatch,
             'utils': utils,
             'tenders': tenders_lib,
+            'tenders_prozorro_market': tenders_prozorro_market_lib,
             'bids': bids_lib
         }
         self.adb.save(original)
@@ -157,7 +161,8 @@ class BaseUtility(object):
             self.view,
             1000,
             startkey=(self.broker, self.start_date),
-            endkey=(self.broker, self.end_date))
+            endkey=(self.broker, self.end_date),
+        )
 
     def write_csv(self):
         if not self.headers:
