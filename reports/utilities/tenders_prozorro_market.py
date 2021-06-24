@@ -1,4 +1,5 @@
 import requests
+from retrying import retry
 
 from logging.config import dictConfig
 from reports.catalog import CatalogApi
@@ -50,6 +51,19 @@ class TendersProzorroMarketUtility(BaseUtility):
         self.catalog_api_search_url = "{}/search?access_token={}".format(
             self.config.config["catalog_api"]["url"],
             self.config.config["catalog_api"]["access_token"]
+        )
+
+    @property
+    @retry(wait_exponential_multiplier=1000, stop_max_attempt_number=5)
+    def response(self):
+        self._sync_views()
+        if not self.view:
+            raise NotImplementedError()
+        return self.db.iterview(
+            self.view,
+            1000,
+            startkey=self.start_date,
+            endkey=self.end_date,
         )
 
     @staticmethod

@@ -59,7 +59,7 @@ function get_tariff_group(contract) {
 var emitter = {
     tender: function(tender, contract, results) {
         results.push({
-            key: [tender.owner, utils.date_normalize(contract.date)],
+            key: utils.date_normalize(contract.date),
             value: {
                 tender_id: tender._id,
                 tenderID: tender.tenderID,
@@ -79,29 +79,6 @@ var emitter = {
         });
     }
 };
-//
-//var emitter2 = {
-//    tender: function(tender, contract, results) {
-//        results.push({
-//            key: [tender.owner, utils.date_normalize(contract.date)],
-//            value: {
-//                tender_id: tender._id,
-//                tenderID: tender.tenderID,
-//                contract_date: contract.date,
-//                procuringEntity_name: tender.procuringEntity.name,
-//                procuringEntity_identifier_id: tender.procuringEntity.identifier.id,
-//                contract_supplier_name: contract.suppliers[0].name,
-//                contract_supplier_identifier_id: contract.suppliers[0].identifier.id,
-//                contracts_value_amount: contract.value.amount,
-//                tender_owner: tender.owner,
-//                bid_owner: get_bid_owner(tender, contract),
-//                profile_owner: '',
-//                tariff_group: get_tariff_group(contract),
-//                method: tender.procurementMethodType,
-//            }
-//        });
-//    }
-//};
 
 function get_active_contract(tender) {
     var active_contract = null;
@@ -112,11 +89,6 @@ function get_active_contract(tender) {
     });
     return active_contract;
 }
-
-//function emit_results2(tender, results) {
-//    var contract = get_contract(tender);
-//    emitter.tender(tender, contract, results);
-//}
 
 function emit_results(tender, results) {
     emitter.tender(tender, tender.contracts[0], results);
