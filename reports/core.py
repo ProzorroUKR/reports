@@ -175,6 +175,7 @@ class BaseUtility(object):
             writer = csv.writer(out_file)
             writer.writerow(self.headers)
             for row in self.rows():
+                row = [unicode(r).encode('utf-8') for r in row]
                 writer.writerow(row)
 
     def run(self):

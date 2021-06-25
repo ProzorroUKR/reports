@@ -89,7 +89,7 @@ class TendersProzorroMarketUtility(BaseUtility):
     def row(self, record):
         row = list(record.get(col, '') for col in self.headers)
         row = [", ".join(r) if isinstance(r, list) else r for r in row]
-        row = [unicode(r).encode('utf-8') for r in row]
+        row = [unicode(r) for r in row]
 
         return row
 
