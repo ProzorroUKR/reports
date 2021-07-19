@@ -44,6 +44,7 @@ setup(
         'console_scripts': [
             'bids = reports.utilities.bids:run',
             'tenders = reports.utilities.tenders:run',
+            'tenders_prozorro_market = reports.utilities.tenders_prozorro_market:run',
             'refunds = reports.utilities.refunds:run',
             'invoices = reports.utilities.invoices:run',
             'init = reports.utilities.init:run',

@@ -13,6 +13,7 @@ from reports.utilities.invoices import InvoicesUtility
 from reports.utilities.refunds import RefundsUtility
 from reports.utilities.bids import BidsUtility, HEADERS
 from reports.utilities.tenders import TendersUtility
+from reports.utilities.tenders_prozorro_market import TendersProzorroMarketUtility
 from reports.helpers import parse_period_string, MODES, DEFAULT_TIMEZONE, DEFAULT_MODE
 from reports.vault import Vault
 from reports.utilities.send import Porter
@@ -20,6 +21,7 @@ from reports.utilities.zip import compress
 
 
 SCRIPTS = [BidsUtility, InvoicesUtility, TendersUtility, RefundsUtility]
+SCRIPTS_NO_BROKER = [TendersProzorroMarketUtility]
 YES = ['y', 'yes', 'true', 't']
 NO = ['n', 'no', 'false', 'f']
 DEFAULT_KINDS = ['general', 'special', 'defense', 'other', '_kind']
@@ -69,6 +71,12 @@ def generate_for_broker(broker, period, timezone=DEFAULT_TIMEZONE, mode=DEFAULT_
     for ut in utilities:
         if isinstance(ut, (TendersUtility, RefundsUtility)):
             ut.kinds = DEFAULT_KINDS
+        ut.run()
+
+
+def generate_for_non_broker(period, timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
+    utilities = map(lambda u: u("all", period, CONFIG, timezone=timezone, mode=mode), SCRIPTS_NO_BROKER)
+    for ut in utilities:
         ut.run()
 
 
@@ -174,6 +182,20 @@ def zip_all_tenders(brokers, period):
         return False
 
 
+def zip_all_tenders_prozorro_market(period):
+    start, end = period
+    try:
+        return compress(
+            ["all@{}--{}-tenders_prozorro_market.csv".format(start, end)],
+            CONFIG['out']['out_dir'],
+            "all@{}--{}-tenders_prozorro_market.zip".format(start, end),
+            None
+        )
+    except (OSError, IOError) as e:
+        LOGGER.fatal("Error: {}".format(e))
+        return False
+
+
 def zip_all_bids(brokers, period):
     start, end = period
     files = ["all@{}--{}-bids.csv".format(start, end)]
@@ -210,6 +232,7 @@ def clean_up(brokers, period):
         for op in INCLUDE
         ]
     files.append("all@{}--{}-bids.csv".format(start, end))
+    files.append("all@{}--{}-tenders_prozorro_market.csv".format(start, end))
     for file in files:
         try:
             os.remove(os.path.join(WORKDIR, file))
@@ -253,10 +276,12 @@ def run():
     create_all_bids_csv(brokers, period)
 
     if not ARGS.brokers or (ARGS.brokers and ('all' in ARGS.brokers)):
+        generate_for_non_broker(period, ARGS.timezone, ARGS.mode)
         all_tenders = zip_all_tenders(brokers, period)
+        all_tenders_prozorro_market = zip_all_tenders_prozorro_market(period)
         all_bids = zip_all_bids(brokers, period)
         results.extend(upload_and_notify([
-            _file for _file in (all_bids, all_tenders)
+            _file for _file in (all_bids, all_tenders, all_tenders_prozorro_market)
             if _file
             ]))
     if all(results) and ARGS.notify and (ARGS.notify in YES):

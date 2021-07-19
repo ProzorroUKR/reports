@@ -5,6 +5,7 @@ from reports.utilities.invoices import InvoicesUtility
 from reports.utilities.bids import BidsUtility
 from reports.utilities.refunds import RefundsUtility
 from reports.utilities.tenders import TendersUtility
+from reports.utilities.tenders_prozorro_market import TendersProzorroMarketUtility
 import yaml
 import json
 import os
@@ -45,6 +46,11 @@ def tenders():
     return utility_view(TendersUtility, headers_info=[
         'method', 'startdate'
     ])
+
+
+@app.route("/tenders_prozorro_market")
+def tenders_prozorro_market():
+    return utility_view(TendersProzorroMarketUtility)
 
 
 def utility_view(utility_class, headers_info=None):
