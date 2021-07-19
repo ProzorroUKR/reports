@@ -16,7 +16,7 @@ from retrying import retry
 from logging import getLogger
 
 
-RE = re.compile(r'(^.*)@(\d{4}-\d{2}-\d{2}--\d{4}-\d{2}-\d{2})?-([a-z\-]*)\.zip')
+RE = re.compile(r'(^.*)@(\d{4}-\d{2}-\d{2}--\d{4}-\d{2}-\d{2})?-([a-z\-_]*)\.zip')
 LOGGER = getLogger("BILLING")
 DEFAULT_SCHEME = "https"
 

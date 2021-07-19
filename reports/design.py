@@ -21,6 +21,15 @@ with open(os.path.join(basepath, 'design/tenders_all.js')) as tenders_all_file:
 with open(os.path.join(basepath, 'design/tenders_test.js')) as tenders_test_file:
     tenders_test = tenders_test_file.read()
 
+with open(os.path.join(basepath, 'design/tenders_prozorro_market.js')) as tenders_prozorro_market_file:
+    tenders_prozorro_market = tenders_prozorro_market_file.read()
+
+with open(os.path.join(basepath, 'design/tenders_prozorro_market_all.js')) as tenders_prozorro_market_all_file:
+    tenders_prozorro_market_all = tenders_prozorro_market_all_file.read()
+
+with open(os.path.join(basepath, 'design/tenders_prozorro_market_test.js')) as tenders_prozorro_market_test_file:
+    tenders_prozorro_market_test = tenders_prozorro_market_test_file.read()
+
 with open(os.path.join(basepath, 'design/lib/jsonpatch.js')) as jsonp:
     jsonpatch = jsonp.read()
 
@@ -29,6 +38,9 @@ with open(os.path.join(basepath, 'design/lib/utils.js')) as ul:
 
 with open(os.path.join(basepath, 'design/lib/tenders.js')) as tl:
     tenders_lib = tl.read()
+
+with open(os.path.join(basepath, 'design/lib/tenders_prozorro_market.js')) as tl:
+    tenders_prozorro_market_lib = tl.read()
 
 with open(os.path.join(basepath, 'design/lib/bids.js')) as bl:
     bids_lib = bl.read()
@@ -50,4 +62,13 @@ tenders_all_owner_date = couchdb.design.ViewDefinition(
 )
 tenders_test_owner_date = couchdb.design.ViewDefinition(
     'report', 'tenders_test_owner_date', tenders_test
+)
+tenders_prozorro_market_owner_date = couchdb.design.ViewDefinition(
+    'report', 'tenders_prozorro_market_owner_date', tenders_prozorro_market
+)
+tenders_prozorro_market_all_owner_date = couchdb.design.ViewDefinition(
+    'report', 'tenders_prozorro_market_all_owner_date', tenders_prozorro_market_all
+)
+tenders_prozorro_market_test_owner_date = couchdb.design.ViewDefinition(
+    'report', 'tenders_prozorro_market_test_owner_date', tenders_prozorro_market_test
 )

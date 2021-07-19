@@ -57,6 +57,9 @@
                 <li class="nav-item {% if request.url_rule.endpoint == 'tenders' %}active{% endif %}">
                     <a class="nav-link" href="/tenders?{{ request.query_string }}">Tenders</a>
                 </li>
+                <li class="nav-item {% if request.url_rule.endpoint == 'tenders_prozorro_market' %}active{% endif %}">
+                    <a class="nav-link" href="/tenders_prozorro_market?{{ request.query_string }}">Tenders[ProzorroMarket]</a>
+                </li>
             </ul>
 
             <form class="form-inline">
