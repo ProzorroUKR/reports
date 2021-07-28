@@ -77,7 +77,7 @@ class TendersProzorroMarketUtility(BaseUtility):
 
         offers = procurement_method_rationale.split("offer=")[1]
         if offers:
-            return offers.split(",")
+            return offers.split(";")
 
         return []
 
@@ -91,6 +91,12 @@ class TendersProzorroMarketUtility(BaseUtility):
         row = list(record.get(col, '') for col in self.headers)
         row = [", ".join(r) if isinstance(r, list) else r for r in row]
         row = [unicode(r) for r in row]
+
+        self.Logger.info(
+            "Tenders prozorro market: tender {} with value {}".format(
+                record["tender_id"], record["contracts_value_amount"]
+            )
+        )
 
         return row
 
