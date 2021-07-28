@@ -46,6 +46,12 @@ api:
   host: {{ api_host }}
   version:  {{ api_ver }}
 
+catalog_api:
+  url: {{ catalog_api_url }}
+  access_token: {{ catalog_api_access_token }}
+  user: {{ catalog_api_user }}
+  password: {{ catalog_api_password }}
+
 email:
   smtp_server: {{ smtp_server }}
   smtp_port: {{ smtp_port }}
