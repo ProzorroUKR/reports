@@ -1,24 +1,25 @@
 import sys
-from logging import getLogger
 import requests
+import json
 from requests.exceptions import RequestException
-
-LOGGER = getLogger("BILLING")
+from logging.config import dictConfig
 
 
 class CatalogApi(object):
-    def __init__(self, config):
-        self.config = config
+    def __init__(self, logger, config_raw, catalog_api_config):
+        self.catalog_api_config = catalog_api_config
+        dictConfig(config_raw)
+        self.Logger = logger
         self.catalog_api_search_url = "{}/search?access_token={}".format(
-            self.config["url"],
-            self.config["access_token"]
+            self.catalog_api_config["url"],
+            self.catalog_api_config["access_token"]
         )
         self.health_check()
 
     def health_check(self):
         self.make_get_request(
             url="{}/categories".format(
-                self.config["url"],
+                self.catalog_api_config["url"],
             )
         )
 
@@ -29,39 +30,42 @@ class CatalogApi(object):
             resources[resource["id"]] = resource
         return resources
 
-    @staticmethod
-    def make_get_request(url):
+    def make_get_request(self, url):
         try:
             r = requests.get(url=url)
+            r.raise_for_status()
             return r.json()["data"]
 
         except RequestException as e:
-            LOGGER.fatal(
-                    "Catalog API error: {}."
-                    "Exit".format(e)
+            self.Logger.fatal(
+                    "Catalog API error: {}. Exit.".format(e)
             )
             sys.exit(1)
 
     def make_post_request(self, url, data):
+        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         try:
             r = requests.post(
                 url=url,
-                json={
-                    "data": data
-                },
-                auth=(self.config["user"], self.config["password"])
+                data=json.dumps({"data": data}),
+                headers=headers,
+                auth=(self.catalog_api_config["user"], self.catalog_api_config["password"])
             )
+
+            r.raise_for_status()
             return r.json()["data"]
 
         except RequestException as e:
-            LOGGER.fatal(
-                    "Catalog API error: {}."
-                    "Exit".format(e)
+            self.Logger.fatal(
+                    "Catalog API error: {}. Exit.".format(e)
             )
             sys.exit(1)
 
     def search(self, resource, ids, fields):
-        response = self.make_post_request(
+        self.Logger.info(
+            "Catalog API: making search request for {} {}s.".format(len(ids), resource)
+        )
+        resources_list = self.make_post_request(
             url=self.catalog_api_search_url,
             data={
                 "resource": resource,
@@ -70,6 +74,12 @@ class CatalogApi(object):
             }
         )
 
-        resources_list = response.json()["data"]
         resources = self.map_by_id(resources_list)
+        missing_resources = [resource_id for resource_id in ids if resource_id not in resources]
+        if missing_resources:
+            self.Logger.fatal(
+                    "Catalog API error: missing {} {}. Exit.".format(resource, missing_resources)
+            )
+            sys.exit(1)
+
         return resources

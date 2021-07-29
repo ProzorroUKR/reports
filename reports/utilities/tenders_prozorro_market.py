@@ -48,10 +48,10 @@ class TendersProzorroMarketUtility(BaseUtility):
             operation="tenders_prozorro_market",
             timezone=timezone, mode=mode
         )
-        self.catalog_api = CatalogApi(self.config.config["catalog_api"])
-        self.catalog_api_search_url = "{}/search?access_token={}".format(
-            self.config.config["catalog_api"]["url"],
-            self.config.config["catalog_api"]["access_token"]
+        self.catalog_api = CatalogApi(
+            self.Logger,
+            self.config_raw,
+            self.config.config["catalog_api"],
         )
 
     @property
@@ -100,31 +100,6 @@ class TendersProzorroMarketUtility(BaseUtility):
 
         return row
 
-    def get_catalog_api_resource(self, resource, ids, fields):
-        r = requests.post(
-            url=self.catalog_api_search_url,
-            json={
-                "data": {
-                    "resource": resource,
-                    "ids": ids,
-                    "fields": fields,
-                }
-            },
-            auth=HTTPBasicAuth(
-                self.config.config["catalog_api"]["user"],
-                self.config.config["catalog_api"]["password"],
-            )
-        )
-
-        resources = {}
-        if r.status_code != 200:
-            return resources
-
-        for resource in r.json()["data"]:
-            resources[resource["id"]] = resource
-
-        return resources
-
     def rows(self):
         tenders = []
         for resp in self.response:
@@ -141,7 +116,7 @@ class TendersProzorroMarketUtility(BaseUtility):
                 offer_ids.extend(tender["offers"])
 
         if offer_ids:
-            catalog_offers = self.get_catalog_api_resource(
+            catalog_offers = self.catalog_api.search(
                 resource="offer",
                 ids=offer_ids,
                 fields=["id", "relatedProduct", "access_owner"],
@@ -168,7 +143,7 @@ class TendersProzorroMarketUtility(BaseUtility):
                 related_product_ids.extend(tender["related_product_ids"])
 
         if related_product_ids:
-            catalog_products = self.get_catalog_api_resource(
+            catalog_products = self.catalog_api.search(
                 resource="product",
                 ids=related_product_ids,
                 fields=["id", "relatedProfile"],
@@ -187,7 +162,7 @@ class TendersProzorroMarketUtility(BaseUtility):
             related_profile_ids.extend(tender["profile"])
 
         if related_profile_ids:
-            catalog_profiles = self.get_catalog_api_resource(
+            catalog_profiles = self.catalog_api.search(
                 resource="profile",
                 ids=related_profile_ids,
                 fields=["id", "access_owner"],

@@ -50,6 +50,7 @@ class BaseUtility(object):
         self.mode = mode
         self.threshold_date = '2017-01-01T00:00+02:00'
         self.config = Config(config, self.operation)
+        self.config_raw = config
         self.start_date, self.end_date = prepare_report_interval(self.period)
         self.connect_db()
         self.Logger = getLogger("BILLING")
