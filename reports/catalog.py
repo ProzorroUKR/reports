@@ -4,6 +4,8 @@ import json
 from requests.exceptions import RequestException
 from logging.config import dictConfig
 
+LIST_OBJECT_LIMIT = 1000
+
 
 class CatalogApi(object):
     def __init__(self, logger, config_raw, catalog_api_config):
@@ -30,6 +32,14 @@ class CatalogApi(object):
             resources[resource["id"]] = resource
         return resources
 
+    @staticmethod
+    def split_into_chunks(input_list, chunk_len):
+        return [
+            input_list[i:i + chunk_len]
+            for i
+            in xrange(0, len(input_list), chunk_len)
+        ]
+
     def make_get_request(self, url):
         try:
             r = requests.get(url=url)
@@ -38,7 +48,7 @@ class CatalogApi(object):
 
         except RequestException as e:
             self.Logger.fatal(
-                    "Catalog API error: {}. Exit.".format(e)
+                    "Catalog API error: {}. Exit.".format(e.response.text)
             )
             sys.exit(1)
 
@@ -57,7 +67,7 @@ class CatalogApi(object):
 
         except RequestException as e:
             self.Logger.fatal(
-                    "Catalog API error: {}. Exit.".format(e)
+                    "Catalog API error: {}. Exit.".format(e.response.text)
             )
             sys.exit(1)
 
@@ -65,14 +75,19 @@ class CatalogApi(object):
         self.Logger.info(
             "Catalog API: making search request for {} {}s.".format(len(ids), resource)
         )
-        resources_list = self.make_post_request(
-            url=self.catalog_api_search_url,
-            data={
-                "resource": resource,
-                "ids": ids,
-                "fields": fields,
-            }
-        )
+
+        ids_chunks = self.split_into_chunks(ids, LIST_OBJECT_LIMIT)
+        resources_list = []
+        for ids_chunk in ids_chunks:
+            r = self.make_post_request(
+                url=self.catalog_api_search_url,
+                data={
+                    "resource": resource,
+                    "ids": ids_chunk,
+                    "fields": fields,
+                }
+            )
+            resources_list.extend(r)
 
         resources = self.map_by_id(resources_list)
         missing_resources = [resource_id for resource_id in ids if resource_id not in resources]
