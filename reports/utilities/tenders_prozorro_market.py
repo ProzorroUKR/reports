@@ -109,6 +109,8 @@ class TendersProzorroMarketUtility(BaseUtility):
             tender["offers"] = self.unpack_offers(tender["procurementMethodRationale"])
             tender["profile"] = self.unpack_convert_to_list(tender["profile"])
             tender["bid_owner"] = self.unpack_convert_to_list(tender["bid_owner"])
+            tender["procuringEntity_name"] = tender["procuringEntity_name"].strip("\n")
+            tender["contract_supplier_name"] = tender["contract_supplier_name"].strip("\n")
 
         offer_ids = []
         for tender in tenders:
