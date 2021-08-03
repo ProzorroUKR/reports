@@ -139,17 +139,7 @@ function exclude_methods(doc, methods) {
 
 function exclude_methods_tenders(doc) {
     return exclude_methods(doc, [
-        "open:belowThreshold",
-        "open:aboveThresholdUA",
-        "open:aboveThresholdUA.defense",
-        "open:simple.defense",
-        "open:aboveThresholdEU",
-        "open:competitiveDialogueEU",
-        "open:competitiveDialogueUA",
-        "selective:competitiveDialogueEU.stage2",
-        "selective:competitiveDialogueUA.stage2",
-        "open:closeFrameworkAgreementUA",
-        "open:esco"
+        "open:simple.defense"
     ])
 }
 
@@ -169,15 +159,7 @@ function exclude_methods_tenders_prozorro_market(doc) {
 
 function exclude_methods_bids(doc) {
     return exclude_methods(doc, [
-        "open:belowThreshold",
-        "open:aboveThresholdUA",
-        "open:aboveThresholdUA.defense",
-        "open:simple.defense",
-        "open:aboveThresholdEU",
-        "open:competitiveDialogueEU",
-        "open:competitiveDialogueUA",
-        "open:closeFrameworkAgreementUA",
-        "open:esco"
+        "open:simple.defense"
     ])
 }
 
