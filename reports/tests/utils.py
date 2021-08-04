@@ -39,6 +39,37 @@ class MockCurrencyResponce(object):
     '''
 
 
+class CatalogApiResponce(object):
+    def search(self, resource, ids, fields):
+        if resource == "profile":
+            profiles = {}
+            for profile_id in ids:
+                profiles[profile_id] = {
+                    "id": profile_id,
+                    "access_owner": "access_owner_of_profile_{}".format(profile_id)
+                }
+            return profiles
+
+        if resource == "offer":
+            offers = {}
+            for offer_id in ids:
+                offers[offer_id] = {
+                    "id": offer_id,
+                    "relatedProduct": "relatedProduct_of_offer_".format(offer_id),
+                    "access_owner": "access_owner_of_offer_{}".format(offer_id)
+                }
+            return offers
+
+        if resource == "product":
+            products = {}
+            for product_id in ids:
+                products[product_id] = {
+                    "id": product_id,
+                    "relatedProfile": "relatedProfile_of_product_".format(product_id),
+                }
+            return products
+
+
 test_config = os.path.join(os.path.dirname(__file__), 'tests.yaml')
 
 

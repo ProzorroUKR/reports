@@ -6,7 +6,8 @@ from reports.tests import(
     invoices_tests,
     normalization_tests,
     refunds_tests,
-    tenders_tests
+    tenders_tests,
+    tenders_prozorro_market_tests,
 )
 
 
@@ -17,6 +18,7 @@ def suite():
     suite.addTest(normalization_tests.suite())
     suite.addTest(refunds_tests.suite())
     suite.addTest(tenders_tests.suite())
+    suite.addTest(tenders_prozorro_market_tests.suite())
     return suite
 
 

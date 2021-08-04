@@ -3,7 +3,7 @@ import unittest
 import couchdb
 import mock
 import yaml
-from reports.utilities import bids, invoices, tenders, refunds
+from reports.utilities import bids, invoices, tenders, tenders_prozorro_market, refunds
 from copy import copy
 from reports.tests.utils import (
     get_mock_parser,
@@ -82,6 +82,18 @@ class BaseTenderUtilityTest(BaseUtilityTest):
         args = self.get_args(kind=['general'])
         config = read_config(args.config)
         self.utility = tenders.TendersUtility(args.broker, args.period, config)
+
+
+class BaseTenderProzorroMarketUtilityTest(BaseUtilityTest):
+
+    def setUp(self):
+        super(BaseTenderProzorroMarketUtilityTest, self).setUp()
+        args = self.get_args()
+        config = read_config(args.config)
+        self.utility = tenders_prozorro_market.TendersProzorroMarketUtility(args.broker, args.period, config)
+
+    def test_payments_computation(self):
+        pass
 
 
 class BaseRefundsUtilityTest(BaseUtilityTest):

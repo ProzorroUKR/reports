@@ -203,6 +203,59 @@ describe("utils tests", () => {
         });
     });
 
+    describe("exclude_methods_tenders_prozorro_market", () => {
+        let doc;
+
+        beforeEach(() => {
+            doc = {}
+        });
+
+        it("should return true - wrong procurementMethodType.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "something";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), true);
+        });
+
+        it("should return true - wrong procurementMethod.", () => {
+            doc.procurementMethod = "something";
+            doc.procurementMethodType = "priceQuotation";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), true);
+        });
+
+        it("should return false - selective:priceQuotation.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "priceQuotation";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), false);
+        });
+
+        it("should return true - wrong procurementMethod.", () => {
+            doc.procurementMethod = "something";
+            doc.procurementMethodType = "reporting";
+            doc.procurementMethodRationale = "catalogue, offer=d1e02742121be58e3f8e02db5fc37838";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), true);
+        });
+        it("should return true - wrong procurementMethodType.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "something";
+            doc.procurementMethodRationale = "catalogue, offer=d1e02742121be58e3f8e02db5fc37838";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), true);
+        });
+
+        it("should return true - wrong procurementMethodRationale.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "reporting";
+            doc.procurementMethodRationale = "something";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), true);
+        });
+
+        it("should return false - limited:reporting.", () => {
+            doc.procurementMethod = "limited";
+            doc.procurementMethodType = "reporting";
+            doc.procurementMethodRationale = "catalogue, offer=d1e02742121be58e3f8e02db5fc37838";
+            assert.strictEqual(utils.exclude_methods_tenders_prozorro_market(doc), false);
+        });
+    });
+
     describe("exclude_methods_bids", () => {
         let doc;
 
@@ -286,6 +339,38 @@ describe("utils tests", () => {
             doc.procurementMethod = "selective";
             doc.procurementMethodType = "competitiveDialogueUA.stage2";
             assert.strictEqual(utils.exclude_methods_bids(doc), true);
+        });
+    });
+
+    describe("exclude_no_active_contracts", () => {
+        let doc;
+
+        beforeEach(() => {
+            doc = {}
+        });
+
+        it("should return true - no contracts.", () => {
+            assert.strictEqual(utils.exclude_no_active_contracts(doc), true);
+        });
+
+        it("should return true - contracts are empty array.", () => {
+            doc.contracts = [];
+            assert.strictEqual(utils.exclude_no_active_contracts(doc), true);
+        });
+
+        it("should return true - all contract has no status.", () => {
+            doc.contracts = [{}, {}];
+            assert.strictEqual(utils.exclude_no_active_contracts(doc), true);
+        });
+
+        it("should return true - all contracts status not active.", () => {
+            doc.contracts = [{"status": "not_active"}, {"status": "something"}];
+            assert.strictEqual(utils.exclude_no_active_contracts(doc), true);
+        });
+
+        it("should return false - one contracts status active.", () => {
+            doc.contracts = [{"status": "not_active"}, {"status": "active"}];
+            assert.strictEqual(utils.exclude_no_active_contracts(doc), false);
         });
     });
 

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "nyc --exclude reports/design/lib/jsonpatch.js --exclude reports/tests/ mocha reports/tests/views/ reports/tests/views/methods/"
+    "test": "nyc --exclude reports/design/lib/jsonpatch.js --exclude reports/tests/ mocha reports/tests/views/ reports/tests/views/methods/ reports/tests/views/methods_prozorro_market/"
   },
   "devDependencies": {
     "chai": "^4.1.2",
