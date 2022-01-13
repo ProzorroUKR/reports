@@ -121,14 +121,14 @@ class TendersProzorroMarketUtility(BaseUtility):
             catalog_offers = self.catalog_api.search(
                 resource="offer",
                 ids=offer_ids,
-                fields=["id", "relatedProduct", "access_owner"],
+                fields=["id", "relatedProduct", "owner"],
             )
 
             for tender in tenders:
                 if tender["method"] == "reporting":
 
                     tender["bid_owner"] = [
-                        catalog_offers[tender_offer_id]["access_owner"]
+                        catalog_offers[tender_offer_id]["owner"]
                         for tender_offer_id
                         in tender["offers"]
                     ]
@@ -167,12 +167,12 @@ class TendersProzorroMarketUtility(BaseUtility):
             catalog_profiles = self.catalog_api.search(
                 resource="profile",
                 ids=related_profile_ids,
-                fields=["id", "access_owner"],
+                fields=["id", "owner"],
             )
 
             for tender in tenders:
                 tender["profile_owner"] = [
-                    catalog_profiles[tender_profile_id]["access_owner"]
+                    catalog_profiles[tender_profile_id]["owner"]
                     for tender_profile_id
                     in tender["profile"]
                 ]
