@@ -95,6 +95,5 @@ class CatalogApi(object):
             self.Logger.fatal(
                     "Catalog API error: missing {} {}. Exit.".format(resource, missing_resources)
             )
-            sys.exit(1)
 
         return resources

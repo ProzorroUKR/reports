@@ -127,17 +127,12 @@ class TendersProzorroMarketUtility(BaseUtility):
             for tender in tenders:
                 if tender["method"] == "reporting":
 
-                    tender["bid_owner"] = [
-                        catalog_offers[tender_offer_id]["owner"]
-                        for tender_offer_id
-                        in tender["offers"]
-                    ]
-
-                    tender["related_product_ids"] = [
-                        catalog_offers[tender_offer_id]["relatedProduct"]
-                        for tender_offer_id
-                        in tender["offers"]
-                    ]
+                    tender["bid_owner"] = []
+                    tender["related_product_ids"] = []
+                    for tender_offer_id in tender["offers"]:
+                        tender["bid_owner"].append(catalog_offers.get(tender_offer_id, {}).get("owner", "ERROR"))
+                        if catalog_offers.get(tender_offer_id):
+                            tender["related_product_ids"].append(catalog_offers.get[tender_offer_id].get("relatedProduct"))
 
         related_product_ids = []
         for tender in tenders:
@@ -153,11 +148,11 @@ class TendersProzorroMarketUtility(BaseUtility):
 
             for tender in tenders:
                 if tender["method"] == "reporting":
-                    tender["profile"] = [
-                        catalog_products[tender_product_id]["relatedProfile"]
-                        for tender_product_id
-                        in tender["related_product_ids"]
-                    ]
+
+                    tender["profile"] = []
+                    for tender_product_id in tender["related_product_ids"]:
+                        if catalog_products.get(tender_product_id):
+                            tender["profile"].append(catalog_products[tender_product_id]["relatedProfile"])
 
         related_profile_ids = []
         for tender in tenders:
@@ -171,11 +166,10 @@ class TendersProzorroMarketUtility(BaseUtility):
             )
 
             for tender in tenders:
-                tender["profile_owner"] = [
-                    catalog_profiles[tender_profile_id]["owner"]
-                    for tender_profile_id
-                    in tender["profile"]
-                ]
+
+                tender["profile_owner"] = []
+                for tender_profile_id in tender["profile"]:
+                    tender["profile_owner"].append(catalog_profiles.get(tender_profile_id, {}).get("owner", "ERROR"))
 
         for tender in tenders:
             yield self.row(tender)
