@@ -4,7 +4,7 @@ import json
 from requests.exceptions import RequestException
 from logging.config import dictConfig
 
-LIST_OBJECT_LIMIT = 1000
+LIST_OBJECT_LIMIT = 300
 
 
 class CatalogApi(object):
