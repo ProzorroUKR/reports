@@ -1,7 +1,4 @@
-import requests
-from requests.auth import HTTPBasicAuth
 from retrying import retry
-
 from logging.config import dictConfig
 from reports.catalog import CatalogApi
 from reports.core import BaseUtility
@@ -108,6 +105,15 @@ class TendersProzorroMarketUtility(BaseUtility):
         for tender in tenders:
             tender["offers"] = self.unpack_offers(tender["procurementMethodRationale"])
             tender["profile"] = self.unpack_convert_to_list(tender["profile"])
+            if not tender["profile"]:
+                profile_ids = {
+                    item["profile"]
+                    for item in tender.get("items", [])
+                    if "profile" in item
+                }
+                if profile_ids:
+                    tender["profile"] = list(profile_ids)
+
             tender["bid_owner"] = self.unpack_convert_to_list(tender["bid_owner"])
             tender["procuringEntity_name"] = tender["procuringEntity_name"].replace("\n", "")
             tender["contract_supplier_name"] = tender["contract_supplier_name"].replace("\n", "")

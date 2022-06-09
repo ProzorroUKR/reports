@@ -75,6 +75,7 @@ var emitter = {
                 method: tender.procurementMethodType,
                 profile: tender.profile || "",
                 procurementMethodRationale: tender.procurementMethodRationale || "",
+                items: tender.items,
             }
         });
     }
