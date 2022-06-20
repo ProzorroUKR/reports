@@ -4,6 +4,7 @@ import os
 import csv
 import sys
 import itertools
+import sentry_sdk
 from datetime import datetime
 from yaml import load
 from logging.config import dictConfig
@@ -37,6 +38,7 @@ parser.add_argument('--notify-brokers', action="append")
 parser.add_argument('--timezone', default=DEFAULT_TIMEZONE)
 parser.add_argument('--mode', default=DEFAULT_MODE, choices=MODES)
 parser.add_argument('--clean', action='store', default=YES[0], choices=YES+NO)
+parser.add_argument('--sentry_dsn')
 ARGS = parser.parse_args()
 
 with open(ARGS.config) as _in:
@@ -242,6 +244,10 @@ def clean_up(brokers, period):
 
 
 def run():
+    sentry_dsn = ARGS.sentry_dsn or os.environ.get("SENTRY_DSN")
+    if sentry_dsn:
+        sentry_sdk.init(dsn=sentry_dsn)
+
     period = parse_period_string(ARGS.period)
     if ARGS.timestamp:
         sent = send_emails_from_existing_files()
