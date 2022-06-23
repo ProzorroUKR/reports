@@ -244,7 +244,7 @@ def clean_up(brokers, period):
 
 
 def run():
-    sentry_dsn = ARGS.sentry_dsn or os.environ.get("SENTRY_DSN")
+    sentry_dsn = ARGS.sentry_dsn or CONFIG.get("sentry_dsn") or os.environ.get("SENTRY_DSN")
     if sentry_dsn:
         sentry_sdk.init(dsn=sentry_dsn)
 
