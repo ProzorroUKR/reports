@@ -8,7 +8,7 @@ from copy import copy
 from reports.tests.utils import (
     get_mock_parser,
     test_data,
-    test_config
+    test_config, CatalogApiResponce,
 )
 from reports.helpers import get_arguments_parser, read_config, create_db_url
 from reports.utilities.init import couchdb_connection
@@ -85,7 +85,7 @@ class BaseTenderUtilityTest(BaseUtilityTest):
 
 
 class BaseTenderProzorroMarketUtilityTest(BaseUtilityTest):
-
+    @mock.patch('reports.utilities.tenders_prozorro_market.CatalogApi', new=lambda *args, **kwargs: CatalogApiResponce())
     def setUp(self):
         super(BaseTenderProzorroMarketUtilityTest, self).setUp()
         args = self.get_args()
