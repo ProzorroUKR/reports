@@ -175,16 +175,22 @@ function check_lot_bids_from_bt_atu(tender, lot) {
 }
 
 function check_bids_from_bt_atu(tender, lot) {
+    var bids_n;
     switch (tender.procurementMethodType) {
         case 'aboveThresholdUA':
-        case 'aboveThreshold':
-            var bids_n = 0;
             if (utils.check_tender_multilot(tender)) {
                 bids_n = count_lot_bids(lot, tender);
             } else {
                 bids_n = tender.numberOfBids || 0;
             }
             return bids_n >= 2;
+        case 'aboveThreshold':
+            if (utils.check_tender_multilot(tender)) {
+                bids_n = count_lot_bids(lot, tender);
+            } else {
+                bids_n = tender.numberOfBids || 0;
+            }
+            return bids_n >= 1;
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':

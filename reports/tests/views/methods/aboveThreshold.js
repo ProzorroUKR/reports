@@ -62,13 +62,13 @@ describe("aboveThreshold", () => {
     });
 
     describe("check_tender", () => {
-        it("should return tender.numberOfBids > 1", () => {
+        it("should return tender.numberOfBids > 0", () => {
             tender.numberOfBids = 0;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+            assert.strictEqual(tender.numberOfBids > 0, tenders.check_tender(tender));
             tender.numberOfBids = 1;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+            assert.strictEqual(tender.numberOfBids > 0, tenders.check_tender(tender));
             tender.numberOfBids = 2;
-            assert.strictEqual(tender.numberOfBids > 1, tenders.check_tender(tender));
+            assert.strictEqual(tender.numberOfBids > 0, tenders.check_tender(tender));
         });
     });
 
@@ -103,17 +103,17 @@ describe("aboveThreshold", () => {
     describe("check_bids_from_bt_atu", () => {
         it("no lots in tender", () => {
             assert.strictEqual(
-                (tender.numberOfBids || 0) >= 2,
+                (tender.numberOfBids || 0) >= 1,
                 bids.check_bids_from_bt_atu(tender, lot)
             );
             tender.numberOfBids = 0;
             assert.strictEqual(
-                (tender.numberOfBids || 0) >= 2,
+                (tender.numberOfBids || 0) >= 1,
                 bids.check_bids_from_bt_atu(tender, lot)
             );
-            tender.numberOfBids = 2;
+            tender.numberOfBids = 1;
             assert.strictEqual(
-                (tender.numberOfBids || 0) >= 2,
+                (tender.numberOfBids || 0) >= 1,
                 bids.check_bids_from_bt_atu(tender, lot)
             );
         });
@@ -147,7 +147,7 @@ describe("aboveThreshold", () => {
                 bids.check_bids_from_bt_atu(tender),
                 bids.check_tender_bids(tender)
             );
-            tender.numberOfBids = 2;
+            tender.numberOfBids = 1;
             assert.strictEqual(
                 bids.check_bids_from_bt_atu(tender),
                 bids.check_tender_bids(tender)

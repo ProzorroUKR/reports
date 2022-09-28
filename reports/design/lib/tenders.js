@@ -297,8 +297,12 @@ function check_lot(lot, tender) {
     switch (tender.procurementMethodType) {
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
-        case 'aboveThreshold':
             if (count_lot_bids(lot, bids) > 1) {
+                return true;
+            }
+            break;
+        case 'aboveThreshold':
+            if (count_lot_bids(lot, bids) > 0) {
                 return true;
             }
             break;
@@ -346,8 +350,12 @@ function check_tender(tender) {
     switch (tender.procurementMethodType) {
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
-        case 'aboveThreshold':
             if (tender.numberOfBids > 1) {
+                return true;
+            }
+            break;
+        case 'aboveThreshold':
+            if (tender.numberOfBids > 0) {
                 return true;
             }
             break;
