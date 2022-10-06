@@ -98,6 +98,7 @@ function get_bids(tender) {
         case 'esco':
             return get_eu_tender_bids(tender);
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
@@ -174,15 +175,22 @@ function check_lot_bids_from_bt_atu(tender, lot) {
 }
 
 function check_bids_from_bt_atu(tender, lot) {
+    var bids_n;
     switch (tender.procurementMethodType) {
         case 'aboveThresholdUA':
-            var bids_n = 0;
             if (utils.check_tender_multilot(tender)) {
                 bids_n = count_lot_bids(lot, tender);
             } else {
                 bids_n = tender.numberOfBids || 0;
             }
             return bids_n >= 2;
+        case 'aboveThreshold':
+            if (utils.check_tender_multilot(tender)) {
+                bids_n = count_lot_bids(lot, tender);
+            } else {
+                bids_n = tender.numberOfBids || 0;
+            }
+            return bids_n >= 1;
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
@@ -208,6 +216,7 @@ function check_tender_bids(tender) {
             return check_tender_qualifications_count(tender, 3);
         case 'belowThreshold':
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_tender_bids_from_bt_atu(tender);
@@ -232,6 +241,7 @@ function check_lot_bids(tender, lot) {
             return check_lot_qualifications_count(tender, lot, 3);
         case 'belowThreshold':
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_lot_bids_from_bt_atu(tender, lot);
@@ -454,6 +464,7 @@ function check_award_and_qualification(tender, bid, lot) {
             return check_qualification_for_eu_bid(tender, bid, lot);
         case 'belowThreshold':
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_award_for_bt_atu_bid(tender, bid, lot);

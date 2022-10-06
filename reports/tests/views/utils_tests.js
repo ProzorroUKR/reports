@@ -160,6 +160,12 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_tenders(doc), false);
         });
 
+        it("should return false - open:aboveThreshold.", () => {
+            doc.procurementMethod = "open";
+            doc.procurementMethodType = "aboveThreshold";
+            assert.strictEqual(utils.exclude_methods_tenders(doc), false);
+        });
+
         it("should return false - open:aboveThresholdUA.defense.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "aboveThresholdUA.defense";
@@ -290,6 +296,12 @@ describe("utils tests", () => {
         it("should return false - open:aboveThresholdUA.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "aboveThresholdUA";
+            assert.strictEqual(utils.exclude_methods_bids(doc), false);
+        });
+
+        it("should return false - open:aboveThreshold.", () => {
+            doc.procurementMethod = "open";
+            doc.procurementMethodType = "aboveThreshold";
             assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
 

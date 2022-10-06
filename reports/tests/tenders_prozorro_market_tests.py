@@ -94,11 +94,6 @@ class ReportTendersProzorroMarketTestCase(BaseTenderProzorroMarketUtilityTest):
 
 
 class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtilityTest):
-
-    @mock.patch('reports.utilities.tenders_prozorro_market.CatalogApi', new=lambda *args, **kwargs: CatalogApiResponce())
-    def setUp(self):
-        super(ReportTendersProzorroMarketUtilityTestCase, self).setUp()
-
     def tearDown(self):
         del self.server[self.db_name]
 

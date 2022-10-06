@@ -141,6 +141,7 @@ function exclude_methods_tenders(doc) {
     return exclude_methods(doc, [
         "open:belowThreshold",
         "open:aboveThresholdUA",
+        "open:aboveThreshold",
         "open:aboveThresholdUA.defense",
         "open:simple.defense",
         "open:aboveThresholdEU",
@@ -171,6 +172,7 @@ function exclude_methods_bids(doc) {
     return exclude_methods(doc, [
         "open:belowThreshold",
         "open:aboveThresholdUA",
+        "open:aboveThreshold",
         "open:aboveThresholdUA.defense",
         "open:simple.defense",
         "open:aboveThresholdEU",

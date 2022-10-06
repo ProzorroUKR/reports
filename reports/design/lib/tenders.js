@@ -301,6 +301,11 @@ function check_lot(lot, tender) {
                 return true;
             }
             break;
+        case 'aboveThreshold':
+            if (count_lot_bids(lot, bids) > 0) {
+                return true;
+            }
+            break;
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
         case 'esco':
@@ -346,6 +351,11 @@ function check_tender(tender) {
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
             if (tender.numberOfBids > 1) {
+                return true;
+            }
+            break;
+        case 'aboveThreshold':
+            if (tender.numberOfBids > 0) {
                 return true;
             }
             break;
@@ -486,6 +496,7 @@ function tender_date_new_alg(tender) {
             return get_first_award_date(tender);
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
         case 'esco':
@@ -507,6 +518,7 @@ function lot_date_new_alg(tender, lot) {
             return get_first_award_date(tender, lot);
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
+        case 'aboveThreshold':
         case 'competitiveDialogueEU.stage2':
         case 'aboveThresholdEU':
         case 'esco':
