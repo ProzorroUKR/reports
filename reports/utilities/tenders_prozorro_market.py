@@ -149,7 +149,7 @@ class TendersProzorroMarketUtility(BaseUtility):
             catalog_products = self.catalog_api.search(
                 resource="product",
                 ids=related_product_ids,
-                fields=["id", "relatedProfile"],
+                fields=["id", "relatedProfiles"],
             )
 
             for tender in tenders:
@@ -158,7 +158,9 @@ class TendersProzorroMarketUtility(BaseUtility):
                     tender["profile"] = []
                     for tender_product_id in tender["related_product_ids"]:
                         if tender_product_id in catalog_products:
-                            tender["profile"].append(catalog_products[tender_product_id].get("relatedProfile"))
+                            tender["profile"].append(
+                                (catalog_products[tender_product_id].get("relatedProfiles") or [None])[0]
+                            )
 
         related_profile_ids = []
         for tender in tenders:

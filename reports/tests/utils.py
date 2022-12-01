@@ -65,7 +65,7 @@ class CatalogApiResponce(object):
             for product_id in ids:
                 products[product_id] = {
                     "id": product_id,
-                    "relatedProfile": "relatedProfile_of_product_".format(product_id),
+                    "relatedProfiles": ["relatedProfile_of_product_".format(product_id),],
                 }
             return products
 
