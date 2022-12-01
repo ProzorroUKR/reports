@@ -158,9 +158,9 @@ class TendersProzorroMarketUtility(BaseUtility):
                     tender["profile"] = []
                     for tender_product_id in tender["related_product_ids"]:
                         if tender_product_id in catalog_products:
-                            tender["profile"].append(
-                                (catalog_products[tender_product_id].get("relatedProfiles") or [None])[0]
-                            )
+                            profile = catalog_products[tender_product_id].get("relatedProfiles")
+                            if profile:
+                                tender["profile"].append(profile[0])
 
         related_profile_ids = []
         for tender in tenders:
