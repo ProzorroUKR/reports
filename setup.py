@@ -26,7 +26,7 @@ REQUIRES = [
 ]
 EXTRA = REQUIRES + [
     'python-swiftclient==3.4.0',
-    'python-keystoneclient==3.14.0'
+    'python-keystoneclient==3.14.0',
     'keystoneauth1==3.3.0'
 ]
 TEST_REQUIRES = REQUIRES + [
