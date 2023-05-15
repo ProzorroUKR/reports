@@ -113,7 +113,7 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             [
                 'tender_id', 'tenderID', 'contract_date', 'procuringEntity_name', 'procuringEntity_identifier_id',
                 'contract_supplier_name', 'contract_supplier_identifier_id', 'contracts_value_amount',
-                'tender_owner', 'bid_owner', 'product_owner', 'tariff_group', 'method'
+                'tender_owner', 'bid_owner', 'owner', 'tariff_group', 'method'
             ],
         )
         self.assertEqual(
@@ -130,28 +130,75 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
         doc = copy(self.test_data)
         doc.update(data)
         self.utility.db.save(doc)
+        data = deepcopy(test_pq_data)
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
         self.utility.run()
 
         with open(prepare_result_file_name(self.utility), 'rb') as file_fd:
             file_data = list(csv.reader(file_fd.readlines()))
             sys.stdout.flush()
 
-        self.assertEqual(len(file_data), 2)
+        self.assertEqual(len(file_data), 3)
         self.assertEqual(
             file_data[0],
             [
                 'tender_id', 'tenderID', 'contract_date', 'procuringEntity_name', 'procuringEntity_identifier_id',
                 'contract_supplier_name', 'contract_supplier_identifier_id', 'contracts_value_amount',
-                'tender_owner', 'bid_owner', 'product_owner', 'tariff_group', 'method'
+                'tender_owner', 'bid_owner', 'owner', 'tariff_group', 'method'
+            ],
+        )
+        self.assertEqual(
+            file_data[2],
+            [
+                'tender_id_2', 'UA-2017-11-30', '2017-12-18T22:00:00', 'test_procuringEntity_name', '42751893',
+                'test_supplier_name', '32490244', '1000', 'test',
+                'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a144, access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145',
+                'access_owner_of_product_relatedProduct_of_offer_, access_owner_of_product_relatedProduct_of_offer_',
+                'under 50k UAH', 'reporting'
+            ],
+        )
+
+    def test_tenders_utility_output_multiple(self):
+        data = deepcopy(test_reporting_data)
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+        data = deepcopy(test_pq_data)
+        doc = copy(self.test_data)
+        doc.update(data)
+        self.utility.db.save(doc)
+        self.utility.run()
+
+        with open(prepare_result_file_name(self.utility), 'rb') as file_fd:
+            file_data = list(csv.reader(file_fd.readlines()))
+            sys.stdout.flush()
+
+        self.assertEqual(len(file_data), 3)
+        self.assertEqual(
+            file_data[0],
+            [
+                'tender_id', 'tenderID', 'contract_date', 'procuringEntity_name', 'procuringEntity_identifier_id',
+                'contract_supplier_name', 'contract_supplier_identifier_id', 'contracts_value_amount',
+                'tender_owner', 'bid_owner', 'owner', 'tariff_group', 'method'
             ],
         )
         self.assertEqual(
             file_data[1],
             [
+                'tender_id_1', 'UA-2017-11-30', '2017-12-18T22:00:00', 'test_procuringEntity_name', '42751893',
+                'test_supplier_name', '32490244', '1000', 'test', 'test_bid_owner',
+                'access_owner_of_profile_502503-15220000-815175-40996564', 'under 50k UAH', 'priceQuotation'
+            ],
+        )
+        self.assertEqual(
+            file_data[2],
+            [
                 'tender_id_2', 'UA-2017-11-30', '2017-12-18T22:00:00', 'test_procuringEntity_name', '42751893',
                 'test_supplier_name', '32490244', '1000', 'test',
                 'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a144, access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145',
-                'access_owner_of_profile_relatedProfile_of_product_, access_owner_of_profile_relatedProfile_of_product_',
+                'access_owner_of_product_relatedProduct_of_offer_, access_owner_of_product_relatedProduct_of_offer_',
                 'under 50k UAH', 'reporting'
             ],
         )

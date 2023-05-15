@@ -19,7 +19,7 @@ HEADERS = [
     "contracts_value_amount",
     "tender_owner",
     "bid_owner",
-    "product_owner",
+    "owner",
     "tariff_group",
     "method",
 ]
@@ -99,6 +99,10 @@ class TendersProzorroMarketUtility(BaseUtility):
 
     def rows(self):
         tenders = []
+        tender_type_resource_owner = {
+            "reporting": "product",
+            "priceQuotation": "profile",
+        }
         for resp in self.response:
             tenders.append(resp["value"])
 
@@ -154,10 +158,27 @@ class TendersProzorroMarketUtility(BaseUtility):
 
             for tender in tenders:
                 if tender["method"] == "reporting":
-                    tender["product_owner"] = []
+                    tender["owner"] = []
                     for tender_product_id in tender["related_product_ids"]:
                         if tender_product_id in catalog_products:
-                            tender["product_owner"].append(catalog_products[tender_product_id].get("owner", "ERROR"))
+                            tender["owner"].append(catalog_products[tender_product_id].get("owner", "ERROR"))
+
+        related_profile_ids = []
+        for tender in tenders:
+            related_profile_ids.extend(tender["profile"])
+
+        if related_profile_ids:
+            catalog_profiles = self.catalog_api.search(
+                resource="profile",
+                ids=related_profile_ids,
+                fields=["id", "owner"],
+            )
+
+            for tender in tenders:
+                if tender["method"] == "priceQuotation":
+                    tender["owner"] = []
+                    for tender_profile_id in tender["profile"]:
+                        tender["owner"].append(catalog_profiles.get(tender_profile_id, {}).get("owner", "ERROR"))
 
         for tender in tenders:
             yield self.row(tender)
