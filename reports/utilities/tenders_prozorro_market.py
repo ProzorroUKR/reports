@@ -157,7 +157,7 @@ class TendersProzorroMarketUtility(BaseUtility):
                     tender["product_owner"] = []
                     for tender_product_id in tender["related_product_ids"]:
                         if tender_product_id in catalog_products:
-                            tende["product_owner"].append(
+                            tender["product_owner"].append(
                                 tender.productcatalog_products[tender_product_id].get("owner", "ERROR"))
 
         for tender in tenders:

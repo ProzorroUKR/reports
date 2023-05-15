@@ -113,7 +113,7 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             [
                 'tender_id', 'tenderID', 'contract_date', 'procuringEntity_name', 'procuringEntity_identifier_id',
                 'contract_supplier_name', 'contract_supplier_identifier_id', 'contracts_value_amount',
-                'tender_owner', 'bid_owner', 'profile_owner', 'tariff_group', 'method'
+                'tender_owner', 'bid_owner', 'product_owner', 'tariff_group', 'method'
             ],
         )
         self.assertEqual(
@@ -142,7 +142,7 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             [
                 'tender_id', 'tenderID', 'contract_date', 'procuringEntity_name', 'procuringEntity_identifier_id',
                 'contract_supplier_name', 'contract_supplier_identifier_id', 'contracts_value_amount',
-                'tender_owner', 'bid_owner', 'profile_owner', 'tariff_group', 'method'
+                'tender_owner', 'bid_owner', 'product_owner', 'tariff_group', 'method'
             ],
         )
         self.assertEqual(
