@@ -19,7 +19,7 @@ HEADERS = [
     "contracts_value_amount",
     "tender_owner",
     "bid_owner",
-    "profile_owner",
+    "product_owner",
     "tariff_group",
     "method",
 ]
@@ -149,35 +149,16 @@ class TendersProzorroMarketUtility(BaseUtility):
             catalog_products = self.catalog_api.search(
                 resource="product",
                 ids=related_product_ids,
-                fields=["id", "relatedProfiles"],
-            )
-
-            for tender in tenders:
-                if tender["method"] == "reporting":
-
-                    tender["profile"] = []
-                    for tender_product_id in tender["related_product_ids"]:
-                        if tender_product_id in catalog_products:
-                            profiles = catalog_products[tender_product_id].get("relatedProfiles")
-                            if profiles:
-                                tender["profile"].append(profiles[0])
-
-        related_profile_ids = []
-        for tender in tenders:
-            related_profile_ids.extend(tender["profile"])
-
-        if related_profile_ids:
-            catalog_profiles = self.catalog_api.search(
-                resource="profile",
-                ids=related_profile_ids,
                 fields=["id", "owner"],
             )
 
             for tender in tenders:
-
-                tender["profile_owner"] = []
-                for tender_profile_id in tender["profile"]:
-                    tender["profile_owner"].append(catalog_profiles.get(tender_profile_id, {}).get("owner", "ERROR"))
+                if tender["method"] == "reporting":
+                    tender["product_owner"] = []
+                    for tender_product_id in tender["related_product_ids"]:
+                        if tender_product_id in catalog_products:
+                            tende["product_owner"].append(
+                                tender.productcatalog_products[tender_product_id].get("owner", "ERROR"))
 
         for tender in tenders:
             yield self.row(tender)
