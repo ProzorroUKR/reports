@@ -99,6 +99,7 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
 
     def test_tenders_utility_output_pq(self):
         data = deepcopy(test_pq_data)
+        del data["profile"]
         doc = copy(self.test_data)
         doc.update(data)
         self.utility.db.save(doc)
