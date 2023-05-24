@@ -19,7 +19,7 @@ HEADERS = [
     "contracts_value_amount",
     "tender_owner",
     "bid_owner",
-    "profile_owner",
+    "owner",
     "tariff_group",
     "method",
 ]
@@ -102,6 +102,9 @@ class TendersProzorroMarketUtility(BaseUtility):
         for resp in self.response:
             tenders.append(resp["value"])
 
+        offer_ids = []
+        related_profile_ids = []
+        tenders_by_method = {"reporting": [], "priceQuotation": []}
         for tender in tenders:
             tender["offers"] = self.unpack_offers(tender["procurementMethodRationale"])
             tender["profile"] = self.unpack_convert_to_list(tender["profile"])
@@ -118,11 +121,14 @@ class TendersProzorroMarketUtility(BaseUtility):
             tender["procuringEntity_name"] = tender["procuringEntity_name"].replace("\n", "")
             tender["contract_supplier_name"] = tender["contract_supplier_name"].replace("\n", "")
 
-        offer_ids = []
-        for tender in tenders:
             if tender["method"] == "reporting":
                 offer_ids.extend(tender["offers"])
+            elif tender["method"] == "priceQuotation":
+                related_profile_ids.extend(tender["profile"])
 
+            tenders_by_method[tender["method"]].append(tender)
+
+        related_product_ids = []
         if offer_ids:
             catalog_offers = self.catalog_api.search(
                 resource="offer",
@@ -130,57 +136,37 @@ class TendersProzorroMarketUtility(BaseUtility):
                 fields=["id", "relatedProduct", "owner"],
             )
 
-            for tender in tenders:
-                if tender["method"] == "reporting":
+            for tender in tenders_by_method["reporting"]:
+                tender["bid_owner"] = []
+                tender["product"] = []
+                for tender_offer_id in tender["offers"]:
+                    tender["bid_owner"].append(catalog_offers.get(tender_offer_id, {}).get("owner", "ERROR"))
+                    if tender_offer_id in catalog_offers:
+                        tender["product"].append(catalog_offers[tender_offer_id].get("relatedProduct"))
+                        related_product_ids.extend(tender["product"])
 
-                    tender["bid_owner"] = []
-                    tender["related_product_ids"] = []
-                    for tender_offer_id in tender["offers"]:
-                        tender["bid_owner"].append(catalog_offers.get(tender_offer_id, {}).get("owner", "ERROR"))
-                        if tender_offer_id in catalog_offers:
-                            tender["related_product_ids"].append(catalog_offers[tender_offer_id].get("relatedProduct"))
-
-        related_product_ids = []
+        self.set_tender_owner("reporting", tenders_by_method, related_product_ids)
+        self.set_tender_owner("priceQuotation", tenders_by_method, related_profile_ids)
         for tender in tenders:
-            if tender["method"] == "reporting":
-                related_product_ids.extend(tender["related_product_ids"])
+            yield self.row(tender)
 
-        if related_product_ids:
-            catalog_products = self.catalog_api.search(
-                resource="product",
-                ids=related_product_ids,
-                fields=["id", "relatedProfiles"],
-            )
-
-            for tender in tenders:
-                if tender["method"] == "reporting":
-
-                    tender["profile"] = []
-                    for tender_product_id in tender["related_product_ids"]:
-                        if tender_product_id in catalog_products:
-                            profiles = catalog_products[tender_product_id].get("relatedProfiles")
-                            if profiles:
-                                tender["profile"].append(profiles[0])
-
-        related_profile_ids = []
-        for tender in tenders:
-            related_profile_ids.extend(tender["profile"])
-
-        if related_profile_ids:
-            catalog_profiles = self.catalog_api.search(
-                resource="profile",
-                ids=related_profile_ids,
+    def set_tender_owner(self, method, tenders, resource_ids):
+        resource_by_tender_method = {
+            "reporting": "product",
+            "priceQuotation": "profile",
+        }
+        if resource_ids:
+            resource_name = resource_by_tender_method.get(method)
+            catalog_resources = self.catalog_api.search(
+                resource=resource_name,
+                ids=resource_ids,
                 fields=["id", "owner"],
             )
 
-            for tender in tenders:
-
-                tender["profile_owner"] = []
-                for tender_profile_id in tender["profile"]:
-                    tender["profile_owner"].append(catalog_profiles.get(tender_profile_id, {}).get("owner", "ERROR"))
-
-        for tender in tenders:
-            yield self.row(tender)
+            for tender in tenders[method]:
+                tender["owner"] = []
+                for tender_resource_id in tender[resource_name]:
+                    tender["owner"].append(catalog_resources.get(tender_resource_id, {}).get("owner", "ERROR"))
 
 
 def run():
