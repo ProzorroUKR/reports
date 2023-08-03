@@ -27,15 +27,19 @@ VIEWS = [
     tenders_all_owner_date,
     tenders_prozorro_market_all_owner_date,
 ]
-NEW_ALG_DATE = "2017-08-16"
+CHANGE_2017_DATE = "2017-08-16"
 CHANGE_2019_DATE = "2019-08-22"
+CHANGE_2023_DATE = "2023-07-06"
 
 
 class BaseUtility(object):
 
-    version_headers = ['after 2017-01-01',
-                       'after {}'.format(NEW_ALG_DATE),
-                       'after {}'.format(CHANGE_2019_DATE)]
+    version_headers = [
+        'after 2017-01-01',
+        'after {}'.format(CHANGE_2017_DATE),
+        'after {}'.format(CHANGE_2019_DATE),
+        'after {}'.format(CHANGE_2023_DATE),
+    ]
 
     # these two for counters
     number_of_ranges = 0
@@ -103,11 +107,14 @@ class BaseUtility(object):
         find them in the config by their keys (2016, 2017 and 2019)
         """
         start_date = record.get('startdate', '')
+        if start_date >= CHANGE_2023_DATE:
+            return 2023
+        if start_date >= CHANGE_2019_DATE:
+            return 2019
+        if start_date >= CHANGE_2017_DATE:
+            return 2017
         if start_date >= self.threshold_date:
-            if start_date >= CHANGE_2019_DATE:
-                return 2019
-            else:
-                return 2017
+            return 2017
         return 2016
 
     @retry(wait_exponential_multiplier=1000, stop_max_attempt_number=5)
@@ -224,10 +231,10 @@ class ItemsUtility(BaseUtility):
     @staticmethod
     def get_record_payment_version(record):
         start_date = record.get('startdate', '')
-        if start_date >= NEW_ALG_DATE:
-            version = 1
-            if start_date >= CHANGE_2019_DATE:
-                version = 2
-        else:
-            version = 0
-        return version
+        if start_date >= CHANGE_2023_DATE:
+            return 3
+        if start_date >= CHANGE_2019_DATE:
+            return 2
+        if start_date >= CHANGE_2017_DATE:
+            return 1
+        return 0

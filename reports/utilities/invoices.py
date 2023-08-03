@@ -1,5 +1,5 @@
 from logging.config import dictConfig 
-from reports.core import BaseBidsUtility, NEW_ALG_DATE, CHANGE_2019_DATE
+from reports.core import BaseBidsUtility, CHANGE_2017_DATE, CHANGE_2019_DATE, CHANGE_2023_DATE
 from reports.helpers import (
     thresholds_headers,
     get_arguments_parser,
@@ -10,7 +10,7 @@ from reports.helpers import DEFAULT_TIMEZONE, DEFAULT_MODE
 class InvoicesUtility(BaseBidsUtility):
 
     number_of_ranges = 6
-    number_of_counters = 10
+    number_of_counters = 15
 
     def __init__(self, broker, period, config,
                  timezone=DEFAULT_TIMEZONE, mode=DEFAULT_MODE):
@@ -25,11 +25,21 @@ class InvoicesUtility(BaseBidsUtility):
     def get_counter_line(record):
         state = record.get('state', '')
         if state:
-            if record["startdate"] >= CHANGE_2019_DATE:  # counters  5-9 for tenders started after 2019-08-22
+
+            # counters  10-14 for tenders started after 2023-07-06
+            if record["startdate"] >= CHANGE_2023_DATE:
+                return state + 4 + 5
+
+            # counters  5-9 for tenders started after 2019-08-22
+            if record["startdate"] >= CHANGE_2019_DATE:
                 return state + 4
-            return state  # counter 1-4 for tenders NEW_ALG_DATE< and <2019-08-22
+
+            # counter 1-4 for tenders CHANGE_2017_DATE < and < 2019-08-22
+            return state
+
         else:
-            return 0  # the oldest alg tender counters
+            # the oldest alg tender counters
+            return 0
 
     def get_payment_year(self, record):
         """
@@ -73,6 +83,10 @@ class InvoicesUtility(BaseBidsUtility):
 
         yield [self.version_headers[2]]
         for row in self.get_2017_algorithm_rows(self.counters[5], self.counters[6], self.counters[7], costs_year=2019):
+            yield row
+
+        yield [self.version_headers[3]]
+        for row in self.get_2017_algorithm_rows(self.counters[10], self.counters[11], self.counters[12], costs_year=2023):
             yield row
 
     def get_2017_algorithm_rows(self, *lines, **kwargs):

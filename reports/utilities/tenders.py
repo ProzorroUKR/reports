@@ -1,5 +1,5 @@
 from logging.config import dictConfig
-from reports.core import ItemsUtility, NEW_ALG_DATE
+from reports.core import ItemsUtility, CHANGE_2017_DATE
 from reports.helpers import (
     get_arguments_parser,
     Kind,
@@ -35,7 +35,7 @@ class TendersUtility(ItemsUtility):
             operation="tenders", timezone=timezone, mode=mode)
 
     def row(self, record):
-        if record.get('kind') not in self.kinds and record.get('startdate', '') < NEW_ALG_DATE:
+        if record.get('kind') not in self.kinds and record.get('startdate', '') < CHANGE_2017_DATE:
             self.Logger.info('Skip tender {} by kind'.format(record.get('tender', '')))
             return '', ''
         row = list(record.get(col, '') for col in self.headers[:-2])

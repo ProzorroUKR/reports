@@ -109,28 +109,21 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
         del self.server[self.db_name]
 
     def test_tenders_utility_output(self):
-        data = {
-            "procurementMethodType": "aboveThresholdUA",
-            "procuringEntity": {
-                "kind": "general"
-            },
-            "contracts": [
+        self.assertResult(
+            [
                 {
-                    "status": "active",
-                    "date": '2017-04-22T13:32:25.774673+02:00',
+                    "procurementMethodType": "aboveThresholdUA",
+                    "procuringEntity": {
+                        "kind": "general"
+                    },
+                    "contracts": [
+                        {
+                            "status": "active",
+                            "date": '2017-04-22T13:32:25.774673+02:00',
+                        }
+                    ],
                 }
             ],
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-        self.utility.run()
-
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
             [
                 ['tender', 'tenderID', 'lot', 'status', 'lot_status', 'currency', 'kind', 'value', 'rate', 'bill'],
                 ['after 2017-08-16'],
@@ -139,36 +132,29 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
         )
 
     def test_before_2019_changes(self):
-        data = {
-            "procurementMethodType": "aboveThresholdUA",
-            "enquiryPeriod": {
-                "startDate": "2019-07-22T00:01:50+02:00"
-            },
-            "procuringEntity": {
-                "kind": "general"
-            },
-            "contracts": [
+        self.assertResult(
+            [
                 {
-                    "status": "active",
-                    "date": '2017-04-22T13:32:25.774673+02:00',
+                    "procurementMethodType": "aboveThresholdUA",
+                    "enquiryPeriod": {
+                        "startDate": "2019-07-22T00:01:50+02:00"
+                    },
+                    "procuringEntity": {
+                        "kind": "general"
+                    },
+                    "contracts": [
+                        {
+                            "status": "active",
+                            "date": '2017-04-22T13:32:25.774673+02:00',
+                        }
+                    ],
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 4000001,
+                        "valueAddedTaxIncluded": False
+                    },
                 }
             ],
-            "value": {
-                "currency": "UAH",
-                "amount": 4000001,
-                "valueAddedTaxIncluded": False
-            },
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-        self.utility.run()
-
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
             [
                 ['tender', 'tenderID', 'lot', 'status', 'lot_status', 'currency', 'kind', 'value', 'rate', 'bill'],
                 ['after 2017-08-16'],
@@ -177,36 +163,29 @@ class ReportTendersUtilityTestCase(BaseTenderUtilityTest):
         )
 
     def test_2019(self):
-        data = {
-            "procurementMethodType": "aboveThresholdUA",
-            "enquiryPeriod": {
-                "startDate": "2019-08-22T00:01:50+02:00"
-            },
-            "procuringEntity": {
-                "kind": "general"
-            },
-            "contracts": [
+        self.assertResult(
+            [
                 {
-                    "status": "active",
-                    "date": '2017-04-22T13:32:25.774673+02:00',
+                    "procurementMethodType": "aboveThresholdUA",
+                    "enquiryPeriod": {
+                        "startDate": "2019-08-22T00:01:50+02:00"
+                    },
+                    "procuringEntity": {
+                        "kind": "general"
+                    },
+                    "contracts": [
+                        {
+                            "status": "active",
+                            "date": '2017-04-22T13:32:25.774673+02:00',
+                        }
+                    ],
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 4000001,
+                        "valueAddedTaxIncluded": False
+                    },
                 }
             ],
-            "value": {
-                "currency": "UAH",
-                "amount": 4000001,
-                "valueAddedTaxIncluded": False
-            },
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-        self.utility.run()
-
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
             [
                 ['tender', 'tenderID', 'lot', 'status', 'lot_status', 'currency', 'kind', 'value', 'rate', 'bill'],
                 ['after 2019-08-22'],
