@@ -2,16 +2,18 @@
 import unittest
 import couchdb
 import mock
-import yaml
-from reports.utilities import bids, invoices, tenders, tenders_prozorro_market, refunds
+import csv
 from copy import copy
 from reports.tests.utils import (
     get_mock_parser,
     test_data,
-    test_config, CatalogApiResponce,
+    test_config,
+    CatalogApiResponce,
 )
 from reports.helpers import get_arguments_parser, read_config, create_db_url
+from reports.utilities import bids, invoices, tenders, tenders_prozorro_market, refunds
 from reports.utilities.init import couchdb_connection
+from reports.helpers import prepare_result_file_name
 
 
 class BaseUtilityTest(unittest.TestCase):
@@ -55,6 +57,30 @@ class BaseUtilityTest(unittest.TestCase):
             self.assertEqual(
                 self.utility.config.payments()[4], self.utility.get_payment(x))
 
+    def get_output(self, data_list):
+        docs = []
+        for data in data_list:
+            doc = copy(self.test_data)
+            doc.update(data)
+            docs.append(doc)
+
+        for doc in docs:
+            self.utility.db.save(doc)
+
+        self.utility.init_counters()
+        self.utility.run()
+
+        for doc in docs:
+            self.utility.db.delete(doc)
+
+        # check csv file
+        with open(prepare_result_file_name(self.utility), 'rb') as file:
+            return file.read()
+
+    def get_result(self, data_list):
+        output = self.get_output(data_list)
+        return list(csv.reader(output.splitlines()))
+
     def tearDown(self):
         del self.server[self.db_name]
 
@@ -64,6 +90,10 @@ class BaseUtilityTest(unittest.TestCase):
         self.utility.db.save(doc)
         response = list(self.utility.response)
         self.assertEqual(count, len(response))
+
+    def assertResult(self, data_list, expected):
+        result = self.get_result(data_list)
+        self.assertEqual(result, expected)
 
 
 class BaseBidsUtilityTest(BaseUtilityTest):

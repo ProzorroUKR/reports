@@ -1,5 +1,5 @@
 from logging.config import dictConfig 
-from reports.core import BaseUtility, NEW_ALG_DATE, CHANGE_2019_DATE
+from reports.core import BaseUtility, CHANGE_2017_DATE, CHANGE_2019_DATE, CHANGE_2023_DATE
 from reports.helpers import (
     thresholds_headers,
     get_arguments_parser,
@@ -18,7 +18,7 @@ class RefundsUtility(BaseUtility):
     }
 
     number_of_ranges = 6
-    number_of_counters = 4
+    number_of_counters = 5
 
     def __init__(self, broker, period, config,
                  timezone=DEFAULT_TIMEZONE, kind=None, mode=DEFAULT_MODE):
@@ -35,17 +35,18 @@ class RefundsUtility(BaseUtility):
         a more obvious code for len(list(filter(lambda d: start_date >= d, dates)))
         """
         start_date = record.get('startdate', '')
-        line = 0
+        if start_date >= CHANGE_2023_DATE:
+            return 4
+        if start_date >= CHANGE_2019_DATE:
+            return 3
+        if start_date >= CHANGE_2017_DATE:
+            return 2
         if start_date >= self.threshold_date:
-            line = 1
-            if start_date >= NEW_ALG_DATE:
-                line = 2
-                if start_date >= CHANGE_2019_DATE:
-                    line = 3
-        return line
+            return 1
+        return 0
 
     def row(self, record):
-        if record.get('kind') not in self.kinds and record.get('startdate', '') < NEW_ALG_DATE:
+        if record.get('kind') not in self.kinds and record.get('startdate', '') < CHANGE_2017_DATE:
             self.Logger.info('Skip tender {} by kind'.format(record.get('tender', '')))
             return
 
@@ -81,6 +82,7 @@ class RefundsUtility(BaseUtility):
             (self.version_headers[0], self.config.payments(2017), self.counters[1]),
             (self.version_headers[1], self.config.payments(2017), self.counters[2]),
             (self.version_headers[2], self.config.payments(2019), self.counters[3]),
+            (self.version_headers[3], self.config.payments(2023), self.counters[4]),
         )
         for args in block_args:
             for row in self.refunds_block(*args):

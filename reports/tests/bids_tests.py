@@ -2,8 +2,6 @@ import unittest
 from copy import copy
 from couchdb import ServerError
 from reports.tests.base import BaseBidsUtilityTest
-from reports.helpers import prepare_result_file_name
-import csv
 
 test_bids_invalid = [
     [{
@@ -307,39 +305,32 @@ class ReportBidsViewTestCase(BaseBidsUtilityTest):
 class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
 
     def test_before_2019_1m(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "value": {
-                "currency": "UAH",
-                "amount": 1000000,
-                "valueAddedTaxIncluded": False
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-            'owner': 'test',
-            "bids": [{
-                "id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00",
-                "owner": "test"
-            }],
-            "awards": [{
-                "bid_id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00"
-            }]
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
+        self.assertResult(
+            [
+                {
+                    "procurementMethodType": "belowThreshold",
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 1000000,
+                        "valueAddedTaxIncluded": False
+                    },
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    'owner': 'test',
+                    "bids": [{
+                        "id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00",
+                        "owner": "test"
+                    }],
+                    "awards": [{
+                        "bid_id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00"
+                    }]
+                }
+            ],
             [
                 ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
                 ['after 2017-08-16'],
@@ -349,39 +340,32 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         )
 
     def test_before_2019_5m(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "value": {
-                "currency": "UAH",
-                "amount": 5000000,
-                "valueAddedTaxIncluded": False
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-            'owner': 'test',
-            "bids": [{
-                "id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00",
-                "owner": "test"
-            }],
-            "awards": [{
-                "bid_id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00"
-            }]
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
+        self.assertResult(
+            [
+                {
+                    "procurementMethodType": "belowThreshold",
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 5000000,
+                        "valueAddedTaxIncluded": False
+                    },
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    'owner': 'test',
+                    "bids": [{
+                        "id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00",
+                        "owner": "test"
+                    }],
+                    "awards": [{
+                        "bid_id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00"
+                    }]
+                }
+            ],
             [
                 ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
                 ['after 2017-08-16'],
@@ -391,42 +375,35 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         )
 
     def test_2019_1m(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "enquiryPeriod": {
-                "startDate": "2019-08-22T00:01:50+02:00"
-            },
-            "value": {
-                "currency": "UAH",
-                "amount": 1000000,
-                "valueAddedTaxIncluded": False
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-            'owner': 'test',
-            "bids": [{
-                "id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00",
-                "owner": "test"
-            }],
-            "awards": [{
-                "bid_id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00"
-            }]
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
+        self.assertResult(
+            [
+                {
+                    "procurementMethodType": "belowThreshold",
+                    "enquiryPeriod": {
+                        "startDate": "2019-08-22T00:01:50+02:00"
+                    },
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 1000000,
+                        "valueAddedTaxIncluded": False
+                    },
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    'owner': 'test',
+                    "bids": [{
+                        "id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00",
+                        "owner": "test"
+                    }],
+                    "awards": [{
+                        "bid_id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00"
+                    }]
+                }
+            ],
             [
                 ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
                 ['after 2019-08-22'],
@@ -436,42 +413,35 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         )
 
     def test_2019_1m1(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "enquiryPeriod": {
-                "startDate": "2019-08-22T00:01:50+02:00"
-            },
-            "value": {
-                "currency": "UAH",
-                "amount": 1000001,
-                "valueAddedTaxIncluded": False
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-            'owner': 'test',
-            "bids": [{
-                "id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00",
-                "owner": "test"
-            }],
-            "awards": [{
-                "bid_id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00"
-            }]
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
+        self.assertResult(
+            [
+                {
+                    "procurementMethodType": "belowThreshold",
+                    "enquiryPeriod": {
+                        "startDate": "2019-08-22T00:01:50+02:00"
+                    },
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 1000001,
+                        "valueAddedTaxIncluded": False
+                    },
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    'owner': 'test',
+                    "bids": [{
+                        "id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00",
+                        "owner": "test"
+                    }],
+                    "awards": [{
+                        "bid_id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00"
+                    }]
+                }
+            ],
             [
                 ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
                 ['after 2019-08-22'],
@@ -481,42 +451,35 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         )
 
     def test_2019_4m1(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "enquiryPeriod": {
-                "startDate": "2019-08-22T00:01:50+02:00"
-            },
-            "value": {
-                "currency": "UAH",
-                "amount": 4000001,
-                "valueAddedTaxIncluded": False
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-            'owner': 'test',
-            "bids": [{
-                "id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00",
-                "owner": "test"
-            }],
-            "awards": [{
-                "bid_id": "bid_1",
-                "status": "active",
-                "date": "2019-08-25T00:01:50+02:00"
-            }]
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            file_data = list(csv.reader(file.readlines()))
-
-        self.assertEqual(
-            file_data,
+        self.assertResult(
+            [
+                {
+                    "procurementMethodType": "belowThreshold",
+                    "enquiryPeriod": {
+                        "startDate": "2019-08-22T00:01:50+02:00"
+                    },
+                    "value": {
+                        "currency": "UAH",
+                        "amount": 4000001,
+                        "valueAddedTaxIncluded": False
+                    },
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    'owner': 'test',
+                    "bids": [{
+                        "id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00",
+                        "owner": "test"
+                    }],
+                    "awards": [{
+                        "bid_id": "bid_1",
+                        "status": "active",
+                        "date": "2019-08-25T00:01:50+02:00"
+                    }]
+                }
+            ],
             [
                 ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
                 ['after 2019-08-22'],
@@ -526,48 +489,46 @@ class ReportBidsUtilityTestCase(BaseBidsUtilityTest):
         )
 
     def test_bids_utility_output_with_lots(self):
-        data = {
-            "procurementMethodType": "belowThreshold",
-            "enquiryPeriod": {
-                "startDate": '2016-04-17T13:32:25.774673+02:00',
-            },
-            "awardPeriod": {
-                "startDate": test_award_period,
-            },
-
-            "lots": [
+        self.assertResult(
+            [
                 {
-                    "status": "active",
-                    "id": "324d7b2dd7a54df29bad6d0b7c91b2e9",
-                    "value": {
-                        "currency": "UAH",
-                        "amount": 2000,
-                        "valueAddedTaxIncluded": False,
+                    "procurementMethodType": "belowThreshold",
+                    "enquiryPeriod": {
+                        "startDate": '2016-04-17T13:32:25.774673+02:00',
                     },
-                }
-            ],
-            "bids": [
-                {
-                    "date": "2016-04-07T16:36:58.983102+03:00",
-                    "owner": "test",
-                    "id": "a22ef2b1374b43ddb886821c0582bc7dk",
-                    "lotValues": [
+                    "awardPeriod": {
+                        "startDate": test_award_period,
+                    },
+                    "lots": [
                         {
-                            "relatedLot": "324d7b2dd7a54df29bad6d0b7c91b2e9",
-                            "date": "2016-04-07T16:36:58.983062+03:00",
+                            "status": "active",
+                            "id": "324d7b2dd7a54df29bad6d0b7c91b2e9",
+                            "value": {
+                                "currency": "UAH",
+                                "amount": 2000,
+                                "valueAddedTaxIncluded": False,
+                            },
+                        }
+                    ],
+                    "bids": [
+                        {
+                            "date": "2016-04-07T16:36:58.983102+03:00",
+                            "owner": "test",
+                            "id": "a22ef2b1374b43ddb886821c0582bc7dk",
+                            "lotValues": [
+                                {
+                                    "relatedLot": "324d7b2dd7a54df29bad6d0b7c91b2e9",
+                                    "date": "2016-04-07T16:36:58.983062+03:00",
+                                }
+                            ],
                         }
                     ],
                 }
             ],
-        }
-        doc = copy(self.test_data)
-        doc.update(data)
-        self.utility.db.save(doc)
-
-        self.utility.run()
-        with open(prepare_result_file_name(self.utility), 'rb') as file:
-            self.assertEqual(file.read(),
-                             ','.join(self.utility.headers) + '\r\n')
+            [
+                ['tender', 'tenderID', 'lot', 'value', 'currency', 'bid', 'rate', 'bill', 'state'],
+            ]
+        )
 
 def suite():
     suite = unittest.TestSuite()
