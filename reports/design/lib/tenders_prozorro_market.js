@@ -92,7 +92,7 @@ function get_active_contract(tender) {
 }
 
 function emit_results(tender, results) {
-    emitter.tender(tender, tender.contracts[0], results);
+    emitter.tender(tender, get_active_contract(tender), results);
 }
 
 function main(doc, mode) {
