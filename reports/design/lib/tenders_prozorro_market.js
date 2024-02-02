@@ -56,8 +56,15 @@ function get_tariff_group(contract) {
     }
 }
 
+function get_supplier(tender, contract) {
+    var suppliers = contract.suppliers || get_contract_award(tender, contract).suppliers
+    return suppliers.length > 0 ? suppliers[0] : {"name": "", "identifier": {"id": ""}}
+}
+
 var emitter = {
     tender: function(tender, contract, results) {
+        var supplier = get_supplier(tender, contract)
+
         results.push({
             key: utils.date_normalize(contract.date),
             value: {
@@ -66,8 +73,8 @@ var emitter = {
                 contract_date: contract.date,
                 procuringEntity_name: tender.procuringEntity.name,
                 procuringEntity_identifier_id: tender.procuringEntity.identifier.id,
-                contract_supplier_name: contract.suppliers[0].name,
-                contract_supplier_identifier_id: contract.suppliers[0].identifier.id,
+                contract_supplier_name: supplier.name,
+                contract_supplier_identifier_id: supplier.identifier.id,
                 contracts_value_amount: contract.value.amount,
                 tender_owner: tender.owner,
                 bid_owner: get_bid_owner(tender, contract),
