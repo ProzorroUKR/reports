@@ -11,6 +11,7 @@ REQUIRES = [
     'couchdb==1.2',
     'pbkdf2==1.3',
     'requests==2.25.1',
+    'certifi<=2020.4.5.1',
     'gevent==21.1.2',
     'pytz==2021.1',
     'pyminizip>=0.2.3',
@@ -22,6 +23,7 @@ REQUIRES = [
     'hvac==0.10.14',
     'retrying==1.3.3',
     'MarkupSafe==1.1.1',
+    'iso8601==0.1.12',
     'sentry-sdk',
 ]
 EXTRA = REQUIRES + [
