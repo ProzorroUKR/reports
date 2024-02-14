@@ -44,7 +44,7 @@ Python tests:
     - couchdb:1.6
   script:
     - pip install mock nose coverage
-    - nosetests --with-coverage  --cover-package=reports
+    - nosetests -v --with-coverage  --cover-package=reports
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
 
 Js tests:
