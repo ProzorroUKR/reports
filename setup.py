@@ -24,6 +24,8 @@ REQUIRES = [
     'retrying==1.3.3',
     'MarkupSafe==1.1.1',
     'iso8601==0.1.12',
+    'cffi<=1.15.1',
+    'netaddr<=0.8.0',
     'sentry-sdk',
 ]
 EXTRA = REQUIRES + [
