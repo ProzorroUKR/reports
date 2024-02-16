@@ -99,6 +99,7 @@ function get_bids(tender) {
             return get_eu_tender_bids(tender);
         case 'aboveThresholdUA':
         case 'aboveThreshold':
+        case 'competitiveOrdering':
         case 'belowThreshold':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
@@ -185,6 +186,7 @@ function check_bids_from_bt_atu(tender, lot) {
             }
             return bids_n >= 2;
         case 'aboveThreshold':
+        case 'competitiveOrdering':
             if (utils.check_tender_multilot(tender)) {
                 bids_n = count_lot_bids(lot, tender);
             } else {
@@ -217,6 +219,7 @@ function check_tender_bids(tender) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThreshold':
+        case 'competitiveOrdering':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_tender_bids_from_bt_atu(tender);
@@ -242,6 +245,7 @@ function check_lot_bids(tender, lot) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThreshold':
+        case 'competitiveOrdering':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_lot_bids_from_bt_atu(tender, lot);
@@ -465,6 +469,7 @@ function check_award_and_qualification(tender, bid, lot) {
         case 'belowThreshold':
         case 'aboveThresholdUA':
         case 'aboveThreshold':
+        case 'competitiveOrdering':
         case 'aboveThresholdUA.defense':
         case 'simple.defense':
             return check_award_for_bt_atu_bid(tender, bid, lot);
