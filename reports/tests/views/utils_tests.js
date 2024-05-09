@@ -166,8 +166,8 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_tenders(doc), false);
         });
 
-        it("should return false - open:competitiveOrdering.", () => {
-            doc.procurementMethod = "open";
+        it("should return false - selective:competitiveOrdering.", () => {
+            doc.procurementMethod = "selective";
             doc.procurementMethodType = "competitiveOrdering";
             assert.strictEqual(utils.exclude_methods_tenders(doc), false);
         });
@@ -311,8 +311,8 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
 
-        it("should return false - open:competitiveOrdering.", () => {
-            doc.procurementMethod = "open";
+        it("should return false - selective:competitiveOrdering.", () => {
+            doc.procurementMethod = "selective";
             doc.procurementMethodType = "competitiveOrdering";
             assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
