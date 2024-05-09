@@ -13,7 +13,7 @@ describe("competitiveOrdering", () => {
             doc_type: "Tender",
             qualificationPeriod: {startDate: "2019-12-01"},
             enquiryPeriod: {startDate: "2019-12-01"},
-            procurementMethod: "open",
+            procurementMethod: "selective",
             procurementMethodType: "competitiveOrdering"
         };
         lot = {id: "lot_id"};
