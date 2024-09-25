@@ -160,13 +160,15 @@ class TendersProzorroMarketUtility(BaseUtility):
             catalog_resources = self.catalog_api.search(
                 resource=resource_name,
                 ids=resource_ids,
-                fields=["id", "owner"],
+                fields=["id", "marketAdministrator.identifier.id"],
             )
 
             for tender in tenders[method]:
                 tender["owner"] = []
                 for tender_resource_id in tender[resource_name]:
-                    tender["owner"].append(catalog_resources.get(tender_resource_id, {}).get("owner", "ERROR"))
+                    catalog_resource = catalog_resources.get(tender_resource_id, {})
+                    owner = catalog_resource.get("marketAdministrator", {}).get("identifier", {}).get("id", "ERROR")
+                    tender["owner"].append(owner)
 
 
 def run():

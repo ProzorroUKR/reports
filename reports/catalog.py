@@ -84,7 +84,7 @@ class CatalogApi(object):
                 data={
                     "resource": resource,
                     "ids": ids_chunk,
-                    "fields": fields,
+                    "projection_fields": fields,
                 }
             )
             resources_list.extend(r)
