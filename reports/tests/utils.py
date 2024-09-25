@@ -46,7 +46,7 @@ class CatalogApiResponce(object):
             for profile_id in ids:
                 profiles[profile_id] = {
                     "id": profile_id,
-                    "owner": "access_owner_of_profile_{}".format(profile_id)
+                    "marketAdministrator": {"identifier": {"id": "access_owner_of_profile_{}".format(profile_id)}}
                 }
             return profiles
 
@@ -65,7 +65,7 @@ class CatalogApiResponce(object):
             for product_id in ids:
                 products[product_id] = {
                     "id": product_id,
-                    "owner": "access_owner_of_product_{}".format(product_id),
+                    "marketAdministrator": {"identifier": {"id": "access_owner_of_product_{}".format(product_id)}},
                 }
             return products
 
