@@ -337,6 +337,7 @@ function check_lot(lot, tender) {
             }
             break;
         case 'belowThreshold':
+        case 'requestForProposal':
             if (count_lot_bids(lot, bids) > 0) {
                 return true;
             }
@@ -387,6 +388,7 @@ function check_tender(tender) {
         case 'closeFrameworkAgreementUA':
             throw 'Not implemented';
         case 'belowThreshold':
+        case 'requestForProposal':
             if (tender.numberOfBids > 0) {
                 return true;
             }
@@ -495,6 +497,7 @@ function get_first_award_date(tender, lot) {
 function tender_date_new_alg(tender) {
     switch (tender.procurementMethodType) {
         case 'belowThreshold':
+        case 'requestForProposal':
             return get_first_award_date(tender);
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':
@@ -518,6 +521,7 @@ function tender_date_new_alg(tender) {
 function lot_date_new_alg(tender, lot) {
     switch (tender.procurementMethodType) {
         case 'belowThreshold':
+        case 'requestForProposal':
             return get_first_award_date(tender, lot);
         case 'competitiveDialogueUA.stage2':
         case 'aboveThresholdUA':

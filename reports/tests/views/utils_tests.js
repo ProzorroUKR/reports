@@ -172,6 +172,18 @@ describe("utils tests", () => {
             assert.strictEqual(utils.exclude_methods_tenders(doc), false);
         });
 
+        it("should return false - open:requestForProposal.", () => {
+            doc.procurementMethod = "open";
+            doc.procurementMethodType = "requestForProposal";
+            assert.strictEqual(utils.exclude_methods_tenders(doc), false);
+        });
+
+        it("should return false - selective:requestForProposal.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "requestForProposal";
+            assert.strictEqual(utils.exclude_methods_tenders(doc), false);
+        });
+
         it("should return false - open:aboveThresholdUA.defense.", () => {
             doc.procurementMethod = "open";
             doc.procurementMethodType = "aboveThresholdUA.defense";
@@ -314,6 +326,18 @@ describe("utils tests", () => {
         it("should return false - selective:competitiveOrdering.", () => {
             doc.procurementMethod = "selective";
             doc.procurementMethodType = "competitiveOrdering";
+            assert.strictEqual(utils.exclude_methods_bids(doc), false);
+        });
+
+        it("should return false - open:requestForProposal.", () => {
+            doc.procurementMethod = "open";
+            doc.procurementMethodType = "requestForProposal";
+            assert.strictEqual(utils.exclude_methods_bids(doc), false);
+        });
+
+        it("should return false - selective:requestForProposal.", () => {
+            doc.procurementMethod = "selective";
+            doc.procurementMethodType = "requestForProposal";
             assert.strictEqual(utils.exclude_methods_bids(doc), false);
         });
 
