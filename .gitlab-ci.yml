@@ -35,7 +35,7 @@ variables:
 
 Python tests:
   stage: test
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA 
   tags:
     - kube-dev
   only:
@@ -46,7 +46,6 @@ Python tests:
     - pip install mock nose coverage
     - nosetests -v --with-coverage  --cover-package=reports
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
-
 Js tests:
   stage: test_js
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
@@ -59,9 +58,9 @@ Js tests:
     paths:
       - node_modules/
   script:
-    - apt-get update
-    - apt-get -y install curl gnupg
-    - curl -sL https://deb.nodesource.com/setup_11.x  | bash -
-    - apt-get -y --force-yes install nodejs
+    - curl -o node-v11.15.0-linux-x64.tar.xz https://nodejs.org/dist/v11.15.0/node-v11.15.0-linux-x64.tar.xz
+    - mkdir -p ~/.local/nodejs
+    - tar -xf node-v11.15.0-linux-x64.tar.xz -C ~/.local/nodejs --strip-components=1
+    - export PATH="$HOME/.local/nodejs/bin:$PATH"
     - npm install
     - npm run test
