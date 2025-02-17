@@ -13,10 +13,10 @@ RUN pip install -e .[swift]
 
 COPY docker/reports/reports.yaml /app/etc/reports.yaml
 COPY docker/reports/entrypoint.sh /app/entrypoint.sh
-RUN groupadd -g 10000 user && \
-    useradd -m -u 10000 -g user -d /app user
+#RUN groupadd -g 10000 user && \
+#    useradd -m -u 10000 -g user -d /app user
 
-RUN chown -R user:user /app
-ENV PATH="/app/.local/bin:${PATH}"
+#RUN chown -R user:user /app
+#ENV PATH="/app/.local/bin:${PATH}"
 
-USER user
+#USER user
