@@ -92,6 +92,18 @@ class TendersProzorroMarketUtility(BaseUtility):
 
         return cls.convert_to_list(tender["profile"])
 
+    @classmethod
+    def get_categories(cls, tender):
+        category_ids = {
+            item["category"]
+            for item in tender.get("items", [])
+            if "profile" not in item and "category" in item
+        }
+        if category_ids:
+            return list(category_ids)
+
+        return []
+
     @staticmethod
     def convert_to_list(obj):
         if obj:
@@ -119,19 +131,46 @@ class TendersProzorroMarketUtility(BaseUtility):
         for tender in tenders:
             tender["offers"] = self.get_offers(tender)
             tender["profile"] = self.get_profiles(tender)
-
+            tender["category"] = self.get_categories(tender)
+            
             tender["owner"] = []
             tender["bid_owner"] = self.convert_to_list(tender["bid_owner"])
             tender["procuringEntity_name"] = tender["procuringEntity_name"].replace("\n", "")
             tender["contract_supplier_name"] = tender["contract_supplier_name"].replace("\n", "")
 
-        self.resolve_market_offers(tenders)
-
         self.resolve_market_resource(tenders, "product")
         self.resolve_market_resource(tenders, "profile")
+        self.resolve_market_resource(tenders, "category")
         
         for tender in tenders:
             yield self.row(tender)
+
+    def resolve_market_resource(self, tenders, resource_name):
+        if resource_name == "product":
+            self.resolve_market_offers(tenders)
+
+        resource_ids = []
+        for tender in tenders:
+            if tender.get(resource_name, []):
+                resource_ids.extend(tender[resource_name])
+
+        if not resource_ids:
+            return
+
+        catalog_resources = self.catalog_api.search(
+            resource=resource_name,
+            ids=resource_ids,
+            fields=["id", "marketAdministrator.identifier.id"],
+        )
+
+        if not catalog_resources:
+            return
+
+        for tender in tenders:
+            for tender_resource_id in tender.get(resource_name, []):
+                catalog_resource = catalog_resources.get(tender_resource_id, {})
+                owner = catalog_resource.get("marketAdministrator", {}).get("identifier", {}).get("id", "ERROR")
+                tender["owner"].append(owner)
 
     def resolve_market_offers(self, tenders):
         offer_ids = []
@@ -163,30 +202,6 @@ class TendersProzorroMarketUtility(BaseUtility):
                         related_product_ids.extend(tender["product"])
 
         return related_product_ids
-
-    def resolve_market_resource(self, tenders, resource_name):
-        resource_ids = []
-        for tender in tenders:
-            if tender.get(resource_name, []):
-                resource_ids.extend(tender[resource_name])
-
-        if not resource_ids:
-            return
-
-        catalog_resources = self.catalog_api.search(
-            resource=resource_name,
-            ids=resource_ids,
-            fields=["id", "marketAdministrator.identifier.id"],
-        )
-
-        if not catalog_resources:
-            return
-
-        for tender in tenders:
-            for tender_resource_id in tender.get(resource_name, []):
-                catalog_resource = catalog_resources.get(tender_resource_id, {})
-                owner = catalog_resource.get("marketAdministrator", {}).get("identifier", {}).get("id", "ERROR")
-                tender["owner"].append(owner)
 
 
 def run():

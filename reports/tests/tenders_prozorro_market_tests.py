@@ -57,12 +57,18 @@ test_pq_data.update({
     "items": [
         {
             "id": "test_item_id_1",
-            "profile": "502503-15220000-815175-40996564",
+            "category": "502503-15220000-815175-40996564",
+            "profile": "15220000-815175-40996564",
         },
         {
             "id": "test_item_id_2",
-            "profile": "502503-15220000-815175-40996565",
-        }
+            "category": "502503-15220000-815175-40996565",
+            "profile": "15220000-815175-40996565",
+        },
+        {
+            "id": "test_item_id_3",
+            "category": "502503-15220000-815175-40996566",
+        },
     ],
 })
 
@@ -162,8 +168,9 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 'test',
                 'test_bid_owner',
                 (
+                    'access_owner_of_profile_502503-15220000-815175-40996564, '
                     'access_owner_of_profile_502503-15220000-815175-40996565, '
-                    'access_owner_of_profile_502503-15220000-815175-40996564'
+                    'access_owner_of_category_15220000-815175-40996566'
                 ),
                 'under 50k UAH',
                 'priceQuotation',
@@ -302,8 +309,9 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 'test',
                 'test_bid_owner',
                 (
+                    'access_owner_of_profile_502503-15220000-815175-40996564, '
                     'access_owner_of_profile_502503-15220000-815175-40996565, '
-                    'access_owner_of_profile_502503-15220000-815175-40996564'
+                    'access_owner_of_category_15220000-815175-40996566'
                 ),
                 'under 50k UAH',
                 'priceQuotation'
