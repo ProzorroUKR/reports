@@ -65,7 +65,9 @@ class TendersProzorroMarketUtility(BaseUtility):
         )
 
     @staticmethod
-    def unpack_offers(procurement_method_rationale):
+    def get_offers(tender):
+        procurement_method_rationale = tender["procurementMethodRationale"]
+
         if not procurement_method_rationale:
             return []
 
@@ -78,10 +80,34 @@ class TendersProzorroMarketUtility(BaseUtility):
 
         return []
 
+    @classmethod
+    def get_profiles(cls, tender):
+        profile_ids = {
+            item["profile"]
+            for item in tender.get("items", [])
+            if "profile" in item
+        }
+        if profile_ids:
+            return list(profile_ids)
+
+        return cls.convert_to_list(tender["profile"])
+
+    @classmethod
+    def get_categories(cls, tender):
+        category_ids = {
+            item["category"]
+            for item in tender.get("items", [])
+            if "profile" not in item and "category" in item
+        }
+        if category_ids:
+            return list(category_ids)
+
+        return []
+
     @staticmethod
-    def unpack_convert_to_list(profile):
-        if profile:
-            return [profile]
+    def convert_to_list(obj):
+        if obj:
+            return [obj]
         return []
 
     def row(self, record):
@@ -101,74 +127,81 @@ class TendersProzorroMarketUtility(BaseUtility):
         tenders = []
         for resp in self.response:
             tenders.append(resp["value"])
-
-        offer_ids = []
-        related_profile_ids = []
-        tenders_by_method = {"reporting": [], "priceQuotation": []}
+        
         for tender in tenders:
-            tender["offers"] = self.unpack_offers(tender["procurementMethodRationale"])
-            tender["profile"] = self.unpack_convert_to_list(tender["profile"])
-            if not tender["profile"]:
-                profile_ids = {
-                    item["profile"]
-                    for item in tender.get("items", [])
-                    if "profile" in item
-                }
-                if profile_ids:
-                    tender["profile"] = list(profile_ids)
-
-            tender["bid_owner"] = self.unpack_convert_to_list(tender["bid_owner"])
+            tender["offers"] = self.get_offers(tender)
+            tender["profile"] = self.get_profiles(tender)
+            tender["category"] = self.get_categories(tender)
+            
+            tender["owner"] = []
+            tender["bid_owner"] = self.convert_to_list(tender["bid_owner"])
             tender["procuringEntity_name"] = tender["procuringEntity_name"].replace("\n", "")
             tender["contract_supplier_name"] = tender["contract_supplier_name"].replace("\n", "")
 
-            if tender["method"] == "reporting":
-                offer_ids.extend(tender["offers"])
-            elif tender["method"] == "priceQuotation":
-                related_profile_ids.extend(tender["profile"])
+        self.resolve_market_resource(tenders, "product")
+        self.resolve_market_resource(tenders, "profile")
+        self.resolve_market_resource(tenders, "category")
+        
+        for tender in tenders:
+            yield self.row(tender)
 
-            tenders_by_method[tender["method"]].append(tender)
+    def resolve_market_resource(self, tenders, resource_name):
+        if resource_name == "product":
+            self.resolve_market_offers(tenders)
 
-        related_product_ids = []
-        if offer_ids:
-            catalog_offers = self.catalog_api.search(
-                resource="offer",
-                ids=offer_ids,
-                fields=["id", "relatedProduct", "owner"],
-            )
+        resource_ids = []
+        for tender in tenders:
+            if tender.get(resource_name, []):
+                resource_ids.extend(tender[resource_name])
 
-            for tender in tenders_by_method["reporting"]:
+        if not resource_ids:
+            return
+
+        catalog_resources = self.catalog_api.search(
+            resource=resource_name,
+            ids=resource_ids,
+            fields=["id", "marketAdministrator.identifier.id"],
+        )
+
+        if not catalog_resources:
+            return
+
+        for tender in tenders:
+            for tender_resource_id in tender.get(resource_name, []):
+                catalog_resource = catalog_resources.get(tender_resource_id, {})
+                owner = catalog_resource.get("marketAdministrator", {}).get("identifier", {}).get("id", "ERROR")
+                tender["owner"].append(owner)
+
+    def resolve_market_offers(self, tenders):
+        offer_ids = []
+        for tender in tenders:
+            if tender["offers"]:
                 tender["bid_owner"] = []
                 tender["product"] = []
+                offer_ids.extend(tender["offers"])
+
+        if not offer_ids:
+            return
+        
+        catalog_offers = self.catalog_api.search(
+            resource="offer",
+            ids=offer_ids,
+            fields=["id", "relatedProduct", "owner"],
+        )
+
+        if not catalog_offers:
+            return
+
+        related_product_ids = []
+        for tender in tenders:
+            if tender["offers"]:
                 for tender_offer_id in tender["offers"]:
                     tender["bid_owner"].append(catalog_offers.get(tender_offer_id, {}).get("owner", "ERROR"))
                     if tender_offer_id in catalog_offers:
                         tender["product"].append(catalog_offers[tender_offer_id].get("relatedProduct"))
                         related_product_ids.extend(tender["product"])
 
-        self.set_tender_owner("reporting", tenders_by_method, related_product_ids)
-        self.set_tender_owner("priceQuotation", tenders_by_method, related_profile_ids)
-        for tender in tenders:
-            yield self.row(tender)
-
-    def set_tender_owner(self, method, tenders, resource_ids):
-        resource_by_tender_method = {
-            "reporting": "product",
-            "priceQuotation": "profile",
-        }
-        if resource_ids:
-            resource_name = resource_by_tender_method.get(method)
-            catalog_resources = self.catalog_api.search(
-                resource=resource_name,
-                ids=resource_ids,
-                fields=["id", "marketAdministrator.identifier.id"],
-            )
-
-            for tender in tenders[method]:
-                tender["owner"] = []
-                for tender_resource_id in tender[resource_name]:
-                    catalog_resource = catalog_resources.get(tender_resource_id, {})
-                    owner = catalog_resource.get("marketAdministrator", {}).get("identifier", {}).get("id", "ERROR")
-                    tender["owner"].append(owner)
+        return related_product_ids
 
 
 def run():

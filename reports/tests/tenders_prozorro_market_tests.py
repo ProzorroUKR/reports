@@ -7,10 +7,7 @@ from reports.helpers import prepare_result_file_name
 import csv
 test_award_period = '2016-04-17T13:32:25.774673+02:00'
 
-test_pq_data = {
-    "_id": "tender_id_1",
-    "procurementMethod": "selective",
-    "procurementMethodType": "priceQuotation",
+test_tender_base_data = {
     "awards": [
         {
             "id": "test_award_id",
@@ -50,18 +47,49 @@ test_pq_data = {
             "id": "42751893",
         },
     },
-    "profile": "502503-15220000-815175-40996564",
 }
 
-test_reporting_data = deepcopy(test_pq_data)
-del test_reporting_data["profile"]
-test_reporting_data["_id"] = "tender_id_2"
-test_reporting_data["procurementMethod"] = "limited"
-test_reporting_data["procurementMethodType"] = "reporting"
-test_reporting_data["procurementMethodRationale"] = (
-    "catalogue, "
-    "offer=df1ab52df383f6c220d5025fbc61a144;df1ab52df383f6c220d5025fbc61a145"
-)
+test_pq_data = deepcopy(test_tender_base_data)
+test_pq_data.update({
+    "_id": "tender_id_1",
+    "procurementMethod": "selective",
+    "procurementMethodType": "priceQuotation",
+    "items": [
+        {
+            "id": "test_item_id_1",
+            "category": "15220000-815175-40996564",
+            "profile": "502503-15220000-815175-40996564",
+        },
+        {
+            "id": "test_item_id_2",
+            "category": "15220000-815175-40996565",
+            "profile": "502503-15220000-815175-40996565",
+        },
+        {
+            "id": "test_item_id_3",
+            "category": "15220000-815175-40996566",
+        },
+    ],
+})
+
+test_pq_deprecated_data = deepcopy(test_tender_base_data)
+test_pq_deprecated_data.update({
+    "_id": "tender_id_2",
+    "procurementMethod": "selective",
+    "procurementMethodType": "priceQuotation",
+    "profile": "502503-15220000-815175-40996564",
+})
+
+test_reporting_data = deepcopy(test_tender_base_data)
+test_reporting_data.update({
+    "_id": "tender_id_3",
+    "procurementMethod": "limited",
+    "procurementMethodType": "reporting",
+    "procurementMethodRationale": (
+        "catalogue, "
+        "offer=df1ab52df383f6c220d5025fbc61a144;df1ab52df383f6c220d5025fbc61a145"
+    ),
+})
 
 
 class ReportTendersProzorroMarketTestCase(BaseTenderProzorroMarketUtilityTest):
@@ -87,6 +115,10 @@ class ReportTendersProzorroMarketTestCase(BaseTenderProzorroMarketUtilityTest):
 
     def test_tenders_view_valid_pq(self):
         data = deepcopy(test_pq_data)
+        self.assertLen(1, data)
+
+    def test_tenders_view_valid_pq_deprecated(self):
+        data = deepcopy(test_pq_deprecated_data)
         self.assertLen(1, data)
 
     def test_tenders_view_valid_reporting(self):
@@ -135,19 +167,22 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 '1000',
                 'test',
                 'test_bid_owner',
-                'access_owner_of_profile_502503-15220000-815175-40996564',
+                (
+                    'administrator_identifier_id_of_profile__502503-15220000-815175-40996565, '
+                    'administrator_identifier_id_of_profile__502503-15220000-815175-40996564, '
+                    'administrator_identifier_id_of_category__15220000-815175-40996566'
+                ),
                 'under 50k UAH',
                 'priceQuotation',
             ],
         )
 
-    def test_tenders_utility_output_reporting(self):
+    def test_tenders_utility_output_pq_deprecated(self):
         result = self.get_result([
-            deepcopy(test_reporting_data),
-            deepcopy(test_pq_data),
+            deepcopy(test_pq_deprecated_data),
         ])
 
-        self.assertEqual(len(result), 3)
+        self.assertEqual(len(result), 2)
         self.assertEqual(
             result[0],
             [
@@ -167,7 +202,7 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             ],
         )
         self.assertEqual(
-            result[2],
+            result[1],
             [
                 'tender_id_2',
                 'UA-2017-11-30',
@@ -178,13 +213,56 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 '32490244',
                 '1000',
                 'test',
+                'test_bid_owner',
+                'administrator_identifier_id_of_profile__502503-15220000-815175-40996564',
+                'under 50k UAH',
+                'priceQuotation',
+            ],
+        )
+
+    def test_tenders_utility_output_reporting(self):
+        result = self.get_result([
+            deepcopy(test_reporting_data),
+        ])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            result[0],
+            [
+                'tender_id',
+                'tenderID',
+                'contract_date',
+                'procuringEntity_name',
+                'procuringEntity_identifier_id',
+                'contract_supplier_name',
+                'contract_supplier_identifier_id',
+                'contracts_value_amount',
+                'tender_owner',
+                'bid_owner',
+                'owner',
+                'tariff_group',
+                'method',
+            ],
+        )
+        self.assertEqual(
+            result[1],
+            [
+                'tender_id_3',
+                'UA-2017-11-30',
+                '2017-12-18T22:00:00',
+                'test_procuringEntity_name',
+                '42751893',
+                'test_supplier_name',
+                '32490244',
+                '1000',
+                'test',
                 (
-                    'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a144, '
-                    'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145'
+                    'access_owner_of_offer__df1ab52df383f6c220d5025fbc61a144, '
+                    'access_owner_of_offer__df1ab52df383f6c220d5025fbc61a145'
                 ),
                 (
-                    'access_owner_of_product_relatedProduct_of_offer_, '
-                    'access_owner_of_product_relatedProduct_of_offer_'
+                    'administrator_identifier_id_of_product__relatedProduct_of_offer__df1ab52df383f6c220d5025fbc61a144, '
+                    'administrator_identifier_id_of_product__relatedProduct_of_offer__df1ab52df383f6c220d5025fbc61a145'
                 ),
                 'under 50k UAH',
                 'reporting',
@@ -193,11 +271,12 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
 
     def test_tenders_utility_output_multiple(self):
         result = self.get_result([
-            deepcopy(test_reporting_data),
             deepcopy(test_pq_data),
+            deepcopy(test_pq_deprecated_data),
+            deepcopy(test_reporting_data),
         ])
 
-        self.assertEqual(len(result), 3)
+        self.assertEqual(len(result), 4)
         self.assertEqual(
             result[0],
             [
@@ -229,7 +308,11 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 '1000',
                 'test',
                 'test_bid_owner',
-                'access_owner_of_profile_502503-15220000-815175-40996564',
+                (
+                    'administrator_identifier_id_of_profile__502503-15220000-815175-40996565, '
+                    'administrator_identifier_id_of_profile__502503-15220000-815175-40996564, '
+                    'administrator_identifier_id_of_category__15220000-815175-40996566'
+                ),
                 'under 50k UAH',
                 'priceQuotation'
             ],
@@ -246,13 +329,31 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                 '32490244',
                 '1000',
                 'test',
+                'test_bid_owner',
+                'administrator_identifier_id_of_profile__502503-15220000-815175-40996564',
+                'under 50k UAH',
+                'priceQuotation'
+            ],
+        )
+        self.assertEqual(
+            result[3],
+            [
+                'tender_id_3',
+                'UA-2017-11-30',
+                '2017-12-18T22:00:00',
+                'test_procuringEntity_name',
+                '42751893',
+                'test_supplier_name',
+                '32490244',
+                '1000',
+                'test',
                 (
-                    'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a144, '
-                    'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145'
+                    'access_owner_of_offer__df1ab52df383f6c220d5025fbc61a144, '
+                    'access_owner_of_offer__df1ab52df383f6c220d5025fbc61a145'
                 ),
                 (
-                    'access_owner_of_product_relatedProduct_of_offer_, '
-                    'access_owner_of_product_relatedProduct_of_offer_'
+                    'administrator_identifier_id_of_product__relatedProduct_of_offer__df1ab52df383f6c220d5025fbc61a144, '
+                    'administrator_identifier_id_of_product__relatedProduct_of_offer__df1ab52df383f6c220d5025fbc61a145'
                 ),
                 'under 50k UAH',
                 'reporting',

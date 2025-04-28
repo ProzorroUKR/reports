@@ -46,28 +46,49 @@ class CatalogApiResponce(object):
             for profile_id in ids:
                 profiles[profile_id] = {
                     "id": profile_id,
-                    "marketAdministrator": {"identifier": {"id": "access_owner_of_profile_{}".format(profile_id)}}
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_profile__{}".format(profile_id),
+                        },
+                    },
                 }
             return profiles
 
-        if resource == "offer":
-            offers = {}
-            for offer_id in ids:
-                offers[offer_id] = {
-                    "id": offer_id,
-                    "relatedProduct": "relatedProduct_of_offer_".format(offer_id),
-                    "owner": "access_owner_of_offer_{}".format(offer_id)
+        if resource == "category":
+            categories = {}
+            for category_id in ids:
+                categories[category_id] = {
+                    "id": category_id,
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_category__{}".format(category_id),
+                        },
+                    },
                 }
-            return offers
+            return categories
 
         if resource == "product":
             products = {}
             for product_id in ids:
                 products[product_id] = {
                     "id": product_id,
-                    "marketAdministrator": {"identifier": {"id": "access_owner_of_product_{}".format(product_id)}},
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_product__{}".format(product_id),
+                        },
+                    },
                 }
             return products
+
+        if resource == "offer":
+            offers = {}
+            for offer_id in ids:
+                offers[offer_id] = {
+                    "id": offer_id,
+                    "relatedProduct": "relatedProduct_of_offer__{}".format(offer_id),
+                    "owner": "access_owner_of_offer__{}".format(offer_id),
+                }
+            return offers
 
 
 test_config = os.path.join(os.path.dirname(__file__), 'tests.yaml')
