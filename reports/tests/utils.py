@@ -46,7 +46,11 @@ class CatalogApiResponce(object):
             for profile_id in ids:
                 profiles[profile_id] = {
                     "id": profile_id,
-                    "marketAdministrator": {"identifier": {"id": "access_owner_of_profile_{}".format(profile_id)}}
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_profile__{}".format(profile_id),
+                        },
+                    },
                 }
             return profiles
 
@@ -55,7 +59,11 @@ class CatalogApiResponce(object):
             for category_id in ids:
                 categories[category_id] = {
                     "id": category_id,
-                    "marketAdministrator": {"identifier": {"id": "access_owner_of_category_{}".format(category_id)}}
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_category__{}".format(category_id),
+                        },
+                    },
                 }
             return categories
 
@@ -64,7 +72,11 @@ class CatalogApiResponce(object):
             for product_id in ids:
                 products[product_id] = {
                     "id": product_id,
-                    "marketAdministrator": {"identifier": {"id": "access_owner_of_product_{}".format(product_id)}},
+                    "marketAdministrator": {
+                        "identifier": {
+                            "id": "administrator_identifier_id_of_product__{}".format(product_id),
+                        },
+                    },
                 }
             return products
 
@@ -73,8 +85,8 @@ class CatalogApiResponce(object):
             for offer_id in ids:
                 offers[offer_id] = {
                     "id": offer_id,
-                    "relatedProduct": "relatedProduct_of_offer_{}".format(offer_id),
-                    "owner": "access_owner_of_offer_{}".format(offer_id)
+                    "relatedProduct": "relatedProduct_of_offer__{}".format(offer_id),
+                    "owner": "access_owner_of_offer__{}".format(offer_id),
                 }
             return offers
 
