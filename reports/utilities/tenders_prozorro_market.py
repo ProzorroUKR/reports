@@ -145,18 +145,13 @@ class TendersProzorroMarketUtility(BaseUtility):
                         tender["product"].append(catalog_offers[tender_offer_id].get("relatedProduct"))
                         related_product_ids.extend(tender["product"])
 
-        self.set_tender_owner("reporting", tenders_by_method, related_product_ids)
-        self.set_tender_owner("priceQuotation", tenders_by_method, related_profile_ids)
+        self.set_tender_owner("reporting", tenders_by_method, "product", related_product_ids)
+        self.set_tender_owner("priceQuotation", tenders_by_method, "profile", related_profile_ids)
         for tender in tenders:
             yield self.row(tender)
 
-    def set_tender_owner(self, method, tenders, resource_ids):
-        resource_by_tender_method = {
-            "reporting": "product",
-            "priceQuotation": "profile",
-        }
+    def set_tender_owner(self, method, tenders, resource_name, resource_ids):
         if resource_ids:
-            resource_name = resource_by_tender_method.get(method)
             catalog_resources = self.catalog_api.search(
                 resource=resource_name,
                 ids=resource_ids,
