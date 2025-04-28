@@ -55,7 +55,7 @@ class CatalogApiResponce(object):
             for offer_id in ids:
                 offers[offer_id] = {
                     "id": offer_id,
-                    "relatedProduct": "relatedProduct_of_offer_".format(offer_id),
+                    "relatedProduct": "relatedProduct_of_offer_{}".format(offer_id),
                     "owner": "access_owner_of_offer_{}".format(offer_id)
                 }
             return offers

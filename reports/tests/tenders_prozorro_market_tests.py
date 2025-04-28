@@ -254,8 +254,8 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                     'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145'
                 ),
                 (
-                    'access_owner_of_product_relatedProduct_of_offer_, '
-                    'access_owner_of_product_relatedProduct_of_offer_'
+                    'access_owner_of_product_relatedProduct_of_offer_df1ab52df383f6c220d5025fbc61a144, '
+                    'access_owner_of_product_relatedProduct_of_offer_df1ab52df383f6c220d5025fbc61a145'
                 ),
                 'under 50k UAH',
                 'reporting',
@@ -344,8 +344,8 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
                     'access_owner_of_offer_df1ab52df383f6c220d5025fbc61a145'
                 ),
                 (
-                    'access_owner_of_product_relatedProduct_of_offer_, '
-                    'access_owner_of_product_relatedProduct_of_offer_'
+                    'access_owner_of_product_relatedProduct_of_offer_df1ab52df383f6c220d5025fbc61a144, '
+                    'access_owner_of_product_relatedProduct_of_offer_df1ab52df383f6c220d5025fbc61a145'
                 ),
                 'under 50k UAH',
                 'reporting',
