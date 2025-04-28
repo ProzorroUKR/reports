@@ -50,12 +50,63 @@ test_pq_data = {
             "id": "42751893",
         },
     },
+    "items": [
+        {
+            "id": "test_item_id",
+            "profile": "502503-15220000-815175-40996564",
+        }
+    ],
+}
+
+test_pq_deprecated_data = {
+    "_id": "tender_id_2",
+    "procurementMethod": "selective",
+    "procurementMethodType": "priceQuotation",
+    "awards": [
+        {
+            "id": "test_award_id",
+            "bid_id": "test_bid_id",
+        }
+    ],
+    "bids": [
+        {
+            "id": "test_bid_id",
+            "owner": "test_bid_owner",
+        }
+    ],
+    "contracts": [{
+        "status": "active",
+        "date": "2017-12-18T22:00:00",
+        "awardID": "test_award_id",
+        "value": {
+            "amount": 1000,
+            "currency": "UAH",
+            "valueAddedTaxIncluded": False,
+        },
+        "suppliers": [
+            {
+                "name": "test_supplier_name",
+                "identifier": {
+                    "scheme": "UA-EDR",
+                    "id": "32490244",
+                },
+            }
+        ],
+    }],
+    "procuringEntity": {
+        "kind": "general",
+        "name": "test_procuringEntity_name",
+        "identifier": {
+            "scheme": "UA-EDR",
+            "id": "42751893",
+        },
+    },
     "profile": "502503-15220000-815175-40996564",
 }
 
-test_reporting_data = deepcopy(test_pq_data)
+test_reporting_data = deepcopy(test_pq_deprecated_data)
 del test_reporting_data["profile"]
-test_reporting_data["_id"] = "tender_id_2"
+test_reporting_data["_id"] = "tender_id_3"
 test_reporting_data["procurementMethod"] = "limited"
 test_reporting_data["procurementMethodType"] = "reporting"
 test_reporting_data["procurementMethodRationale"] = (
@@ -87,6 +138,10 @@ class ReportTendersProzorroMarketTestCase(BaseTenderProzorroMarketUtilityTest):
 
     def test_tenders_view_valid_pq(self):
         data = deepcopy(test_pq_data)
+        self.assertLen(1, data)
+
+    def test_tenders_view_valid_pq_deprecated(self):
+        data = deepcopy(test_pq_deprecated_data)
         self.assertLen(1, data)
 
     def test_tenders_view_valid_reporting(self):
@@ -141,13 +196,12 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             ],
         )
 
-    def test_tenders_utility_output_reporting(self):
+    def test_tenders_utility_output_pq_deprecated(self):
         result = self.get_result([
-            deepcopy(test_reporting_data),
-            deepcopy(test_pq_data),
+            deepcopy(test_pq_deprecated_data),
         ])
 
-        self.assertEqual(len(result), 3)
+        self.assertEqual(len(result), 2)
         self.assertEqual(
             result[0],
             [
@@ -167,9 +221,52 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             ],
         )
         self.assertEqual(
-            result[2],
+            result[1],
             [
                 'tender_id_2',
+                'UA-2017-11-30',
+                '2017-12-18T22:00:00',
+                'test_procuringEntity_name',
+                '42751893',
+                'test_supplier_name',
+                '32490244',
+                '1000',
+                'test',
+                'test_bid_owner',
+                'access_owner_of_profile_502503-15220000-815175-40996564',
+                'under 50k UAH',
+                'priceQuotation',
+            ],
+        )
+
+    def test_tenders_utility_output_reporting(self):
+        result = self.get_result([
+            deepcopy(test_reporting_data),
+        ])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            result[0],
+            [
+                'tender_id',
+                'tenderID',
+                'contract_date',
+                'procuringEntity_name',
+                'procuringEntity_identifier_id',
+                'contract_supplier_name',
+                'contract_supplier_identifier_id',
+                'contracts_value_amount',
+                'tender_owner',
+                'bid_owner',
+                'owner',
+                'tariff_group',
+                'method',
+            ],
+        )
+        self.assertEqual(
+            result[1],
+            [
+                'tender_id_3',
                 'UA-2017-11-30',
                 '2017-12-18T22:00:00',
                 'test_procuringEntity_name',
@@ -193,11 +290,12 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
 
     def test_tenders_utility_output_multiple(self):
         result = self.get_result([
-            deepcopy(test_reporting_data),
             deepcopy(test_pq_data),
+            deepcopy(test_pq_deprecated_data),
+            deepcopy(test_reporting_data),
         ])
 
-        self.assertEqual(len(result), 3)
+        self.assertEqual(len(result), 4)
         self.assertEqual(
             result[0],
             [
@@ -238,6 +336,24 @@ class ReportTendersProzorroMarketUtilityTestCase(BaseTenderProzorroMarketUtility
             result[2],
             [
                 'tender_id_2',
+                'UA-2017-11-30',
+                '2017-12-18T22:00:00',
+                'test_procuringEntity_name',
+                '42751893',
+                'test_supplier_name',
+                '32490244',
+                '1000',
+                'test',
+                'test_bid_owner',
+                'access_owner_of_profile_502503-15220000-815175-40996564',
+                'under 50k UAH',
+                'priceQuotation'
+            ],
+        )
+        self.assertEqual(
+            result[3],
+            [
+                'tender_id_3',
                 'UA-2017-11-30',
                 '2017-12-18T22:00:00',
                 'test_procuringEntity_name',
