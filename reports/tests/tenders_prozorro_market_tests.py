@@ -7,10 +7,7 @@ from reports.helpers import prepare_result_file_name
 import csv
 test_award_period = '2016-04-17T13:32:25.774673+02:00'
 
-test_pq_data = {
-    "_id": "tender_id_1",
-    "procurementMethod": "selective",
-    "procurementMethodType": "priceQuotation",
+test_tender_base_data = {
     "awards": [
         {
             "id": "test_award_id",
@@ -50,69 +47,39 @@ test_pq_data = {
             "id": "42751893",
         },
     },
+}
+
+test_pq_data = deepcopy(test_tender_base_data)
+test_pq_data.update({
+    "_id": "tender_id_1",
+    "procurementMethod": "selective",
+    "procurementMethodType": "priceQuotation",
     "items": [
         {
             "id": "test_item_id",
             "profile": "502503-15220000-815175-40996564",
         }
     ],
-}
+})
 
-test_pq_deprecated_data = {
+test_pq_deprecated_data = deepcopy(test_tender_base_data)
+test_pq_deprecated_data.update({
     "_id": "tender_id_2",
     "procurementMethod": "selective",
     "procurementMethodType": "priceQuotation",
-    "awards": [
-        {
-            "id": "test_award_id",
-            "bid_id": "test_bid_id",
-        }
-    ],
-    "bids": [
-        {
-            "id": "test_bid_id",
-            "owner": "test_bid_owner",
-        }
-    ],
-    "contracts": [{
-        "status": "active",
-        "date": "2017-12-18T22:00:00",
-        "awardID": "test_award_id",
-        "value": {
-            "amount": 1000,
-            "currency": "UAH",
-            "valueAddedTaxIncluded": False,
-        },
-        "suppliers": [
-            {
-                "name": "test_supplier_name",
-                "identifier": {
-                    "scheme": "UA-EDR",
-                    "id": "32490244",
-                },
-            }
-        ],
-    }],
-    "procuringEntity": {
-        "kind": "general",
-        "name": "test_procuringEntity_name",
-        "identifier": {
-            "scheme": "UA-EDR",
-            "id": "42751893",
-        },
-    },
     "profile": "502503-15220000-815175-40996564",
-}
+})
 
-test_reporting_data = deepcopy(test_pq_deprecated_data)
-del test_reporting_data["profile"]
-test_reporting_data["_id"] = "tender_id_3"
-test_reporting_data["procurementMethod"] = "limited"
-test_reporting_data["procurementMethodType"] = "reporting"
-test_reporting_data["procurementMethodRationale"] = (
-    "catalogue, "
-    "offer=df1ab52df383f6c220d5025fbc61a144;df1ab52df383f6c220d5025fbc61a145"
-)
+test_reporting_data = deepcopy(test_tender_base_data)
+test_reporting_data.update({
+    "_id": "tender_id_3",
+    "procurementMethod": "limited",
+    "procurementMethodType": "reporting",
+    "procurementMethodRationale": (
+        "catalogue, "
+        "offer=df1ab52df383f6c220d5025fbc61a144;df1ab52df383f6c220d5025fbc61a145"
+    ),
+})
 
 
 class ReportTendersProzorroMarketTestCase(BaseTenderProzorroMarketUtilityTest):
