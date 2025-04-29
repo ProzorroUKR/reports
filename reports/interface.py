@@ -50,14 +50,16 @@ def tenders():
 
 @app.route("/tenders_prozorro_market")
 def tenders_prozorro_market():
-    return utility_view(TendersProzorroMarketUtility)
+    return utility_view(TendersProzorroMarketUtility, broker_selection=False)
 
 
-def utility_view(utility_class, headers_info=None):
-    context = get_context()
+def utility_view(utility_class, headers_info=None, broker_selection=True):
+    context = get_context(broker_selection)
     utility_kwargs = dict(
-        broker=context["broker"], mode=context["mode"],
-        period=context["period"], config=context["config"]
+        broker=context["broker"] if broker_selection else "all", 
+        mode=context["mode"],
+        period=context["period"], 
+        config=context["config"],
     )
     if headers_info:
         utility_kwargs['headers_info'] = headers_info
@@ -71,15 +73,7 @@ def utility_view(utility_class, headers_info=None):
     return render_template('utility.html', **context)
 
 
-def get_context():
-    brokers = [
-        item.strip() for item in CONFIG.get('brokers_emails', {}).keys()
-        if item.strip() != 'all'
-    ]
-    broker = request.args.get('broker')
-    if (not broker or broker not in brokers) and brokers:
-        broker = brokers[0]
-
+def get_context(broker_selection=True):
     mode = request.args.get('mode')
     if not mode or mode not in MODES:
         mode = MODES[0]
@@ -102,10 +96,21 @@ def get_context():
         period=[start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")],
         mode=mode,
         modes=MODES,
-        broker=broker,
-        brokers=brokers,
         config=CONFIG,
     )
+
+    if broker_selection:
+        brokers = [
+            item.strip() for item in CONFIG.get('brokers_emails', {}).keys()
+            if item.strip() != 'all'
+        ]
+        broker = request.args.get('broker')
+        if (not broker or broker not in brokers) and brokers:
+            broker = brokers[0]
+
+        context['brokers'] = brokers
+        context['broker'] = broker
+
     return context
 
 
