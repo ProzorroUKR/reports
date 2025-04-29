@@ -29,6 +29,7 @@
             </select>
 
         </div>
+        {% if brokers %}
         <div class="form-group col-md-3">
             <label class="font-weight-bold">Broker</label>
             <select name="broker" class="form-control">
@@ -36,8 +37,8 @@
                     <option {% if b == broker %}selected="selected"{% endif %}>{{ b }}</option>
                 {% endfor %}
             </select>
-
         </div>
+        {% endif %}
         <div class="form-group col-md-2">
             <label>&nbsp;</label>
             <br>
