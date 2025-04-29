@@ -29,16 +29,16 @@
             </select>
 
         </div>
-        {% if brokers %}
         <div class="form-group col-md-3">
+            {% if brokers %}
             <label class="font-weight-bold">Broker</label>
             <select name="broker" class="form-control">
                 {% for b in brokers %}
                     <option {% if b == broker %}selected="selected"{% endif %}>{{ b }}</option>
                 {% endfor %}
             </select>
+            {% endif %}
         </div>
-        {% endif %}
         <div class="form-group col-md-2">
             <label>&nbsp;</label>
             <br>
