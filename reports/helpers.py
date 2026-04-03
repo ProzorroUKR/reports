@@ -18,7 +18,6 @@ from logging import getLogger
 
 RE = re.compile(r'(^.*)@(\d{4}-\d{2}-\d{2}--\d{4}-\d{2}-\d{2})?-([a-z\-_]*)\.zip')
 LOGGER = getLogger("BILLING")
-DEFAULT_SCHEME = "https"
 
 DEFAULT_TIMEZONE = "Europe/Kiev"
 
@@ -92,24 +91,15 @@ def thresholds_headers(cthresholds):
 @lru_cache(10000)
 @retry(wait_exponential_multiplier=1000, stop_max_attempt_number=5)
 def get_rate(currency, date, proxy_address=None):
-    if proxy_address:
-        if 'http' in proxy_address:
-            scheme = "https" if proxy_address.startswith('https') \
-                    else "http"
-        else:
-            scheme = DEFAULT_SCHEME
-    else:
-        scheme = DEFAULT_SCHEME
-    base_url = '{}://bank.gov.ua/NBUStatService'\
+    base_url = 'https://bank.gov.ua/NBUStatService'\
         '/v1/statdirectory/exchange?date={}&json'.format(
-            scheme,
             iso8601.parse_date(date).strftime('%Y%m%d')
         )
     try:
         if proxy_address:
             resp = requests.get(
                 base_url,
-                proxies={scheme: proxy_address}
+                proxies={"https": proxy_address}
                 ).text.encode('utf-8')
         else:
             resp = requests.get(base_url).text.encode('utf-8')
