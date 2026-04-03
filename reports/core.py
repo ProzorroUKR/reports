@@ -151,7 +151,7 @@ class BaseUtility(object):
                     old, row['tender'], row['currency']
                 )
                 self.Logger.fatal(msg)
-                return value, ""
+                raise ValueError
             msg = "Changed value {} {} by exgange rate {} on {} is {} UAH in {}".format(
                 old, row[u'currency'], rate, row[u'startdate'], value, row['tender']
             )
