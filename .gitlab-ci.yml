@@ -6,7 +6,7 @@ include:
 variables:
   COUCHDB_USER: admin
   COUCHDB_PASSWORD: admin
-  SEC_CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID
+  SEC_CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   SEC_CS_DOCKERFILE_PATH: docker/reports/Dockerfile
   DEFECTDOJO_ADDITIONAL_TAGS: "reports"
   DEFECTDOJO_PRODUCT_TYPE: "Web-Projects"
@@ -32,7 +32,7 @@ stages:
 build: &base_build
   stage: build
   variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
     GIT_STRATEGY: fetch
   script:
     - echo $IMAGE_TAG
@@ -54,7 +54,7 @@ build_tag:
 
 Python tests:
   stage: test
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID 
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA 
   tags:
     - kube-dev
   rules:
@@ -69,7 +69,7 @@ Python tests:
 
 Js tests:
   stage: test_js
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_PIPELINE_ID
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   tags:
     - kube-dev
   rules:
