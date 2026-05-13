@@ -1,5 +1,30 @@
+include:
+  - project: 'Web-Projects/pipeline-scripts'
+    ref: master
+    file: '/templates/security.yml'
+
+variables:
+  COUCHDB_USER: admin
+  COUCHDB_PASSWORD: admin
+  SEC_CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  SEC_CS_DOCKERFILE_PATH: docker/reports/Dockerfile
+  DEFECTDOJO_PRODUCT_TYPE: "CDB"
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "master" && $BUILT_AS_BRIDGE == null
+      when: never
+    - if: $CI_COMMIT_BRANCH && $BUILT_AS_BRIDGE
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG
+    - when: never
+
 stages:
   - build
+  - security
   - test
   - test_js
 
@@ -17,8 +42,8 @@ build: &base_build
     - shell
   rules:
     - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-    
 build_tag: 
   <<: *base_build    
   variables:
@@ -26,33 +51,29 @@ build_tag:
   rules:
     - if: $CI_COMMIT_TAG
 
-
-
-
-variables:
-  COUCHDB_USER: admin
-  COUCHDB_PASSWORD: admin
-
 Python tests:
   stage: test
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA 
   tags:
     - kube-dev
-  only:
-    - branches
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   services:
     - couchdb:1.6
   script:
     - pip install mock nose coverage
     - nosetests -v --with-coverage  --cover-package=reports
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
+
 Js tests:
   stage: test_js
   image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
   tags:
     - kube-dev
-  only:
-    - branches
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   allow_failure: true
   cache:
     paths:
